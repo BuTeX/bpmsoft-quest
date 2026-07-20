@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { after, before, test } from "node:test";
-import { createApplicationServer } from "./server.js";
+import { createApplicationServer, sanitizeProgressState } from "./server.js";
 
 let server;
 let baseUrl;
@@ -42,6 +42,14 @@ test("progress API validates player identifiers before database access", async (
   const response = await fetch(`${baseUrl}/api/progress/not-a-player`);
   assert.equal(response.status, 400);
   assert.deepEqual(await response.json(), { error: "Invalid player id" });
+});
+
+test("progress sanitizer keeps only known mission intros", () => {
+  const state = sanitizeProgressState({
+    energy: 2,
+    introSeen: ["interface", "unknown", "data", "interface"]
+  });
+  assert.deepEqual(state.introSeen, ["interface", "data"]);
 });
 
 test("admin login stays disabled without a server-side secret", async () => {

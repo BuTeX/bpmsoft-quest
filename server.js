@@ -13,6 +13,7 @@ const BODY_LIMIT_BYTES = 32 * 1024;
 const ADMIN_WINDOW_MS = 10 * 60 * 1000;
 const ADMIN_ATTEMPT_LIMIT = 5;
 const publicRootFiles = new Set(["index.html", "app.js", "styles.css"]);
+const missionKeys = ["interface", "data", "access", "process", "case", "integration", "insight", "classification", "solution"];
 
 const completionFlags = [
   "missionComplete",
@@ -67,10 +68,15 @@ function isValidPlayerId(playerId) {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(playerId);
 }
 
-function sanitizeProgressState(input) {
+export function sanitizeProgressState(input) {
   if (!input || typeof input !== "object" || Array.isArray(input)) return null;
 
-  const state = { energy: Number.isInteger(input.energy) ? Math.max(0, Math.min(input.energy, 3)) : 3 };
+  const state = {
+    energy: Number.isInteger(input.energy) ? Math.max(0, Math.min(input.energy, 3)) : 3,
+    introSeen: Array.isArray(input.introSeen)
+      ? [...new Set(input.introSeen.filter((key) => missionKeys.includes(key)))]
+      : []
+  };
   let previousComplete = true;
 
   completionFlags.forEach((flag) => {

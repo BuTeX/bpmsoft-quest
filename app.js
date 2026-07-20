@@ -2,6 +2,7 @@ const STORAGE_KEY = "bpmsoft-quest-v1";
 const ADMIN_SESSION_KEY = "bpmsoft-quest-admin";
 const PLAYER_ID_KEY = "bpmsoft-quest-player-id";
 const STORAGE_UPDATED_AT_KEY = "bpmsoft-quest-updated-at";
+const MISSION_KEYS = ["interface", "data", "access", "process", "case", "integration", "insight", "classification", "solution"];
 const COMPLETION_FLAGS = [
   "missionComplete",
   "dataMissionComplete",
@@ -29,6 +30,11 @@ const missions = {
     unlock: "Data Forge",
     startLabel: "Войти в Interface Hub",
     brief: "Гильдия продаж потеряла путь к клиентским записям. Соберите правильную структуру интерфейса и восстановите навигацию.",
+    introTitle: "Утраченный Скрипт Путей",
+    intro: [
+      "Над Interface Hub сгустился фиолетовый туман: маги-навигации потеряли древний Скрипт Путей, в котором был описан маршрут каждого пользователя по системе. Теперь менеджеры входят в рабочие места, но блуждают между пустыми залами и не могут добраться до записей клиентов.",
+      "Архивариусы нашли пять обгоревших рун, однако их порядок стёрт. Восстановите цепочку от рабочего места до связанных активностей, пока двери разделов окончательно не запечатались."
+    ],
     scene: "assets/mission-interface-hub.png",
     sceneAlt: "Фэнтезийный город интерфейсов с архивами и переходами",
     sceneKicker: "Вопрос миссии",
@@ -83,6 +89,11 @@ const missions = {
     unlock: "Access Citadel",
     startLabel: "Войти в Data Forge",
     brief: "В кузнице данных перепутали названия конструкций. Соедините каждый термин BPMSoft с его точным определением.",
+    introTitle: "Исчезновение Главного кузнеца",
+    intro: [
+      "Data Forge остыла посреди великой плавки. Главный кузнец сущностей бесследно исчез, а его подмастерья не могут запустить горны: на формах, кристаллах и связующих цепях стёрлись названия конструкций данных.",
+      "Если кузня не заработает до заката, город останется без новых объектов и справочников. Сопоставьте каждый термин с его истинным назначением и вновь разожгите пять станций Data Forge."
+    ],
     scene: "assets/mission-data-forge.png",
     sceneAlt: "Вулканическая кузница данных на карте BPMSoft Quest",
     sceneKicker: "Живая кузница данных",
@@ -145,6 +156,11 @@ const missions = {
     unlock: "Process Engine",
     startLabel: "Войти в Access Citadel",
     brief: "Пять стражей цитадели проверяют словарь модели доступа. Для каждого описания назовите точный термин BPMSoft.",
+    introTitle: "Перепутанные печати цитадели",
+    intro: [
+      "Ночью неизвестный заклинатель проник в Access Citadel и перемешал печати ролей и прав. Одни ворота теперь пропускают незваных гостей, другие не открываются даже законным хранителям, а стражи спорят, какая печать управляет операциями, записями и полями.",
+      "Цитадель нельзя оставить без защиты. Пройдите пять рубежей, назовите точный механизм доступа для каждого испытания и верните печатям их законные места."
+    ],
     scene: "assets/mission-access-citadel.png",
     sceneAlt: "Крепость Access Citadel на карте BPMSoft Quest",
     sceneKicker: "Два стража и три рубежа",
@@ -232,6 +248,11 @@ const missions = {
     unlock: "Case Arena",
     startLabel: "Запустить Process Engine",
     brief: "Входящие письма теряются в почтовом потоке. Соберите low-code процесс, который распознаёт нужное сообщение и создаёт лид или активность.",
+    introTitle: "Остановившийся почтовый двигатель",
+    intro: [
+      "Грозовой дух ударил в Process Engine, и почтовый двигатель остановился. Сотни зачарованных писем кружат над городом, но ни одно не превращается в нужную запись: модули приёма, проверки и создания данных рассыпались по энергетическому конвейеру.",
+      "Инженеры удержат поток лишь несколько минут. Соберите модули в правильной low-code последовательности, чтобы двигатель снова распознавал входящие сообщения и безопасно завершал обработку."
+    ],
     scene: "assets/mission-process-engine.png",
     sceneAlt: "Механический Process Engine на карте BPMSoft Quest",
     sceneKicker: "Энергетический конвейер",
@@ -294,6 +315,11 @@ const missions = {
     unlock: "Уровень II · Integration Harbor",
     startLabel: "Выйти на Case Arena",
     brief: "Заявки застревают между стадиями. Настройте DCM-кейс так, чтобы обязательные шаги вели запись к контролируемому результату.",
+    introTitle: "Арена без Хранителя стадий",
+    intro: [
+      "Хранитель Case Arena пропал перед началом испытаний, забрав с собой Книгу Переходов. Без её правил заявки бесконечно ходят по кругу: обязательные шаги забыты, автоматические переходы срабатывают невовремя, а завершённые дела возвращаются на старт.",
+      "Совету нужен новый распорядитель арены. Расставьте элементы DCM-кейса по пяти точкам маршрута и проведите каждую заявку через управляемый жизненный цикл к проверяемому результату."
+    ],
     scene: "assets/mission-case-arena.png",
     sceneAlt: "Круглая Case Arena на карте BPMSoft Quest",
     sceneKicker: "Маршрут по арене",
@@ -357,6 +383,11 @@ const missions = {
     unlock: "следующий зал уровня II",
     startLabel: "Открыть Integration Harbor",
     brief: "Портал должен безопасно передавать заявки в BPMSoft, не создавать дубли при повторной отправке и сразу получать регистрационный номер.",
+    introTitle: "Молчание внешнего берега",
+    intro: [
+      "Маяки Integration Harbor погасли, и сигналы с внешнего берега больше не достигают города. Некоторые послания тонут без ответа, другие возвращаются эхом и создают двойников заявок, а корабли без охранной руны пытаются войти в гавань вместе с законными гонцами.",
+      "Портовые мастера ждут архитектора шлюза. Соедините пять причалов от входящего webhook до синхронного ответа, а затем выдержите испытания нового, повторного и неавторизованного сигнала."
+    ],
     scene: "assets/mission-integration-harbor.png",
     sceneAlt: "Фэнтезийная интеграционная гавань с пятью причалами и световыми каналами данных",
     sceneKicker: "Пять причалов сигнала",
@@ -461,6 +492,11 @@ const missions = {
     unlock: "Boss: коробка или доработка",
     startLabel: "Подняться в Insight Tower",
     brief: "Руководителю нужна одна оперативная панель по обращениям. Подберите вид дашборда под каждый управленческий вопрос.",
+    introTitle: "Башня слепых зеркал",
+    intro: [
+      "Зеркала Insight Tower перестали показывать будущее города. В одном кристалле смешались числа, списки и графики, поэтому совет видит лишь сияющий шум и не понимает, сколько обращений открыто, где нарушается SLA и кто перегружен.",
+      "Старший звездочёт отправился искать новый источник света и оставил башню проводнику. Ответьте на пять управленческих вопросов, выбирая для каждого ту форму дашборда, которая превращает данные в ясный сигнал."
+    ],
     scene: "assets/mission-insight-tower.png",
     sceneAlt: "Фэнтезийная башня аналитики с пятью световыми инструментами и обсерваторией",
     sceneKicker: "Совет проводника",
@@ -550,6 +586,11 @@ const missions = {
     unlock: "Boss 09 · мини-решение",
     startLabel: "Войти в Solution Gate",
     brief: "Совет архитекторов принёс 12 требований. Определите для каждого честную границу: коробка, настройка, интеграция, разработка или сначала уточнение.",
+    introTitle: "Врата спорящих архитекторов",
+    intro: [
+      "У Solution Gate скопились двенадцать свитков с требованиями, и каждый проситель называет свою задачу простой. Архитекторы спорят: одни обещают решить всё коробкой, другие требуют кода, а сами врата не откроются, пока намерения не будут разделены честно.",
+      "Возьмите на себя роль судьи Совета. Разложите требования по пяти путям — базовый функционал, low-code, интеграция, разработка и TBD — чтобы город не потратил магию на неверное решение."
+    ],
     scene: "assets/mission-solution-gate.png",
     sceneAlt: "Фэнтезийный зал архитектурного выбора с пятью вратами и двенадцатью кристаллами требований",
     sceneKicker: "Архитектурный трибунал",
@@ -676,6 +717,11 @@ const missions = {
     completeUnlock: "Новая карта · следующая глава",
     startLabel: "Войти в City Nexus",
     brief: "Город готов к запуску, но его шесть систем ещё не соединены. Соберите контур обработки обращений и проведите три приёмочных испытания.",
+    introTitle: "Погасшее сердце City Nexus",
+    intro: [
+      "Все районы первого города построены, но City Nexus остаётся тёмным. Шесть ключевых систем работают поодиночке: интерфейс не знает справочников, права не следуют за заявкой, автоматизация не подаёт сигнал аналитической башне.",
+      "Чтобы зажечь сердце города, нужен единый архитектурный замысел. Соедините шесть узлов мини-решения, а затем докажите его жизнеспособность в испытаниях регистрации, доступа и эскалации."
+    ],
     scene: "assets/mission-city-nexus.png",
     sceneAlt: "Фэнтезийный город City Nexus с шестью связанными системами обработки обращений",
     sceneKicker: "Финальная архитектура города",
@@ -805,6 +851,7 @@ const initialState = {
   selected: [],
   attempts: 1,
   activeMission: "interface",
+  introSeen: [],
   activeSlot: 0,
   answerOrders: {},
   missionComplete: false,
@@ -863,6 +910,14 @@ const elements = {
   adminError: document.getElementById("admin-error"),
   adminCancel: document.getElementById("admin-cancel"),
   adminSubmit: document.getElementById("admin-submit"),
+  missionIntro: document.getElementById("mission-intro"),
+  missionIntroImage: document.getElementById("mission-intro-image"),
+  missionIntroNumber: document.getElementById("mission-intro-number"),
+  missionIntroKicker: document.getElementById("mission-intro-kicker"),
+  missionIntroTitle: document.getElementById("mission-intro-title"),
+  missionIntroCopy: document.getElementById("mission-intro-copy"),
+  missionIntroMap: document.getElementById("mission-intro-map"),
+  missionIntroStart: document.getElementById("mission-intro-start"),
   startMission: document.getElementById("start-mission"),
   backToMap: document.getElementById("back-to-map"),
   resetProgress: document.getElementById("reset-progress"),
@@ -1023,6 +1078,9 @@ async function submitAdminDialog(event) {
 function normalizeState(saved) {
   try {
     const merged = saved ? { ...initialState, ...saved } : { ...initialState };
+    merged.introSeen = Array.isArray(merged.introSeen)
+      ? [...new Set(merged.introSeen.filter((key) => MISSION_KEYS.includes(key)))]
+      : [];
     merged.selected = [];
     merged.attempts = 1;
     merged.activeSlot = 0;
@@ -1116,6 +1174,9 @@ function loadState() {
 function getPersistedState(sourceState = state) {
   return {
     energy: sourceState.energy,
+    introSeen: Array.isArray(sourceState.introSeen)
+      ? sourceState.introSeen.filter((key) => MISSION_KEYS.includes(key))
+      : [],
     ...Object.fromEntries(COMPLETION_FLAGS.map((flag) => [flag, sourceState[flag] === true]))
   };
 }
@@ -3392,6 +3453,38 @@ function showView(view) {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
+function hideMissionIntro() {
+  elements.missionIntro.hidden = true;
+  delete elements.missionIntro.dataset.mission;
+  document.body?.classList.remove("has-mission-intro");
+}
+
+function openMissionIntro(mission = getMission()) {
+  elements.missionIntro.dataset.mission = mission.key;
+  elements.missionIntroImage.src = mission.scene;
+  elements.missionIntroImage.alt = mission.sceneAlt;
+  elements.missionIntroNumber.textContent = mission.number;
+  elements.missionIntroKicker.textContent = `Предание · ${mission.zone}`;
+  elements.missionIntroTitle.textContent = mission.introTitle;
+  elements.missionIntroCopy.innerHTML = mission.intro.map((paragraph) => `<p>${paragraph}</p>`).join("");
+  elements.missionIntro.hidden = false;
+  document.body?.classList.add("has-mission-intro");
+}
+
+function acceptMissionIntro() {
+  const missionKey = elements.missionIntro.dataset.mission || state.activeMission;
+  if (!state.introSeen.includes(missionKey)) {
+    state.introSeen = [...state.introSeen, missionKey];
+    saveState();
+  }
+  hideMissionIntro();
+}
+
+function dismissMissionIntro() {
+  hideMissionIntro();
+  showView("map");
+}
+
 function beginMission(key) {
   if (key === "data" && !state.missionComplete) return;
   if (key === "access" && !state.dataMissionComplete) return;
@@ -3437,6 +3530,8 @@ function beginMission(key) {
   renderBuilder();
   setMissionStep(0);
   showView("mission");
+  if (state.introSeen.includes(key)) hideMissionIntro();
+  else openMissionIntro(missions[key]);
 }
 
 function resetProgress() {
@@ -3458,6 +3553,8 @@ function renderAll() {
 }
 
 elements.startMission.addEventListener("click", (event) => beginMission(event.currentTarget.dataset.mission));
+elements.missionIntroStart.addEventListener("click", acceptMissionIntro);
+elements.missionIntroMap.addEventListener("click", dismissMissionIntro);
 elements.adminToggle.addEventListener("click", toggleAdminMode);
 elements.adminForm.addEventListener("submit", submitAdminDialog);
 elements.adminCancel.addEventListener("click", closeAdminDialog);
