@@ -110,6 +110,9 @@ const exports = `
     loadState,
     renderAll,
     beginMission,
+    openMissionIntro,
+    acceptMissionIntro,
+    dismissMissionIntro,
     shuffleAnswers,
     checkSolution,
     assignEngineModule,
@@ -129,6 +132,18 @@ const assert = (condition, message) => {
 };
 
 Object.values(api.missions).forEach((mission) => {
+  assert(Array.isArray(mission.intro) && mission.intro.length >= 2, `${mission.key}: lore intro needs at least two paragraphs`);
+  assert(
+    mission.intro.every((paragraph) => typeof paragraph === "string" && paragraph.length >= 120),
+    `${mission.key}: lore intro paragraphs are too short`
+  );
+  api.openMissionIntro(mission);
+  assert(elements.get("mission-intro-title").textContent === mission.introTitle, `${mission.key}: lore title was not rendered`);
+  assert(
+    (elements.get("mission-intro-copy").innerHTML.match(/<p>/g) || []).length === mission.intro.length,
+    `${mission.key}: not all lore paragraphs were rendered`
+  );
+
   for (let iteration = 0; iteration < 25; iteration += 1) {
     if (mission.mode === "classification") {
       const shuffledCategories = api.shuffleAnswers(mission.tools);
@@ -195,6 +210,24 @@ api.beginMission("data");
 assert(api.getState().activeMission === "interface", "Locked Data Forge was opened");
 
 api.beginMission("interface");
+assert(!elements.get("mission-intro").hidden, "Interface lore intro did not open on first visit");
+assert(
+  (elements.get("mission-intro-copy").innerHTML.match(/<p>/g) || []).length >= 2,
+  "Interface lore intro does not render two paragraphs"
+);
+api.dismissMissionIntro();
+assert(!api.getState().introSeen.includes("interface"), "Dismissed Interface lore intro was marked as seen");
+api.beginMission("interface");
+assert(!elements.get("mission-intro").hidden, "Dismissed Interface lore intro did not reopen");
+api.acceptMissionIntro();
+assert(elements.get("mission-intro").hidden, "Interface lore intro did not close after acceptance");
+assert(api.getState().introSeen.includes("interface"), "Accepted Interface lore intro was not remembered");
+assert(
+  JSON.parse(storage.get("bpmsoft-quest-v1")).introSeen.includes("interface"),
+  "Accepted Interface lore intro was not persisted"
+);
+api.beginMission("interface");
+assert(elements.get("mission-intro").hidden, "Interface lore intro reopened after acceptance");
 assert(elements.get("scene-kicker").textContent === "Вопрос миссии", "Interface mission does not label its central question");
 assert(
   elements.get("scene-copy").textContent.endsWith("?"),
