@@ -195,6 +195,11 @@ api.beginMission("data");
 assert(api.getState().activeMission === "interface", "Locked Data Forge was opened");
 
 api.beginMission("interface");
+assert(elements.get("scene-kicker").textContent === "Вопрос миссии", "Interface mission does not label its central question");
+assert(
+  elements.get("scene-copy").textContent.endsWith("?"),
+  "Interface mission does not show an explicit question"
+);
 const interfaceToolOrder = api.getState().answerOrders["interface:tools"];
 const interfaceCorrectOrder = interfaceToolOrder.filter((id) => api.missions.interface.correct.includes(id));
 assert(!api.missions.interface.correct.includes(interfaceToolOrder[0]), "Interface palette starts with a correct answer");
