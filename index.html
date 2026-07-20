@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1B0B3B">
+  <title>Академия Гуд программ | BPMSoft Quest</title>
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png?v=20260720-1">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=20260720-1">
+  <link rel="icon" type="image/png" sizes="512x512" href="assets/favicon.png?v=20260720-1">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png?v=20260720-1">
+  <link rel="stylesheet" href="styles.css?v=20260720-mission09">
+</head>
+<body>
+  <div class="game-shell">
+    <div id="admin-modal" class="admin-modal" hidden>
+      <form id="admin-form" class="admin-dialog" role="dialog" aria-modal="true" aria-labelledby="admin-dialog-title" aria-describedby="admin-dialog-copy">
+        <p class="eyebrow">Администрирование</p>
+        <h2 id="admin-dialog-title">Вход в админ панель</h2>
+        <p id="admin-dialog-copy">Введите пароль, чтобы увидеть правильные ответы.</p>
+        <label id="admin-password-field" class="admin-password-field" for="admin-password">
+          <span>Пароль</span>
+          <input id="admin-password" name="password" type="password" autocomplete="current-password" required>
+        </label>
+        <p id="admin-error" class="admin-error" role="alert" hidden>Неверный пароль. Попробуйте ещё раз.</p>
+        <div class="admin-dialog-actions">
+          <button id="admin-cancel" class="secondary-action" type="button">Отмена</button>
+          <button id="admin-submit" class="primary-action" type="submit">Войти</button>
+        </div>
+      </form>
+    </div>
+
+    <header class="topbar">
+      <div class="brand" aria-label="BPMSoft Quest">
+        <div class="company-logo-wrap">
+          <img class="company-logo" src="assets/good-program-logo-color.png" alt="Гуд Программ">
+        </div>
+        <div>
+          <p class="brand-kicker">Академия Гуд программ</p>
+          <h1>BPMSoft Quest</h1>
+        </div>
+      </div>
+
+      <div class="player-stats" aria-label="Прогресс игрока">
+        <button id="admin-toggle" class="admin-action" type="button" aria-pressed="false">Войти в админ панель</button>
+        <div class="level-seal">
+          <span>Уровень</span>
+          <strong id="level-value">1</strong>
+        </div>
+        <div class="xp-stat">
+          <div class="stat-line">
+            <span>Опыт</span>
+            <strong><span id="xp-value">0</span> / <span id="xp-goal">250</span> XP</strong>
+          </div>
+          <div class="progress-track" aria-label="Шкала опыта">
+            <div id="xp-bar" class="progress-fill"></div>
+          </div>
+        </div>
+        <div class="energy-stat" aria-label="Энергия низкого кода">
+          <span>Энергия</span>
+          <div id="energy-runes" class="energy-runes"></div>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section id="map-view" class="view is-active" aria-labelledby="map-title">
+        <div class="map-layout">
+          <aside class="zone-journal" aria-label="Журнал зон">
+            <div class="panel-heading">
+              <p id="map-level-label" class="eyebrow">Уровень I</p>
+              <h2 id="map-title">Основы платформы</h2>
+            </div>
+            <ol class="zone-list">
+              <li class="is-current" data-zone-row="interface">
+                <button type="button" data-zone="interface">
+                  <span class="zone-index">01</span>
+                  <span><strong>Interface Hub</strong><small>5 терминов интерфейса</small></span>
+                </button>
+              </li>
+              <li data-zone-row="data">
+                <button type="button" data-zone="data" disabled>
+                  <span class="zone-index">02</span>
+                  <span><strong>Data Forge</strong><small>5 терминов данных</small></span>
+                </button>
+              </li>
+              <li data-zone-row="access">
+                <button type="button" data-zone="access" disabled>
+                  <span class="zone-index">03</span>
+                  <span><strong>Access Citadel</strong><small>5 терминов доступа</small></span>
+                </button>
+              </li>
+              <li data-zone-row="process">
+                <button type="button" data-zone="process" disabled>
+                  <span class="zone-index">04</span>
+                  <span><strong>Process Engine</strong><small>Low-code автоматизация</small></span>
+                </button>
+              </li>
+              <li data-zone-row="case">
+                <button type="button" data-zone="case" disabled>
+                  <span class="zone-index">05</span>
+                  <span><strong>Case Arena</strong><small>DCM-кейсы</small></span>
+                </button>
+              </li>
+              <li data-zone-row="integration">
+                <button type="button" data-zone="integration" disabled>
+                  <span class="zone-index">06</span>
+                  <span><strong>Integration Harbor</strong><small>Входящий интеграционный шлюз</small></span>
+                </button>
+              </li>
+              <li data-zone-row="insight">
+                <button type="button" data-zone="insight" disabled>
+                  <span class="zone-index">07</span>
+                  <span><strong>Insight Tower</strong><small>Дашборды и KPI</small></span>
+                </button>
+              </li>
+              <li data-zone-row="classification">
+                <button type="button" data-zone="classification" disabled>
+                  <span class="zone-index">08</span>
+                  <span><strong>Solution Gate</strong><small>Коробка или доработка</small></span>
+                </button>
+              </li>
+              <li data-zone-row="solution">
+                <button type="button" data-zone="solution" disabled>
+                  <span class="zone-index">09</span>
+                  <span><strong>City Nexus</strong><small>Собери мини-решение</small></span>
+                </button>
+              </li>
+            </ol>
+            <button id="reset-progress" class="text-action" type="button">Сбросить прогресс</button>
+          </aside>
+
+          <section class="world-stage" aria-label="Игровая карта BPMSoft">
+            <img class="world-map" src="assets/world-map.png" alt="Фэнтезийная карта регионов BPMSoft Quest">
+
+            <button class="map-node node-interface is-current" type="button" data-zone="interface" style="--x: 29%; --y: 29%;">
+              <span class="node-pin">01</span>
+              <span class="node-label">Interface Hub</span>
+            </button>
+            <button class="map-node node-data" type="button" data-zone="data" style="--x: 53%; --y: 20%;" disabled>
+              <span class="node-pin">02</span>
+              <span class="node-label">Data Forge</span>
+            </button>
+            <button class="map-node node-access" type="button" data-zone="access" style="--x: 82%; --y: 38%;" disabled>
+              <span class="node-pin">03</span>
+              <span class="node-label">Access Citadel</span>
+            </button>
+            <button class="map-node node-process" type="button" data-zone="process" style="--x: 47%; --y: 49%;" disabled>
+              <span class="node-pin">04</span>
+              <span class="node-label">Process Engine</span>
+            </button>
+            <button class="map-node node-case" type="button" data-zone="case" style="--x: 68%; --y: 69%;" disabled>
+              <span class="node-pin">05</span>
+              <span class="node-label">Case Arena</span>
+            </button>
+            <button class="map-node node-integration" type="button" data-zone="integration" style="--x: 18%; --y: 72%;" disabled>
+              <span class="node-pin">06</span>
+              <span class="node-label">Integration Harbor</span>
+            </button>
+            <button class="map-node node-insight" type="button" data-zone="insight" style="--x: 86%; --y: 16%;" disabled>
+              <span class="node-pin">07</span>
+              <span class="node-label">Insight Tower</span>
+            </button>
+            <button class="map-node node-classification" type="button" data-zone="classification" style="--x: 91%; --y: 84%;" disabled>
+              <span class="node-pin">08</span>
+              <span class="node-label">Solution Gate</span>
+            </button>
+            <button class="map-node node-solution" type="button" data-zone="solution" style="--x: 52%; --y: 87%;" disabled>
+              <span class="node-pin">09</span>
+              <span class="node-label">City Nexus</span>
+            </button>
+            <div class="map-caption" aria-hidden="true">Архипелаг конфигурации</div>
+          </section>
+
+          <aside class="quest-brief">
+            <div class="mentor-block">
+              <div class="mentor-portrait">
+                <img src="assets/mentor-archivist.png" alt="Профессор Гуд Программиус, проводник по BPMSoft">
+              </div>
+              <div>
+                <p class="eyebrow">Проводник</p>
+                <strong>Профессор Гуд Программиус</strong>
+              </div>
+            </div>
+            <div class="brief-copy">
+              <p id="brief-number" class="quest-number">Задание 01</p>
+              <h2 id="brief-title">Где живёт работа</h2>
+              <p id="brief-copy">Гильдия продаж потеряла путь к клиентским записям. Соберите правильную структуру интерфейса и восстановите навигацию.</p>
+              <dl class="reward-list">
+                <div><dt>Награда</dt><dd id="brief-reward">до 55 XP</dd></div>
+                <div><dt>Время</dt><dd id="brief-time">3–5 минут</dd></div>
+                <div><dt>Откроет</dt><dd id="brief-unlock">Data Forge</dd></div>
+              </dl>
+            </div>
+            <button id="start-mission" class="primary-action" type="button">Войти в Interface Hub</button>
+          </aside>
+        </div>
+      </section>
+
+      <section id="mission-view" class="view" aria-labelledby="mission-title" hidden>
+        <div class="mission-layout">
+          <aside class="mission-rail">
+            <button id="back-to-map" class="back-action" type="button">← На карту</button>
+            <div class="chapter-stamp">
+              <span>Задание</span>
+              <strong id="mission-number">01</strong>
+            </div>
+            <ol class="mission-steps" aria-label="Этапы миссии">
+              <li class="is-active">Получить задачу</li>
+              <li id="mission-step-two">Собрать путь</li>
+              <li>Проверить решение</li>
+            </ol>
+            <div class="lore-note">
+              <span>Знание</span>
+              <p id="lore-copy">Интерфейс BPMSoft строится от рабочего места к конкретной записи и её связанным данным.</p>
+            </div>
+          </aside>
+
+          <section id="mission-workspace" class="mission-workspace">
+            <header class="mission-header">
+              <div>
+                <p id="mission-zone" class="eyebrow">Interface Hub</p>
+                <h2 id="mission-title">Где живёт работа</h2>
+              </div>
+              <span id="attempt-badge" class="attempt-badge">Попытка 1</span>
+            </header>
+
+            <div id="scene-banner" class="scene-banner">
+              <img id="scene-image" src="assets/mission-interface-hub.png" alt="Фэнтезийный город интерфейсов с архивами и переходами">
+              <div id="scene-route" class="scene-route" aria-label="Маршрут по сцене" aria-live="polite" hidden></div>
+              <div id="forge-layer" class="forge-layer" aria-label="Интерактивные станции кузницы" aria-live="polite" hidden></div>
+              <div id="access-layer" class="access-layer" aria-label="Стражи и рубежи цитадели" aria-live="polite" hidden></div>
+              <div id="engine-layer" class="engine-layer" aria-label="Узлы конвейера Process Engine" aria-live="polite" hidden></div>
+              <div id="arena-layer" class="node-layer arena-layer" aria-label="Узлы жизненного цикла на Case Arena" aria-live="polite" hidden></div>
+              <div id="harbor-layer" class="node-layer harbor-layer" aria-label="Причалы Integration Harbor" aria-live="polite" hidden></div>
+              <div id="dialog-layer" class="dialog-layer" aria-label="Диалог с проводником" aria-live="polite" hidden></div>
+              <div class="scene-copy">
+                <span id="scene-kicker" class="scene-kicker">Ситуация</span>
+                <p id="scene-copy">Менеджеру нужно видеть список клиентов, открывать карточку клиента и работать со связанными активностями.</p>
+              </div>
+            </div>
+
+            <div id="build-area" class="build-area">
+              <div class="section-title">
+                <div>
+                  <p id="build-eyebrow" class="eyebrow">Термины интерфейса</p>
+                  <h3 id="build-title">Соберите цепочку из пяти терминов</h3>
+                </div>
+                <span id="selection-count">0 / 5</span>
+              </div>
+              <div id="solution-slots" class="solution-slots" aria-label="Собранное решение"></div>
+            </div>
+
+            <div id="tool-area" class="tool-area">
+              <div class="section-title">
+                <div>
+                  <p id="palette-eyebrow" class="eyebrow">Арсенал</p>
+                  <h3 id="palette-title">Термины BPMSoft</h3>
+                </div>
+                <button id="clear-build" class="secondary-action" type="button">Очистить</button>
+              </div>
+              <div id="tool-palette" class="tool-palette"></div>
+            </div>
+
+            <div class="mission-actions">
+              <p id="mission-hint">Выбирайте инструменты в порядке, в котором с ними встретится пользователь.</p>
+              <button id="check-solution" class="primary-action" type="button">Проверить сборку</button>
+            </div>
+
+            <section id="feedback-panel" class="feedback-panel" aria-live="polite" hidden>
+              <div>
+                <p id="feedback-kicker" class="eyebrow">Результат</p>
+                <h3 id="feedback-title"></h3>
+                <p id="feedback-copy"></p>
+              </div>
+              <div class="score-seal">
+                <strong id="score-value">0</strong>
+                <span>XP</span>
+              </div>
+              <ol id="feedback-path" class="feedback-path"></ol>
+              <button id="feedback-action" class="secondary-action" type="button">Попробовать ещё раз</button>
+            </section>
+          </section>
+
+          <aside class="codex-panel">
+            <p class="eyebrow">Кодекс платформы</p>
+            <h2 id="codex-title">Пять опор интерфейса</h2>
+            <dl id="codex-list">
+              <div><dt>Рабочее место</dt><dd>Группирует разделы под роль и сценарий.</dd></div>
+              <div><dt>Раздел</dt><dd>Точка входа в работу с объектом.</dd></div>
+              <div><dt>Реестр</dt><dd>Список записей, поиск и фильтрация.</dd></div>
+              <div><dt>Карточка</dt><dd>Форма одной записи.</dd></div>
+              <div><dt>Деталь</dt><dd>Связанные записи внутри карточки.</dd></div>
+            </dl>
+            <div class="source-note">
+              <span>Источник знания</span>
+              <p id="source-copy">Документация BPMSoft 1.9: интерфейс, страницы раздела, создание и настройка деталей.</p>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section id="finale-view" class="view finale-view" aria-labelledby="finale-title" hidden>
+        <div class="finale-card">
+          <div class="finale-crest" aria-hidden="true"><span>✓</span></div>
+          <p class="eyebrow">Первый город завершён</p>
+          <h2 id="finale-title">Архипелаг конфигурации освоен</h2>
+          <p class="finale-lead">Вы прошли девять заданий и собрали целостное решение BPMSoft: от интерфейса и данных до доступа, автоматизации и аналитики.</p>
+
+          <div class="finale-stats" aria-label="Итоги главы">
+            <div><strong>9 / 9</strong><span>заданий</span></div>
+            <div><strong>500 XP</strong><span>опыта</span></div>
+            <div><strong>250 / 250</strong><span>уровень II</span></div>
+          </div>
+
+          <div class="achievement-card">
+            <span class="achievement-icon" aria-hidden="true">◆</span>
+            <div>
+              <p class="eyebrow">Новое достижение</p>
+              <h3>Архитектор первого города</h3>
+              <p>Вы связали шесть механизмов платформы в одну работающую систему обработки обращений.</p>
+            </div>
+          </div>
+
+          <div class="next-expedition">
+            <p class="eyebrow">Следующая экспедиция</p>
+            <h3>Новая карта — новая стилистика</h3>
+            <p>Следующая глава будет отдельной картой с усложнёнными заданиями. Этот город остаётся завершённым и доступным для повторного прохождения.</p>
+          </div>
+
+          <div class="finale-actions">
+            <button id="finale-map-action" class="primary-action" type="button">Вернуться на карту города</button>
+            <button id="finale-replay-action" class="secondary-action" type="button">Повторить финальный boss</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="app.js?v=20260720-mission09"></script>
+</body>
+</html>

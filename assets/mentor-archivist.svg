@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+  <title id="title">Профессор Гуд Программиус</title>
+  <rect width="512" height="512" fill="#29474a"/>
+  <circle cx="256" cy="226" r="166" fill="#d4bd7b" stroke="#1c3132" stroke-width="18"/>
+  <path d="M95 500 C116 386 170 341 256 341 C342 341 397 386 417 500Z" fill="#7d5360" stroke="#1c3132" stroke-width="16"/>
+  <path d="M154 210 C156 126 198 91 256 91 C316 91 358 128 358 211 V284 C358 348 316 386 256 386 C197 386 154 348 154 284Z" fill="#d9b68b" stroke="#1c3132" stroke-width="16"/>
+  <path d="M119 193 C126 92 187 29 267 22 C347 15 405 69 419 157 L348 139 L315 81 L274 139 L212 102 L180 168Z" fill="#385c58" stroke="#1c3132" stroke-width="16"/>
+  <path d="M180 306 C202 277 220 271 256 286 C290 271 312 281 333 308 C323 369 295 408 256 418 C215 405 191 370 180 306Z" fill="#eef0e1" stroke="#1c3132" stroke-width="12"/>
+  <path d="M204 221 Q225 205 246 222 M274 222 Q296 204 318 221" fill="none" stroke="#1c3132" stroke-width="12" stroke-linecap="round"/>
+  <circle cx="224" cy="232" r="8" fill="#315e6c"/>
+  <circle cx="294" cy="232" r="8" fill="#315e6c"/>
+  <path d="M242 269 Q257 283 276 269" fill="none" stroke="#8e5543" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="369" cy="110" r="21" fill="#e0b958" stroke="#1c3132" stroke-width="10"/>
+</svg>

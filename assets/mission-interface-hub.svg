@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 500" role="img" aria-labelledby="title desc">
+  <title id="title">Interface Hub</title>
+  <desc id="desc">Панорама фэнтезийного города с пятью связанными зданиями.</desc>
+  <rect width="1600" height="500" fill="#527e8b"/>
+  <path d="M0 304 C180 230 318 274 453 239 C611 198 774 248 918 213 C1094 171 1314 224 1600 153 V500 H0Z" fill="#345e59"/>
+  <circle cx="1322" cy="104" r="62" fill="#e3c16a" opacity="0.9"/>
+  <g fill="#213f3e" opacity="0.78">
+    <path d="M0 329 L170 211 L294 328Z"/><path d="M176 329 L391 177 L545 329Z"/><path d="M1030 315 L1251 142 L1434 315Z"/><path d="M1262 324 L1481 192 L1600 307 V376Z"/>
+  </g>
+  <path d="M46 454 C277 390 476 413 668 368 C874 320 1085 385 1554 291" fill="none" stroke="#c7ab6a" stroke-width="31" stroke-linecap="round"/>
+  <path d="M46 454 C277 390 476 413 668 368 C874 320 1085 385 1554 291" fill="none" stroke="#7e704f" stroke-width="4" stroke-dasharray="16 22"/>
+
+  <g stroke="#1a3031" stroke-width="9" stroke-linejoin="round">
+    <g transform="translate(185 323)">
+      <path d="M-106 112 V-20 L0 -100 L106 -20 V112Z" fill="#d3b66d"/>
+      <path d="M-127 -14 L0 -123 L127 -14 L103 8 L0 -78 L-102 8Z" fill="#7f5060"/>
+      <path d="M-34 112 V43 H34 V112Z" fill="#31565a"/>
+    </g>
+    <g transform="translate(499 316)">
+      <path d="M-105 116 V-26 H105 V116Z" fill="#91a281"/>
+      <path d="M-126 -26 H126 L92 -84 H-93Z" fill="#c2694d"/>
+      <path d="M-69 4 H-17 V51 H-69Z M18 4 H70 V51 H18Z M-27 116 V62 H28 V116Z" fill="#355659"/>
+    </g>
+    <g transform="translate(800 286)">
+      <path d="M-126 144 V-40 H126 V144Z" fill="#c7b47a"/>
+      <path d="M-146 -39 H146 V-87 H-146Z" fill="#516f69"/>
+      <path d="M-86 3 H-25 V57 H-86Z M25 3 H86 V57 H25Z M-35 144 V72 H35 V144Z" fill="#344d4f"/>
+      <path d="M-63 -87 V-135 H64 V-87" fill="#7d5360"/>
+    </g>
+    <g transform="translate(1110 311)">
+      <path d="M-100 117 V-26 L0 -109 L100 -26 V117Z" fill="#a8775d"/>
+      <path d="M-120 -17 L0 -135 L120 -17 L98 5 L0 -83 L-97 5Z" fill="#516f69"/>
+      <path d="M-30 117 V44 H31 V117Z" fill="#2d4d50"/>
+    </g>
+    <g transform="translate(1390 298)">
+      <path d="M-103 130 V-8 H103 V130Z" fill="#728c78"/>
+      <path d="M-124 -8 H124 L88 -80 H-89Z" fill="#7f5060"/>
+      <path d="M-63 21 H-14 V67 H-63Z M15 21 H64 V67 H15Z M-28 130 V78 H28 V130Z" fill="#294a4d"/>
+    </g>
+  </g>
+
+  <g fill="#e0bd64" stroke="#1a3031" stroke-width="6">
+    <circle cx="294" cy="374" r="14"/><circle cx="633" cy="366" r="14"/><circle cx="954" cy="342" r="14"/><circle cx="1242" cy="320" r="14"/>
+  </g>
+</svg>
