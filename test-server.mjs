@@ -33,6 +33,31 @@ test("static application is served with security headers", async () => {
   assert.match(html, /BPMSoft Quest/);
 });
 
+test("chapter 2 scripts, styles and generated art are public", async () => {
+  const files = [
+    "chapter2.css",
+    "chapter2-missions.js",
+    "chapter2.js",
+    "assets/chapter2-world-map.png",
+    "assets/chapter2-mentor-hephaestus.png",
+    "assets/chapter2-scout-bolt.png",
+    "assets/mission-sorting-furnace.png",
+    "assets/mission-portal-gate.png",
+    "assets/mission-signal-yard.png",
+    "assets/mission-cycle-foundry.png",
+    "assets/mission-package-depot.png",
+    "assets/mission-trace-furnace.png",
+    "assets/mission-change-assembly.png",
+    "assets/mission-oracle-forge.png",
+    "assets/mission-contour-heart.png"
+  ];
+
+  const responses = await Promise.all(files.map((file) => fetch(`${baseUrl}/${file}`, { method: "HEAD" })));
+  responses.forEach((response, index) => {
+    assert.equal(response.status, 200, `${files[index]} is not served`);
+  });
+});
+
 test("server-side source files are not exposed as static assets", async () => {
   const response = await fetch(`${baseUrl}/server.js`);
   assert.equal(response.status, 404);

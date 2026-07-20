@@ -12,7 +12,14 @@ const SCHEMA_PATH = path.join(ROOT_DIR, "db", "schema.sql");
 const BODY_LIMIT_BYTES = 32 * 1024;
 const ADMIN_WINDOW_MS = 10 * 60 * 1000;
 const ADMIN_ATTEMPT_LIMIT = 5;
-const publicRootFiles = new Set(["index.html", "app.js", "styles.css"]);
+const publicRootFiles = new Set([
+  "index.html",
+  "app.js",
+  "styles.css",
+  "chapter2.css",
+  "chapter2-missions.js",
+  "chapter2.js"
+]);
 const missionKeys = ["interface", "data", "access", "process", "case", "integration", "insight", "classification", "solution"];
 
 const completionFlags = [

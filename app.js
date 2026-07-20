@@ -3636,5 +3636,18 @@ document.querySelectorAll('[data-zone="solution"]').forEach((button) => {
 elements.finaleMapAction.addEventListener("click", () => showView("map"));
 elements.finaleReplayAction.addEventListener("click", () => beginMission("solution"));
 
+if (typeof window !== "undefined") {
+  window.BPMQuestFirstChapter = {
+    getState: () => state,
+    isAdminActive: () => adminActive,
+    showMap: () => {
+      hideMissionIntro();
+      renderAll();
+      showView("map");
+    },
+    renderAll
+  };
+}
+
 renderAll();
 syncStateFromServer();

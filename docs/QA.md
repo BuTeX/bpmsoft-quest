@@ -7,15 +7,15 @@
 Из корня активной рабочей копии:
 
 ```bash
-node --check app.js
-node --check test-mission.mjs
-node test-mission.mjs
+npm test
 ```
 
 Ожидаемый итог:
 
 ```text
 Missions 01–09, city finale, progression, penalties, migration, persistence and replay: OK
+Chapter 2 isolated state, canonical progression and persistence: OK
+Chapter 2 missions 10–18, penalties, locks, progression, finale and replay: OK
 ```
 
 ## 2. Что покрывает `test-mission.mjs`
@@ -59,6 +59,12 @@ Missions 01–09, city finale, progression, penalties, migration, persistence an
 - сохранение в `localStorage`;
 - отсутствие повторной награды при replay.
 
+Дополнительно:
+
+- `test-chapter2.mjs` проверяет изоляцию `bpmsoft-quest-chapter2-v1`, канонизацию XP и сохранение;
+- `test-chapter2-missions.mjs` проходит миссии 10–18, штраф, фиксацию правильных ответов, уровни III–IV, финал и replay;
+- `test-server.mjs` проверяет health/security/API и публичную раздачу CSS, JS, карты, портретов и девяти панорам второй главы.
+
 ## 3. Проверка ассетов
 
 Убедиться, что все ссылки разрешаются:
@@ -76,6 +82,9 @@ rg -o 'assets/[A-Za-z0-9_./-]+\.(png|ttf|svg|jpg|jpeg|webp)' index.html styles.c
 - `assets/good-program-logo-color.png`;
 - отдельные квадратные фавиконы `16 × 16`, `32 × 32`, `512 × 512` и `apple-touch-icon` `180 × 180`;
 - панорамы миссий 01–09;
+- `assets/chapter2-world-map.png` — `1600 × 1000`;
+- `assets/chapter2-mentor-hephaestus.png` и `assets/chapter2-scout-bolt.png` — `1024 × 1536`;
+- панорамы миссий 10–18 — `1600 × 500`;
 - `assets/mission-insight-tower.png` — `1600 × 500`;
 - `assets/mission-solution-gate.png` — `1600 × 500`;
 - `assets/mission-city-nexus.png` — `1600 × 500`;
@@ -97,6 +106,10 @@ curl -I http://127.0.0.1:4173/app.js
 curl -I http://127.0.0.1:4173/assets/world-map.png
 curl -I http://127.0.0.1:4173/assets/mission-insight-tower.png
 curl -I http://127.0.0.1:4173/assets/mission-city-nexus.png
+curl -I http://127.0.0.1:4173/chapter2.css
+curl -I http://127.0.0.1:4173/chapter2.js
+curl -I http://127.0.0.1:4173/assets/chapter2-world-map.png
+curl -I http://127.0.0.1:4173/assets/mission-contour-heart.png
 ```
 
 Ожидается HTTP `200`. После перезагрузки компьютера сервер нужно запускать заново.
@@ -162,6 +175,12 @@ curl -I http://127.0.0.1:4173/assets/mission-city-nexus.png
 - подтверждение выхода — успешно: «Отмена» сохраняет режим и подсветку, «Выйти» возвращает кнопку входа и удаляет подсветку;
 - mobile `390 × 844`: кнопка расположена слева от блока «Уровень», модальное окно помещается между `20 px` и `370 px`, `scrollWidth = 390`;
 - ошибки консоли: отсутствуют.
+- Медный Предел desktop `1440 × 1000` — успешно: пролог, карта, бриф, панорама Sorting Furnace и рабочая область читаемы; карта `1600 × 1000` и динамическая панорама загружены;
+- Медный Предел mobile `390 × 844` — успешно: `scrollWidth = viewportWidth = 390`, карта имеет высоту `560 px`, миссия перестраивается в один поток, панорама занимает `352 × 308` без горизонтального overflow;
+- переключатель глав, пролог и запуск миссии проверены в реальном браузере; кнопки представлены нативными `button`, порядок фокуса доступен;
+- reduced-motion контракт подтверждён двумя `@media (prefers-reduced-motion: reduce)`: глобальные transition сокращаются, а анимации карты/пролога отключаются;
+- после чистого reload загружены `chapter2.css`, два JS-файла главы и карта; console error/warning отсутствуют;
+- обнаруженный при QA дефект 404 для корневых файлов второй главы исправлен расширением `publicRootFiles` в `server.js` и зафиксирован серверным тестом.
 
 ## 6. Регрессия при добавлении миссии
 

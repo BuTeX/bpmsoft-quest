@@ -10,6 +10,7 @@
   <link rel="icon" type="image/png" sizes="512x512" href="assets/favicon.png?v=20260720-1">
   <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png?v=20260720-1">
   <link rel="stylesheet" href="styles.css?v=20260720-lore-review">
+  <link rel="stylesheet" href="chapter2.css?v=20260720-copper-map">
 </head>
 <body>
   <div class="game-shell">
@@ -54,6 +55,47 @@
       </section>
     </div>
 
+    <div id="chapter2-prologue" class="c2-prologue" hidden>
+      <section class="c2-prologue-dialog" role="dialog" aria-modal="true" aria-labelledby="chapter2-prologue-title" aria-describedby="chapter2-prologue-copy">
+        <div class="c2-prologue-visual" aria-hidden="true">
+          <img class="c2-prologue-image" src="assets/chapter2-world-map.png" alt="">
+          <div class="c2-prologue-core"><span></span></div>
+          <div class="c2-prologue-route"></div>
+          <p>Контур Δ-47</p>
+        </div>
+        <div class="c2-prologue-content">
+          <p class="eyebrow">Глава II · Медный Предел</p>
+          <h2 id="chapter2-prologue-title">Сердце сбилось с ритма</h2>
+          <div id="chapter2-prologue-copy" class="c2-prologue-copy">
+            <p>Первый производственный заказ City Nexus не получил ответа. За Морем Конфигурации фабрики продолжают работать, но каждая магистраль передаёт собственную версию сигнала.</p>
+            <p>Инспекционный голем ГЕФЕСТ-7 вызывает Архитектора в Медный Предел. Нужно войти в действующую систему, найти рассогласование и восстановить общий контур без полной остановки региона.</p>
+          </div>
+          <div class="c2-prologue-actions">
+            <button id="chapter2-prologue-back" class="secondary-action" type="button">Остаться в первом городе</button>
+            <button id="chapter2-prologue-start" class="primary-action" type="button">Принять вызов ГЕФЕСТА-7</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div id="chapter2-mission-intro" class="c2-prologue c2-mission-intro" hidden>
+      <section class="c2-prologue-dialog" role="dialog" aria-modal="true" aria-labelledby="chapter2-mission-intro-title" aria-describedby="chapter2-mission-intro-copy">
+        <div id="chapter2-mission-intro-visual" class="c2-prologue-visual c2-mission-intro-visual" aria-hidden="true">
+          <img id="chapter2-mission-intro-image" class="c2-mission-intro-image" src="assets/mission-sorting-furnace.png" alt="">
+          <div class="c2-mission-intro-number"><span>Задание</span><strong id="chapter2-mission-intro-number">10</strong></div>
+        </div>
+        <div class="c2-prologue-content">
+          <p id="chapter2-mission-intro-kicker" class="eyebrow">Сигнал · Sorting Furnace</p>
+          <h2 id="chapter2-mission-intro-title">Плавка одинаковых лиц</h2>
+          <div id="chapter2-mission-intro-copy" class="c2-prologue-copy"></div>
+          <div class="c2-prologue-actions">
+            <button id="chapter2-mission-intro-map" class="secondary-action" type="button">Вернуться на карту</button>
+            <button id="chapter2-mission-intro-start" class="primary-action" type="button">Принять задание</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
     <header class="topbar">
       <div class="brand" aria-label="BPMSoft Quest">
         <div class="company-logo-wrap">
@@ -64,6 +106,11 @@
           <h1>BPMSoft Quest</h1>
         </div>
       </div>
+
+      <nav id="chapter-switcher" class="chapter-switcher" aria-label="Выбор главы" hidden>
+        <button id="show-first-chapter" class="is-active" type="button" aria-pressed="true">Первый город</button>
+        <button id="show-second-chapter" type="button" aria-pressed="false">Медный Предел</button>
+      </nav>
 
       <div class="player-stats" aria-label="Прогресс игрока">
         <button id="admin-toggle" class="admin-action" type="button" aria-pressed="false">Войти в админ панель</button>
@@ -349,19 +396,142 @@
 
           <div class="next-expedition">
             <p class="eyebrow">Следующая экспедиция</p>
-            <h3>Новая карта — новая стилистика</h3>
-            <p>Следующая глава будет отдельной картой с усложнёнными заданиями. Этот город остаётся завершённым и доступным для повторного прохождения.</p>
+            <h3>Медный Предел ждёт Архитектора</h3>
+            <p>За Морем Конфигурации фабрики-големы выполняют противоречащие директивы. Отправляйтесь к Сердцу Контура; первый город останется доступен для повторного прохождения.</p>
           </div>
 
           <div class="finale-actions">
             <button id="finale-map-action" class="primary-action" type="button">Вернуться на карту города</button>
+            <button id="finale-chapter2-action" class="primary-action copper-action" type="button">Отправиться в Медный Предел</button>
             <button id="finale-replay-action" class="secondary-action" type="button">Повторить финальный boss</button>
           </div>
+        </div>
+      </section>
+
+      <section id="chapter2-map-view" class="view c2-map-view" aria-labelledby="chapter2-map-title" hidden>
+        <div class="c2-map-layout">
+          <aside class="c2-zone-journal" aria-label="Реестр производственных контуров">
+            <div class="panel-heading">
+              <p id="chapter2-level-label" class="eyebrow">Уровень III</p>
+              <h2 id="chapter2-map-title">Внешний контур</h2>
+            </div>
+            <ol class="c2-zone-list">
+              <li data-c2-zone-row="sorting"><button type="button" data-c2-zone="sorting"><span>10</span><strong>Sorting Furnace<small>Импорт и дубли</small></strong></button></li>
+              <li data-c2-zone-row="portal"><button type="button" data-c2-zone="portal" disabled><span>11</span><strong>Portal Gate<small>Портал и доступ</small></strong></button></li>
+              <li data-c2-zone-row="signal"><button type="button" data-c2-zone="signal" disabled><span>12</span><strong>Signal Yard<small>Исходящий REST</small></strong></button></li>
+              <li data-c2-zone-row="cycle"><button type="button" data-c2-zone="cycle" disabled><span>13</span><strong>Cycle Foundry<small>Диагностика процесса</small></strong></button></li>
+              <li data-c2-zone-row="package"><button type="button" data-c2-zone="package" disabled><span>14</span><strong>Package Depot<small>Пакеты и зависимости</small></strong></button></li>
+              <li data-c2-zone-row="trace"><button type="button" data-c2-zone="trace" disabled><span>15</span><strong>Trace Furnace<small>Журналы и аудит</small></strong></button></li>
+              <li data-c2-zone-row="change"><button type="button" data-c2-zone="change" disabled><span>16</span><strong>Change Assembly<small>Изменения и релизы</small></strong></button></li>
+              <li data-c2-zone-row="oracle"><button type="button" data-c2-zone="oracle" disabled><span>17</span><strong>Oracle Forge<small>ML и LLM</small></strong></button></li>
+              <li data-c2-zone-row="contour"><button type="button" data-c2-zone="contour" disabled><span>18</span><strong>Contour Heart<small>Финальная синхронизация</small></strong></button></li>
+            </ol>
+            <button id="chapter2-reset-progress" class="text-action" type="button">Сбросить прогресс Медного Предела</button>
+          </aside>
+
+          <section class="c2-world-stage" aria-label="Карта Медного Предела">
+            <img class="c2-world-map-image" src="assets/chapter2-world-map.png" alt="" aria-hidden="true">
+
+            <button class="c2-map-node" type="button" data-c2-zone="sorting" style="--x: 18%; --y: 75%;"><span>10</span><strong>Sorting Furnace</strong></button>
+            <button class="c2-map-node" type="button" data-c2-zone="portal" style="--x: 22%; --y: 22%;" disabled><span>11</span><strong>Portal Gate</strong></button>
+            <button class="c2-map-node" type="button" data-c2-zone="signal" style="--x: 51%; --y: 12%;" disabled><span>12</span><strong>Signal Yard</strong></button>
+            <button class="c2-map-node" type="button" data-c2-zone="cycle" style="--x: 73%; --y: 19%;" disabled><span>13</span><strong>Cycle Foundry</strong></button>
+            <button class="c2-map-node" type="button" data-c2-zone="package" style="--x: 80%; --y: 49%;" disabled><span>14</span><strong>Package Depot</strong></button>
+            <button class="c2-map-node" type="button" data-c2-zone="trace" style="--x: 79%; --y: 76%;" disabled><span>15</span><strong>Trace Furnace</strong></button>
+            <button class="c2-map-node" type="button" data-c2-zone="change" style="--x: 31%; --y: 47%;" disabled><span>16</span><strong>Change Assembly</strong></button>
+            <button class="c2-map-node" type="button" data-c2-zone="oracle" style="--x: 52%; --y: 75%;" disabled><span>17</span><strong>Oracle Forge</strong></button>
+            <button class="c2-map-node c2-map-node-heart" type="button" data-c2-zone="contour" style="--x: 52%; --y: 43%;" disabled><span>18</span><strong>Contour Heart</strong></button>
+            <div class="c2-map-caption">Медный Предел · производственные кольца</div>
+          </section>
+
+          <aside class="c2-quest-brief">
+            <div class="c2-mentor-block">
+              <img class="c2-mentor-portrait" src="assets/chapter2-mentor-hephaestus.png" alt="ГЕФЕСТ-7, инспекционный голем Медного Предела">
+              <div><p class="eyebrow">Проводник</p><strong>ГЕФЕСТ-7</strong><small>Инспекционный голем</small></div>
+            </div>
+            <div class="c2-brief-copy">
+              <p id="chapter2-brief-number" class="quest-number">Задание 10</p>
+              <h2 id="chapter2-brief-title">Поставка двойников</h2>
+              <p id="chapter2-brief-copy">Остановите повторный импорт, пока одинаковые корпуса не заполнили все склады Сортировочной домны.</p>
+              <dl class="reward-list">
+                <div><dt>Награда</dt><dd id="chapter2-brief-reward">50 XP карты</dd></div>
+                <div><dt>Время</dt><dd id="chapter2-brief-time">8–12 минут</dd></div>
+                <div><dt>Откроет</dt><dd id="chapter2-brief-unlock">Portal Gate</dd></div>
+              </dl>
+            </div>
+            <button id="chapter2-start-mission" class="primary-action" type="button" data-c2-mission="sorting">Запустить диагностику</button>
+          </aside>
+        </div>
+      </section>
+
+      <section id="chapter2-mission-view" class="view c2-mission-view" aria-labelledby="chapter2-mission-title" hidden>
+        <div class="c2-mission-layout">
+          <aside class="c2-mission-rail">
+            <button id="chapter2-back-to-map" class="back-action" type="button">← На карту Медного Предела</button>
+            <button id="chapter2-review-intro" class="secondary-action" type="button">Прочитать описание задания</button>
+            <div class="c2-chapter-stamp"><span>Задание</span><strong id="chapter2-mission-number">10</strong></div>
+            <ol id="chapter2-phase-list" class="c2-phase-list" aria-label="Этапы задания"></ol>
+            <div class="c2-lore-note"><span>Принцип</span><p id="chapter2-lore-copy"></p></div>
+          </aside>
+
+          <section id="chapter2-workspace" class="c2-workspace">
+            <header class="c2-mission-header">
+              <div><p id="chapter2-mission-zone" class="eyebrow"></p><h2 id="chapter2-mission-title"></h2></div>
+              <span id="chapter2-attempt-badge" class="attempt-badge">Попытка 1</span>
+            </header>
+
+            <div id="chapter2-scene" class="c2-scene" aria-label="Состояние производственного района">
+              <img id="chapter2-scene-image" class="c2-scene-image" src="assets/mission-sorting-furnace.png" alt="Панорама Sorting Furnace">
+              <div class="c2-scene-copy"><span id="chapter2-scene-kicker">Диагностика</span><p id="chapter2-scene-copy"></p></div>
+            </div>
+
+            <section id="chapter2-board" class="c2-board">
+              <div class="section-title">
+                <div><p id="chapter2-board-kicker" class="eyebrow"></p><h3 id="chapter2-board-title"></h3></div>
+                <span id="chapter2-selection-count">0 / 0</span>
+              </div>
+              <p id="chapter2-board-instruction" class="c2-board-instruction"></p>
+              <div id="chapter2-slot-grid" class="c2-slot-grid"></div>
+            </section>
+
+            <div class="c2-mission-actions">
+              <p id="chapter2-mission-hint">Заполните все узлы перед пробным запуском.</p>
+              <button id="chapter2-check-phase" class="primary-action" type="button">Провести пробный запуск</button>
+            </div>
+
+            <section id="chapter2-feedback" class="c2-feedback" aria-live="polite" hidden>
+              <div><p id="chapter2-feedback-kicker" class="eyebrow">Результат</p><h3 id="chapter2-feedback-title"></h3><p id="chapter2-feedback-copy"></p></div>
+              <div class="c2-feedback-score"><strong id="chapter2-feedback-score">0</strong><span>XP</span></div>
+              <button id="chapter2-feedback-action" class="secondary-action" type="button">Продолжить</button>
+            </section>
+          </section>
+
+          <aside class="c2-codex-panel">
+            <p class="eyebrow">Инженерный кодекс</p>
+            <h2 id="chapter2-codex-title">Граница механизма</h2>
+            <dl id="chapter2-codex-list"></dl>
+            <div class="source-note"><span>Источник знания</span><p id="chapter2-source-copy"></p></div>
+          </aside>
+        </div>
+      </section>
+
+      <section id="chapter2-finale-view" class="view c2-finale-view" aria-labelledby="chapter2-finale-title" hidden>
+        <div class="c2-finale-card">
+          <div class="c2-finale-core" aria-hidden="true"><span></span></div>
+          <p class="eyebrow">Медный Предел синхронизирован</p>
+          <h2 id="chapter2-finale-title">Сердце снова держит общий ритм</h2>
+          <p>Девять производственных контуров работают как одна система. Цеха сохранили автономность, но теперь публикуют версии правил, следы выполнения и подтверждения общего выпуска.</p>
+          <div class="finale-stats"><div><strong>9 / 9</strong><span>контуров</span></div><div><strong>500 XP</strong><span>Медного Предела</span></div><div><strong>III–IV</strong><span>уровни</span></div></div>
+          <div class="achievement-card"><img class="c2-finale-scout" src="assets/chapter2-scout-bolt.png" alt="Болт, ремонтный автомат Медного Предела"><div><p class="eyebrow">Новое достижение</p><h3>Синхронизатор Медного Предела</h3><p>Вы восстановили работающую систему без разрушения её самостоятельных механизмов.</p></div></div>
+          <blockquote>Контур синхронизирован. Не потому, что все его части стали одинаковыми, а потому, что каждая снова знает своё место в общей системе. <cite>— ГЕФЕСТ-7</cite></blockquote>
+          <div class="finale-actions"><button id="chapter2-finale-map" class="primary-action" type="button">Вернуться на карту Медного Предела</button><button id="chapter2-finale-replay" class="secondary-action" type="button">Повторить финальную синхронизацию</button><button id="chapter2-finale-first" class="secondary-action" type="button">Перейти в первый город</button></div>
         </div>
       </section>
     </main>
   </div>
 
   <script src="app.js?v=20260720-lore-review"></script>
+  <script src="chapter2-missions.js?v=20260720-complete"></script>
+  <script src="chapter2.js?v=20260720-copper-assets"></script>
 </body>
 </html>
