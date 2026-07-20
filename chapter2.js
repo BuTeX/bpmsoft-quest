@@ -625,6 +625,14 @@ function renderChapter2Mission() {
   renderChapter2Codex(mission);
 }
 
+function refreshChapter2AdminHighlights() {
+  const mission = chapter2Missions[chapter2State.activeMission];
+  if (!mission) return;
+  const progress = getChapter2MissionProgress(mission.key);
+  if (!mission.phases[progress.phase]) return;
+  renderChapter2Board(mission, progress);
+}
+
 function assignChapter2Answer(slotId, optionId) {
   const mission = chapter2Missions[chapter2State.activeMission];
   const progress = getChapter2MissionProgress(mission.key);
@@ -829,6 +837,7 @@ if (typeof window !== "undefined") {
   window.BPMQuestChapter2.checkPhase = checkChapter2Phase;
   window.BPMQuestChapter2.getMissionProgress = getChapter2MissionProgress;
   window.BPMQuestChapter2.showFinale = showChapter2Finale;
+  window.BPMQuestChapter2.refreshAdminHighlights = refreshChapter2AdminHighlights;
 }
 
 if (typeof document !== "undefined") initializeChapter2MissionEngine();

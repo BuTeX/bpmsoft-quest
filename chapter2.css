@@ -973,9 +973,30 @@
   box-shadow: inset 4px 0 #fe5500;
 }
 
-.c2-answer.is-admin-correct {
-  outline: 3px solid #000000;
-  outline-offset: -4px;
+.c2-answer.is-admin-correct,
+.c2-answer.is-admin-correct:hover:not(:disabled) {
+  border-color: #000000;
+  background: #fe5500;
+  box-shadow: inset 4px 0 #000000, 0 0 0 3px rgba(254, 85, 0, 0.24);
+  color: #000000;
+}
+
+.c2-answer.is-admin-correct small {
+  color: rgba(0, 0, 0, 0.72);
+}
+
+.c2-answer.is-admin-correct::after {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 2px 6px;
+  border: 1px solid #000000;
+  border-radius: 3px;
+  background: #000000;
+  color: #ffffff;
+  content: "Правильный ответ";
+  font-size: 8px;
+  font-weight: 700;
+  text-transform: uppercase;
 }
 
 .c2-slot.is-locked .c2-answer.is-selected {

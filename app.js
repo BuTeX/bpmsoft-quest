@@ -1000,6 +1000,10 @@ function renderAdminState() {
   elements.adminToggle.setAttribute("aria-pressed", String(adminActive));
 }
 
+function refreshChapter2AdminAnswers() {
+  window.BPMQuestChapter2?.refreshAdminHighlights?.();
+}
+
 function markAdminAnswer(button, answerId, correctId) {
   const isCorrect = adminActive && answerId === correctId;
   button.classList.toggle("is-admin-correct", isCorrect);
@@ -1039,6 +1043,7 @@ async function submitAdminDialog(event) {
     closeAdminDialog();
     renderAdminState();
     renderBuilder();
+    refreshChapter2AdminAnswers();
     return;
   }
 
@@ -1074,6 +1079,7 @@ async function submitAdminDialog(event) {
   closeAdminDialog();
   renderAdminState();
   renderBuilder();
+  refreshChapter2AdminAnswers();
 }
 
 function normalizeState(saved) {

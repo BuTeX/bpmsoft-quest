@@ -88,6 +88,7 @@ const localStorage = {
 };
 
 const firstChapterState = { solutionMissionComplete: true, xp: 500 };
+let adminActive = false;
 const context = vm.createContext({
   console,
   document,
@@ -97,7 +98,7 @@ const context = vm.createContext({
     confirm() { return true; },
     BPMQuestFirstChapter: {
       getState() { return firstChapterState; },
-      isAdminActive() { return false; },
+      isAdminActive() { return adminActive; },
       showMap() {}
     }
   }
@@ -138,6 +139,26 @@ assert(api.getState().chapterXp === 50, `Expected 50 XP, got ${api.getState().ch
 assert(api.beginMission("portal"), "Portal Gate did not unlock");
 const portal = api.missions.portal;
 const portalPhase = portal.phases[0];
+
+adminActive = true;
+api.refreshAdminHighlights();
+const renderedSlots = elements.get("chapter2-slot-grid").children.slice(-portalPhase.slots.length);
+portalPhase.slots.forEach((slot, slotIndex) => {
+  const buttons = renderedSlots[slotIndex].children[0].children;
+  const correctButton = buttons.find((button) => button.dataset.option === slot.correct);
+  const wrongButton = buttons.find((button) => button.dataset.option !== slot.correct);
+  assert(correctButton.className.includes("is-admin-correct"), `${slot.id}: correct admin answer is not highlighted`);
+  assert(!wrongButton.className.includes("is-admin-correct"), `${slot.id}: wrong admin answer is highlighted`);
+});
+adminActive = false;
+api.refreshAdminHighlights();
+const refreshedSlots = elements.get("chapter2-slot-grid").children.slice(-portalPhase.slots.length);
+refreshedSlots.forEach((slotElement) => {
+  slotElement.children[0].children.forEach((button) => {
+    assert(!button.className.includes("is-admin-correct"), "Admin highlight remained after logout");
+  });
+});
+
 portalPhase.slots.forEach((slot, index) => {
   const answer = index === 0
     ? slot.options.find((option) => option.id !== slot.correct).id
