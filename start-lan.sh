@@ -17,4 +17,4 @@ for interface in en0 en1; do
 done
 
 echo "Для остановки нажмите Ctrl+C"
-exec python3 -m http.server "$PORT" --bind 0.0.0.0
+PORT="$PORT" exec node server.js

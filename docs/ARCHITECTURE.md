@@ -6,8 +6,9 @@
 
 - чистые HTML, CSS и JavaScript;
 - без сборщика и внешних runtime-зависимостей; `package.json` содержит команды запуска и тестов;
-- production HTTP-сервер — `server.js` на Node.js, локальный LAN-сервер — `python3 -m http.server` через `start-lan.sh`;
-- состояние пользователя — offline-кэш в `localStorage` и PostgreSQL-синхронизация по анонимному UUID устройства;
+- production и локальный LAN HTTP-сервер — `server.js` на Node.js;
+- серверные аккаунты по email, `scrypt`-хеши паролей и непрозрачные 30-дневные сессии в `HttpOnly`/`SameSite` cookie;
+- состояние пользователя — локальный кэш в `localStorage` и PostgreSQL-синхронизация обеих глав по UUID аккаунта;
 - изображения и шрифты хранятся локально.
 
 ## 2. Структура файлов
@@ -20,8 +21,9 @@
 | `chapter2.css` | изолированная оранжево-механическая тема Медного Предела |
 | `chapter2-missions.js` | данные миссий 10–18 |
 | `chapter2.js` | состояние, карта, трёхфазный движок и финал второй главы |
-| `server.js` | статическая раздача, API прогресса, серверная проверка пароля администратора и healthcheck |
-| `db/schema.sql` | схема PostgreSQL для прогресса игроков |
+| `server.js` | статическая раздача, auth/session API, API прогресса, серверная проверка пароля администратора и healthcheck |
+| `account-store.js` | PostgreSQL- и memory-реализации аккаунтов, сессий и прогресса |
+| `db/schema.sql` | схема PostgreSQL для аккаунтов, сессий и прогресса игроков |
 | `railway.json` | production-конфигурация Railway |
 | `test-mission.mjs` | автономный DOM-harness и сквозной тест миссий |
 | `test-chapter2.mjs` | изоляция и канонизация состояния второй главы |
@@ -95,6 +97,10 @@ bpmsoft-quest-chapter2-v1
 ```
 
 Её основные поля: `chapterXp`, `level`, `energy`, `activeMission`, `missionProgress`, `introSeen`, `prologueSeen`, девять completion-флагов, `chapterComplete` и `achievementGranted`. `normalizeChapter2State()` выводит XP и текущую миссию из непрерывной цепочки completion-флагов. Состояния глав не объединяются и не перезаписывают друг друга.
+
+`account_progress` хранит оба канонических состояния в одной записи аккаунта. `PUT /api/account/progress/chapter1|chapter2` принимает только очищенные сервером поля и не позволяет менее продвинутому сохранению перезаписать более высокий completion-rank. Явный сброс выполняется `DELETE` соответствующей главы. В режиме `study` сервер отклоняет запись прогресса, поэтому свободный осмотр остаётся песочницей.
+
+При первом входе после обновления прежние ключи `localStorage` используются как источник миграции, только если для аккаунта ещё нет серверного состояния. Ключ `bpmsoft-quest-account-cache-v1` не даёт перенести кэш одного аккаунта в другой на общем устройстве.
 
 Основные поля состояния:
 

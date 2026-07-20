@@ -89,6 +89,7 @@ const localStorage = {
 
 const firstChapterState = { solutionMissionComplete: true, xp: 500 };
 let adminActive = false;
+let studyMode = false;
 const context = vm.createContext({
   console,
   document,
@@ -98,6 +99,7 @@ const context = vm.createContext({
     confirm() { return true; },
     BPMQuestFirstChapter: {
       getState() { return firstChapterState; },
+      isStudyMode() { return studyMode; },
       isAdminActive() { return adminActive; },
       showMap() {}
     }
@@ -131,6 +133,14 @@ const completeMission = (key) => {
     assert(api.checkPhase(), `${key}: correct phase ${phase.id} was rejected`);
   });
 };
+
+studyMode = true;
+completeMission("contour");
+assert(!api.getState().contourComplete, "Study mode changed canonical Chapter 2 completion");
+assert(api.getState().chapterXp === 0, "Study mode awarded canonical Chapter 2 XP");
+assert(!storage.has("bpmsoft-quest-chapter2-v1"), "Study mode persisted Chapter 2 sandbox progress");
+api.setState({ ...api.initialState });
+studyMode = false;
 
 completeMission("sorting");
 assert(api.getState().sortingComplete, "Sorting Furnace did not complete");

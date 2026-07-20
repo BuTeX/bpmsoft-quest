@@ -1,6 +1,13 @@
 import assert from "node:assert/strict";
 import { after, before, test } from "node:test";
-import { createApplicationServer, sanitizeProgressState } from "./server.js";
+import {
+  createApplicationServer,
+  hashPassword,
+  resetMemoryAccountStore,
+  sanitizeChapter2ProgressState,
+  sanitizeProgressState,
+  verifyPassword
+} from "./server.js";
 
 let server;
 let baseUrl;
@@ -8,6 +15,7 @@ let baseUrl;
 before(async () => {
   delete process.env.DATABASE_URL;
   delete process.env.ADMIN_PASSWORD;
+  resetMemoryAccountStore();
   server = createApplicationServer();
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
   const address = server.address();
@@ -59,14 +67,16 @@ test("chapter 2 scripts, styles and generated art are public", async () => {
 });
 
 test("server-side source files are not exposed as static assets", async () => {
-  const response = await fetch(`${baseUrl}/server.js`);
-  assert.equal(response.status, 404);
+  for (const file of ["server.js", "account-store.js", "db/schema.sql", ".env"]) {
+    const response = await fetch(`${baseUrl}/${file}`);
+    assert.equal(response.status, 404, `${file} is publicly exposed`);
+  }
 });
 
-test("progress API validates player identifiers before database access", async () => {
-  const response = await fetch(`${baseUrl}/api/progress/not-a-player`);
-  assert.equal(response.status, 400);
-  assert.deepEqual(await response.json(), { error: "Invalid player id" });
+test("account progress requires an authenticated session", async () => {
+  const response = await fetch(`${baseUrl}/api/account/progress`);
+  assert.equal(response.status, 401);
+  assert.deepEqual(await response.json(), { error: "Authentication required" });
 });
 
 test("progress sanitizer keeps only known mission intros", () => {
@@ -75,6 +85,115 @@ test("progress sanitizer keeps only known mission intros", () => {
     introSeen: ["interface", "unknown", "data", "interface"]
   });
   assert.deepEqual(state.introSeen, ["interface", "data"]);
+});
+
+test("chapter 2 sanitizer enforces canonical completion order", () => {
+  const state = sanitizeChapter2ProgressState({
+    introSeen: ["sorting", "unknown", "sorting"],
+    sortingComplete: true,
+    portalComplete: false,
+    signalComplete: true,
+    missionProgress: {
+      sorting: { phase: 1, answers: { source: "import" }, locked: {}, optionOrders: {}, lastWrong: [] },
+      unknown: { phase: 99 }
+    }
+  });
+  assert.deepEqual(state.introSeen, ["sorting"]);
+  assert.equal(state.sortingComplete, true);
+  assert.equal(state.portalComplete, false);
+  assert.equal(state.signalComplete, false);
+  assert.equal(state.missionProgress.sorting.answers.source, "import");
+  assert.equal(state.missionProgress.unknown, undefined);
+});
+
+test("password hashes use salted scrypt and constant-time verification", async () => {
+  const first = await hashPassword("correct horse battery staple");
+  const second = await hashPassword("correct horse battery staple");
+  assert.notEqual(first, second);
+  assert.equal(await verifyPassword("correct horse battery staple", first), true);
+  assert.equal(await verifyPassword("wrong password", first), false);
+});
+
+test("account registration, session and both chapter saves work together", async () => {
+  const registration = await fetch(`${baseUrl}/api/auth/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      email: "Colleague@Example.com",
+      displayName: "Коллега",
+      password: "long-test-password",
+      mode: "progression"
+    })
+  });
+  assert.equal(registration.status, 201);
+  const cookie = registration.headers.get("set-cookie").split(";")[0];
+  assert.match(registration.headers.get("set-cookie"), /HttpOnly/);
+  assert.match(registration.headers.get("set-cookie"), /SameSite=Lax/);
+  const registered = await registration.json();
+  assert.equal(registered.account.email, "colleague@example.com");
+  assert.equal(registered.account.passwordHash, undefined);
+
+  const session = await fetch(`${baseUrl}/api/auth/session`, { headers: { Cookie: cookie } });
+  assert.equal(session.status, 200);
+  assert.equal((await session.json()).account.displayName, "Коллега");
+
+  const chapter1 = await fetch(`${baseUrl}/api/account/progress/chapter1`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json", Cookie: cookie },
+    body: JSON.stringify({ state: { missionComplete: true, dataMissionComplete: true, energy: 2 } })
+  });
+  assert.equal(chapter1.status, 200);
+  assert.equal((await chapter1.json()).progress.score, 2);
+
+  const chapter2 = await fetch(`${baseUrl}/api/account/progress/chapter2`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json", Cookie: cookie },
+    body: JSON.stringify({ state: { sortingComplete: true, energy: 3 } })
+  });
+  assert.equal(chapter2.status, 200);
+  assert.equal((await chapter2.json()).progress.score, 1);
+
+  const progress = await fetch(`${baseUrl}/api/account/progress`, { headers: { Cookie: cookie } });
+  assert.equal(progress.status, 200);
+  const saved = (await progress.json()).progress;
+  assert.equal(saved.chapter1.state.dataMissionComplete, true);
+  assert.equal(saved.chapter2.state.sortingComplete, true);
+
+  const profile = await fetch(`${baseUrl}/api/auth/profile`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json", Cookie: cookie },
+    body: JSON.stringify({ displayName: "Инспектор", mode: "study" })
+  });
+  assert.equal(profile.status, 200);
+
+  const blockedStudySave = await fetch(`${baseUrl}/api/account/progress/chapter1`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json", Cookie: cookie },
+    body: JSON.stringify({ state: {} })
+  });
+  assert.equal(blockedStudySave.status, 409);
+
+  const logout = await fetch(`${baseUrl}/api/auth/logout`, { method: "POST", headers: { Cookie: cookie } });
+  assert.equal(logout.status, 200);
+  const expiredSession = await fetch(`${baseUrl}/api/auth/session`, { headers: { Cookie: cookie } });
+  assert.equal(expiredSession.status, 401);
+
+  const login = await fetch(`${baseUrl}/api/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      email: "colleague@example.com",
+      password: "long-test-password",
+      mode: "progression"
+    })
+  });
+  assert.equal(login.status, 200);
+  const loginCookie = login.headers.get("set-cookie").split(";")[0];
+  const restoredProgress = await fetch(`${baseUrl}/api/account/progress`, { headers: { Cookie: loginCookie } });
+  assert.equal(restoredProgress.status, 200);
+  const restored = (await restoredProgress.json()).progress;
+  assert.equal(restored.chapter1.score, 2);
+  assert.equal(restored.chapter2.score, 1);
 });
 
 test("admin login stays disabled without a server-side secret", async () => {

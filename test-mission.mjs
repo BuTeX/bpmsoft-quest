@@ -107,7 +107,10 @@ const exports = `
     initialState,
     getState: () => state,
     setState: (nextState) => { state = nextState; },
+    getPlayerProfile: () => playerProfile,
+    setPlayerProfile: (nextProfile) => { playerProfile = normalizePlayerProfile(nextProfile); },
     loadState,
+    saveState,
     renderAll,
     beginMission,
     openMissionIntro,
@@ -204,6 +207,19 @@ const completeBlueprintMission = () => {
   for (const test of api.missions.solution.tests) api.answerBlueprintTest(test.correct);
 };
 
+api.setState({ ...api.initialState });
+api.setPlayerProfile({ name: "Коллега", mode: "study" });
+api.renderAll();
+api.beginMission("solution");
+assert(api.getState().activeMission === "solution", "Study mode did not open the final mission directly");
+api.beginMission("interface");
+api.getState().selected = [...api.missions.interface.correct];
+api.checkSolution();
+assert(!api.getState().missionComplete, "Study mode changed canonical mission completion");
+assert(api.getState().xp === 0, "Study mode awarded canonical XP");
+assert(!storage.has("bpmsoft-quest-v1"), "Study mode persisted sandbox progress");
+
+api.setPlayerProfile({ name: "Коллега", mode: "progression" });
 api.setState({ ...api.initialState });
 api.renderAll();
 

@@ -1,4 +1,5 @@
 const CHAPTER2_STORAGE_KEY = "bpmsoft-quest-chapter2-v1";
+const CHAPTER2_STORAGE_UPDATED_AT_KEY = "bpmsoft-quest-chapter2-updated-at";
 const CHAPTER2_ID = "copper-frontier";
 const CHAPTER2_MISSION_KEYS = [
   "sorting",
@@ -144,12 +145,28 @@ function getPersistedChapter2State(sourceState = chapter2State) {
   };
 }
 
-function saveChapter2State() {
+function writeChapter2LocalState(savedState, updatedAt = new Date().toISOString()) {
   try {
-    localStorage.setItem(CHAPTER2_STORAGE_KEY, JSON.stringify(getPersistedChapter2State()));
+    localStorage.setItem(CHAPTER2_STORAGE_KEY, JSON.stringify(savedState));
+    localStorage.setItem(CHAPTER2_STORAGE_UPDATED_AT_KEY, updatedAt);
   } catch {
     // The second chapter remains playable during the session when storage is unavailable.
   }
+}
+
+function saveChapter2State() {
+  if (isChapter2StudyMode()) return;
+  const savedState = getPersistedChapter2State();
+  writeChapter2LocalState(savedState);
+  window.BPMQuestFirstChapter?.scheduleChapter2ProgressSync?.(savedState);
+}
+
+function hydrateChapter2State(nextState, updatedAt) {
+  chapter2State = normalizeChapter2State(nextState);
+  writeChapter2LocalState(getPersistedChapter2State(), updatedAt);
+  renderChapter2Stats();
+  renderChapter2MapState();
+  return chapter2State;
 }
 
 let chapter2State = loadChapter2State();
@@ -168,6 +185,7 @@ if (typeof window !== "undefined") {
     normalizeState: normalizeChapter2State,
     loadState: loadChapter2State,
     saveState: saveChapter2State,
+    hydrateState: hydrateChapter2State,
     getPersistedState: getPersistedChapter2State,
     getProgressRank: getChapter2ProgressRank
   };
@@ -239,7 +257,12 @@ const chapter2MissionBriefs = {
   }
 };
 
+function isChapter2StudyMode() {
+  return window.BPMQuestFirstChapter?.isStudyMode?.() === true;
+}
+
 function isChapter2Unlocked() {
+  if (isChapter2StudyMode()) return true;
   try {
     const firstState = typeof window !== "undefined" && window.BPMQuestFirstChapter
       ? window.BPMQuestFirstChapter.getState()
@@ -295,6 +318,7 @@ function setChapterSwitcherState(activeChapter) {
 function renderChapter2Brief(key) {
   const mission = chapter2MissionBriefs[key];
   if (!mission) return;
+  const studyMode = isChapter2StudyMode();
   const completed = chapter2State[CHAPTER2_COMPLETION_FLAGS[CHAPTER2_MISSION_KEYS.indexOf(key)]];
   document.getElementById("chapter2-brief-number").textContent = completed
     ? `Задание ${mission.number} синхронизировано`
@@ -305,25 +329,26 @@ function renderChapter2Brief(key) {
   document.getElementById("chapter2-brief-copy").textContent = completed
     ? "Контур уже восстановлен. Диагностику можно повторить без повторной награды."
     : mission.copy;
-  document.getElementById("chapter2-brief-reward").textContent = completed ? "получена" : key === "contour" ? "100 XP карты" : "50 XP карты";
+  document.getElementById("chapter2-brief-reward").textContent = studyMode ? "учебный запуск" : completed ? "получена" : key === "contour" ? "100 XP карты" : "50 XP карты";
   document.getElementById("chapter2-brief-time").textContent = key === "contour" ? "15–20 минут" : "8–12 минут";
-  document.getElementById("chapter2-brief-unlock").textContent = completed ? "повторное прохождение" : mission.unlock;
+  document.getElementById("chapter2-brief-unlock").textContent = studyMode ? "все задания открыты" : completed ? "повторное прохождение" : mission.unlock;
   const start = document.getElementById("chapter2-start-mission");
   start.dataset.c2Mission = key;
   start.textContent = completed ? `Повторить задание ${mission.number}` : "Запустить диагностику";
 }
 
 function renderChapter2MapState() {
+  const studyMode = isChapter2StudyMode();
   const rank = getChapter2ProgressRank(chapter2State);
   const currentKey = getCurrentChapter2MissionKey();
   const levelLabel = document.getElementById("chapter2-level-label");
   const mapTitle = document.getElementById("chapter2-map-title");
-  if (levelLabel) levelLabel.textContent = chapter2State.chapterComplete ? "Глава завершена" : chapter2State.level === 3 ? "Уровень III" : "Уровень IV";
-  if (mapTitle) mapTitle.textContent = chapter2State.chapterComplete ? "Медный Предел синхронизирован" : chapter2State.level === 3 ? "Внешний контур" : "Внутренний контур";
+  if (levelLabel) levelLabel.textContent = studyMode ? "Свободный маршрут" : chapter2State.chapterComplete ? "Глава завершена" : chapter2State.level === 3 ? "Уровень III" : "Уровень IV";
+  if (mapTitle) mapTitle.textContent = studyMode ? "Все задания Медного Предела" : chapter2State.chapterComplete ? "Медный Предел синхронизирован" : chapter2State.level === 3 ? "Внешний контур" : "Внутренний контур";
 
   CHAPTER2_MISSION_KEYS.forEach((key, index) => {
     const complete = chapter2State[CHAPTER2_COMPLETION_FLAGS[index]] === true;
-    const available = index <= rank;
+    const available = studyMode || index <= rank;
     document.querySelectorAll(`[data-c2-zone="${key}"]`).forEach((button) => {
       button.disabled = !available;
       button.classList.toggle("is-current", key === currentKey && !complete);
@@ -394,10 +419,31 @@ function resetChapter2Progress() {
   const confirmed = window.confirm("Сбросить XP и открытые задания только в Медном Пределе?");
   if (!confirmed) return;
   chapter2State = { ...chapter2InitialState };
-  saveChapter2State();
+  writeChapter2LocalState(getPersistedChapter2State());
+  window.BPMQuestFirstChapter?.resetAccountProgress?.("chapter2");
   renderChapter2Stats();
   renderChapter2MapState();
   openChapter2Prologue();
+}
+
+function applyChapter2AccessMode(previousMode = null) {
+  if (previousMode === "study" && !isChapter2StudyMode()) chapter2State = loadChapter2State();
+  const reset = document.getElementById("chapter2-reset-progress");
+  if (reset) reset.hidden = isChapter2StudyMode();
+  const missionView = document.getElementById("chapter2-mission-view");
+  const mapView = document.getElementById("chapter2-map-view");
+  const chapter2Visible = missionView?.hidden === false || mapView?.hidden === false;
+  if (!isChapter2Unlocked()) {
+    setChapterSwitcherState("chapter1");
+    if (chapter2Visible) activateFirstChapter();
+    return;
+  }
+
+  const missionIndex = CHAPTER2_MISSION_KEYS.indexOf(chapter2State.activeMission);
+  const missionLocked = !isChapter2StudyMode() && missionIndex > getChapter2ProgressRank(chapter2State);
+  renderChapter2MapState();
+  setChapterSwitcherState(chapter2Visible ? "chapter2" : "chapter1");
+  if (missionLocked && missionView?.hidden === false) activateChapter2Map();
 }
 
 function initializeChapter2Map() {
@@ -430,6 +476,8 @@ function initializeChapter2Map() {
   window.BPMQuestChapter2.activateMap = activateChapter2Map;
   window.BPMQuestChapter2.activateFirstChapter = activateFirstChapter;
   window.BPMQuestChapter2.renderMap = renderChapter2MapState;
+  window.BPMQuestChapter2.applyAccessMode = applyChapter2AccessMode;
+  applyChapter2AccessMode();
 }
 
 if (typeof document !== "undefined") initializeChapter2Map();
@@ -662,6 +710,7 @@ function showChapter2Feedback({ kicker, title, copy, score = 0, action, actionLa
 }
 
 function completeChapter2Mission(mission) {
+  if (isChapter2StudyMode()) return 0;
   const alreadyComplete = chapter2State[mission.completionFlag] === true;
   chapter2State[mission.completionFlag] = true;
   if (mission.key === "contour") {
@@ -734,17 +783,22 @@ function checkChapter2Phase() {
     return true;
   }
 
+  const studyMode = isChapter2StudyMode();
   const awarded = completeChapter2Mission(mission);
   const currentIndex = CHAPTER2_MISSION_KEYS.indexOf(mission.key);
   const nextKey = CHAPTER2_MISSION_KEYS[currentIndex + 1];
   const nextMission = nextKey ? chapter2Missions[nextKey] : null;
   showChapter2Feedback({
-    kicker: awarded > 0 ? "Контур синхронизирован" : "Повторная синхронизация",
+    kicker: studyMode ? "Учебный запуск" : awarded > 0 ? "Контур синхронизирован" : "Повторная синхронизация",
     title: phase.successTitle,
-    copy: awarded > 0 ? phase.successCopy : `${phase.successCopy} Награда за этот район уже получена.`,
+    copy: studyMode
+      ? `${phase.successCopy} Основной прогресс и награды не изменены.`
+      : awarded > 0 ? phase.successCopy : `${phase.successCopy} Награда за этот район уже получена.`,
     score: awarded,
-    action: mission.key === "contour" ? "finale" : nextMission ? `next:${nextKey}` : "map",
-    actionLabel: mission.key === "contour" ? "Завершить главу" : nextMission ? `Открыть задание ${nextMission.number}` : "Вернуться на карту"
+    action: studyMode ? nextMission ? `next:${nextKey}` : "map" : mission.key === "contour" ? "finale" : nextMission ? `next:${nextKey}` : "map",
+    actionLabel: studyMode
+      ? nextMission ? `Открыть задание ${nextMission.number}` : "Вернуться на карту"
+      : mission.key === "contour" ? "Завершить главу" : nextMission ? `Открыть задание ${nextMission.number}` : "Вернуться на карту"
   });
   return true;
 }
@@ -767,7 +821,7 @@ function beginChapter2Mission(key) {
   if (!mission || !isChapter2Unlocked()) return false;
   const index = CHAPTER2_MISSION_KEYS.indexOf(key);
   const rank = getChapter2ProgressRank(chapter2State);
-  if (index > rank) return false;
+  if (!isChapter2StudyMode() && index > rank) return false;
   chapter2State.activeMission = key;
   chapter2State.energy = 3;
   chapter2State.attempts = 1;

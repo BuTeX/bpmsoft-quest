@@ -9,11 +9,66 @@
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=20260720-1">
   <link rel="icon" type="image/png" sizes="512x512" href="assets/favicon.png?v=20260720-1">
   <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png?v=20260720-1">
-  <link rel="stylesheet" href="styles.css?v=20260720-lore-review">
-  <link rel="stylesheet" href="chapter2.css?v=20260720-copper-map">
+  <link rel="stylesheet" href="styles.css?v=20260720-accounts">
+  <link rel="stylesheet" href="chapter2.css?v=20260720-player-modes">
 </head>
 <body>
   <div class="game-shell">
+    <div id="player-access-modal" class="player-access-modal" hidden>
+      <form id="player-access-form" class="player-access-dialog" role="dialog" aria-modal="true" aria-labelledby="player-access-title" aria-describedby="player-access-copy">
+        <div id="player-auth-tabs" class="player-auth-tabs" role="tablist" aria-label="Способ входа">
+          <button id="player-login-tab" type="button" role="tab" aria-selected="true">Вход</button>
+          <button id="player-register-tab" type="button" role="tab" aria-selected="false">Регистрация</button>
+        </div>
+        <div class="player-access-heading">
+          <p class="eyebrow">Вход в академию</p>
+          <h2 id="player-access-title">С возвращением, Архитектор</h2>
+          <p id="player-access-copy">Войдите в аккаунт — прогресс обеих карт восстановится автоматически.</p>
+        </div>
+        <label id="player-name-field" class="player-name-field" for="player-name" hidden>
+          <span>Имя или ник</span>
+          <input id="player-name" name="playerName" type="text" minlength="2" maxlength="40" autocomplete="name" placeholder="Например, Виктор" required>
+        </label>
+        <label id="player-email-field" class="player-name-field" for="player-email">
+          <span>Email</span>
+          <input id="player-email" name="email" type="email" maxlength="254" autocomplete="email" placeholder="name@company.ru" required>
+        </label>
+        <label id="player-password-field" class="player-name-field" for="player-password">
+          <span>Пароль</span>
+          <input id="player-password" name="password" type="password" minlength="10" maxlength="128" autocomplete="current-password" required>
+          <small>Не менее 10 символов.</small>
+        </label>
+        <label id="player-password-confirm-field" class="player-name-field" for="player-password-confirm" hidden>
+          <span>Повторите пароль</span>
+          <input id="player-password-confirm" name="passwordConfirm" type="password" minlength="10" maxlength="128" autocomplete="new-password">
+        </label>
+        <fieldset class="player-mode-fieldset">
+          <legend>Режим</legend>
+          <label class="player-mode-card">
+            <input id="player-mode-progression" name="questMode" type="radio" value="progression" checked>
+            <span class="player-mode-card-copy">
+              <strong>Прохождение</strong>
+              <small>Миссии открываются по очереди. XP, энергия и достижения сохраняются.</small>
+            </span>
+          </label>
+          <label class="player-mode-card">
+            <input id="player-mode-study" name="questMode" type="radio" value="study">
+            <span class="player-mode-card-copy">
+              <strong>Изучение и осмотр</strong>
+              <small>Обе карты и все 18 миссий доступны сразу. Основной прогресс не изменяется.</small>
+            </span>
+          </label>
+        </fieldset>
+        <p id="player-auth-security" class="player-auth-security">Сессия хранится в защищённой cookie, а пароль — только в виде стойкого хеша.</p>
+        <p id="player-access-error" class="admin-error" role="alert" hidden></p>
+        <div class="player-access-actions">
+          <button id="player-logout" class="secondary-action player-logout-action" type="button" hidden>Выйти из аккаунта</button>
+          <button id="player-access-cancel" class="secondary-action" type="button" hidden>Отмена</button>
+          <button id="player-access-submit" class="primary-action" type="submit">Войти в академию</button>
+        </div>
+      </form>
+    </div>
+
     <div id="admin-modal" class="admin-modal" hidden>
       <form id="admin-form" class="admin-dialog" role="dialog" aria-modal="true" aria-labelledby="admin-dialog-title" aria-describedby="admin-dialog-copy">
         <p class="eyebrow">Администрирование</p>
@@ -113,6 +168,10 @@
       </nav>
 
       <div class="player-stats" aria-label="Прогресс игрока">
+        <button id="player-profile" class="player-profile-action" type="button" hidden>
+          <strong id="player-profile-name">Игрок</strong>
+          <span id="player-profile-mode">Прохождение</span>
+        </button>
         <button id="admin-toggle" class="admin-action" type="button" aria-pressed="false">Войти в админ панель</button>
         <div class="level-seal">
           <span>Уровень</span>
@@ -530,8 +589,8 @@
     </main>
   </div>
 
-  <script src="app.js?v=20260720-lore-review"></script>
+  <script src="app.js?v=20260720-accounts"></script>
   <script src="chapter2-missions.js?v=20260720-complete"></script>
-  <script src="chapter2.js?v=20260720-copper-assets"></script>
+  <script src="chapter2.js?v=20260720-accounts"></script>
 </body>
 </html>

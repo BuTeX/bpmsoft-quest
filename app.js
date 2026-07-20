@@ -1,6 +1,7 @@
 const STORAGE_KEY = "bpmsoft-quest-v1";
 const ADMIN_SESSION_KEY = "bpmsoft-quest-admin";
-const PLAYER_ID_KEY = "bpmsoft-quest-player-id";
+const PLAYER_PROFILE_KEY = "bpmsoft-quest-player-profile-v1";
+const ACCOUNT_CACHE_ID_KEY = "bpmsoft-quest-account-cache-v1";
 const STORAGE_UPDATED_AT_KEY = "bpmsoft-quest-updated-at";
 const MISSION_KEYS = ["interface", "data", "access", "process", "case", "integration", "insight", "classification", "solution"];
 const COMPLETION_FLAGS = [
@@ -16,6 +17,7 @@ const COMPLETION_FLAGS = [
 ];
 
 let remoteSyncTimer = null;
+let remoteChapter2SyncTimer = null;
 
 const missions = {
   interface: {
@@ -887,11 +889,40 @@ const initialState = {
   blueprintComplete: false
 };
 
+const legacyPlayerProfile = loadPlayerProfile();
+let playerProfile = null;
+let playerAccessMode = "login";
+let playerAccessBusy = false;
 let state = loadState();
 let adminActive = loadAdminSession();
 let adminDialogMode = "login";
 
 const elements = {
+  playerAccessModal: document.getElementById("player-access-modal"),
+  playerAccessForm: document.getElementById("player-access-form"),
+  playerAuthTabs: document.getElementById("player-auth-tabs"),
+  playerLoginTab: document.getElementById("player-login-tab"),
+  playerRegisterTab: document.getElementById("player-register-tab"),
+  playerAccessTitle: document.getElementById("player-access-title"),
+  playerAccessCopy: document.getElementById("player-access-copy"),
+  playerNameField: document.getElementById("player-name-field"),
+  playerName: document.getElementById("player-name"),
+  playerEmailField: document.getElementById("player-email-field"),
+  playerEmail: document.getElementById("player-email"),
+  playerPasswordField: document.getElementById("player-password-field"),
+  playerPassword: document.getElementById("player-password"),
+  playerPasswordConfirmField: document.getElementById("player-password-confirm-field"),
+  playerPasswordConfirm: document.getElementById("player-password-confirm"),
+  playerModeProgression: document.getElementById("player-mode-progression"),
+  playerModeStudy: document.getElementById("player-mode-study"),
+  playerAuthSecurity: document.getElementById("player-auth-security"),
+  playerAccessError: document.getElementById("player-access-error"),
+  playerAccessCancel: document.getElementById("player-access-cancel"),
+  playerAccessSubmit: document.getElementById("player-access-submit"),
+  playerLogout: document.getElementById("player-logout"),
+  playerProfile: document.getElementById("player-profile"),
+  playerProfileName: document.getElementById("player-profile-name"),
+  playerProfileMode: document.getElementById("player-profile-mode"),
   mapView: document.getElementById("map-view"),
   missionView: document.getElementById("mission-view"),
   finaleView: document.getElementById("finale-view"),
@@ -973,6 +1004,259 @@ const elements = {
   finaleMapAction: document.getElementById("finale-map-action"),
   finaleReplayAction: document.getElementById("finale-replay-action")
 };
+
+function normalizePlayerProfile(value) {
+  if (!value || typeof value !== "object") return null;
+  const rawName = typeof value.displayName === "string" ? value.displayName : value.name;
+  const name = typeof rawName === "string" ? rawName.trim().replace(/\s+/g, " ").slice(0, 40) : "";
+  const mode = value.mode === "study" ? "study" : value.mode === "progression" ? "progression" : null;
+  const email = typeof value.email === "string" ? value.email.trim().toLowerCase().slice(0, 254) : "";
+  const id = typeof value.id === "string" ? value.id : "";
+  return name.length >= 2 && mode ? { id, email, name, mode } : null;
+}
+
+function loadPlayerProfile() {
+  try {
+    return normalizePlayerProfile(JSON.parse(localStorage.getItem(PLAYER_PROFILE_KEY)));
+  } catch {
+    return null;
+  }
+}
+
+function isStudyMode() {
+  return playerProfile?.mode === "study";
+}
+
+function renderPlayerProfile() {
+  const hasProfile = Boolean(playerProfile);
+  elements.playerProfile.hidden = !hasProfile;
+  document.body?.classList.toggle("is-study-mode", isStudyMode());
+  elements.resetProgress.hidden = isStudyMode();
+  const chapter2Reset = document.getElementById("chapter2-reset-progress");
+  if (chapter2Reset) chapter2Reset.hidden = isStudyMode();
+  if (!hasProfile) return;
+  elements.playerProfileName.textContent = playerProfile.name;
+  elements.playerProfileMode.textContent = isStudyMode() ? "Изучение · всё открыто" : "Прохождение · по порядку";
+  elements.playerProfile.title = playerProfile.email ? `${playerProfile.email} · настройки аккаунта` : "Настройки аккаунта";
+}
+
+function setPlayerAccessError(message = "") {
+  elements.playerAccessError.textContent = message;
+  elements.playerAccessError.hidden = !message;
+}
+
+function setPlayerAccessBusy(busy) {
+  playerAccessBusy = busy;
+  elements.playerAccessSubmit.disabled = busy;
+  elements.playerAccessCancel.disabled = busy;
+  elements.playerLogout.disabled = busy;
+  elements.playerLoginTab.disabled = busy;
+  elements.playerRegisterTab.disabled = busy;
+  elements.playerAccessSubmit.textContent = busy
+    ? "Подключаемся…"
+    : playerAccessMode === "register"
+      ? "Создать аккаунт"
+      : playerAccessMode === "profile"
+        ? "Сохранить настройки"
+        : "Войти в академию";
+}
+
+function configurePlayerAccess(mode) {
+  playerAccessMode = mode;
+  const profileMode = mode === "profile";
+  const registrationMode = mode === "register";
+  const selectedMode = playerProfile?.mode || legacyPlayerProfile?.mode || "progression";
+
+  elements.playerAuthTabs.hidden = profileMode;
+  elements.playerLoginTab.setAttribute("aria-selected", String(mode === "login"));
+  elements.playerRegisterTab.setAttribute("aria-selected", String(registrationMode));
+  elements.playerNameField.hidden = mode === "login";
+  elements.playerName.required = registrationMode || profileMode;
+  elements.playerEmail.disabled = profileMode;
+  elements.playerPasswordField.hidden = profileMode;
+  elements.playerPassword.required = !profileMode;
+  elements.playerPasswordConfirmField.hidden = !registrationMode;
+  elements.playerPasswordConfirm.required = registrationMode;
+  elements.playerPassword.setAttribute("autocomplete", registrationMode ? "new-password" : "current-password");
+  elements.playerLogout.hidden = !profileMode;
+  elements.playerAccessCancel.hidden = !profileMode;
+  elements.playerModeStudy.checked = selectedMode === "study";
+  elements.playerModeProgression.checked = selectedMode !== "study";
+
+  if (profileMode) {
+    elements.playerAccessTitle.textContent = "Настройки аккаунта";
+    elements.playerAccessCopy.textContent = "Измените имя или режим. Сохранённый прогресс останется привязан к вашему email.";
+    elements.playerName.value = playerProfile?.name || "";
+    elements.playerEmail.value = playerProfile?.email || "";
+    elements.playerPassword.value = "";
+    elements.playerPasswordConfirm.value = "";
+    elements.playerAuthSecurity.textContent = "Прогресс обеих карт синхронизируется с аккаунтом в режиме прохождения.";
+  } else if (registrationMode) {
+    elements.playerAccessTitle.textContent = "Создайте аккаунт Архитектора";
+    elements.playerAccessCopy.textContent = "Email и пароль позволят продолжить прохождение на другом устройстве.";
+    elements.playerAuthSecurity.textContent = "Пароль хранится только в виде стойкого scrypt-хеша. Минимальная длина — 10 символов.";
+  } else {
+    elements.playerAccessTitle.textContent = "С возвращением, Архитектор";
+    elements.playerAccessCopy.textContent = "Войдите в аккаунт — прогресс обеих карт восстановится автоматически.";
+    elements.playerAuthSecurity.textContent = "Сессия хранится в защищённой HttpOnly cookie и действует 30 дней.";
+  }
+  setPlayerAccessError();
+  setPlayerAccessBusy(false);
+}
+
+function openPlayerAccess(mode = playerProfile ? "profile" : "login") {
+  configurePlayerAccess(mode);
+  elements.playerAccessError.hidden = true;
+  elements.playerAccessModal.hidden = false;
+  document.body?.classList.add("has-player-access");
+  (mode === "profile" ? elements.playerName : elements.playerEmail).focus?.();
+}
+
+function closePlayerAccess() {
+  if (!playerProfile) return;
+  elements.playerAccessModal.hidden = true;
+  elements.playerAccessError.hidden = true;
+  document.body?.classList.remove("has-player-access");
+}
+
+function prepareAccountCache(accountId) {
+  if (!accountId) return;
+  try {
+    const cachedAccountId = localStorage.getItem(ACCOUNT_CACHE_ID_KEY);
+    if (cachedAccountId && cachedAccountId !== accountId) {
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(STORAGE_UPDATED_AT_KEY);
+      localStorage.removeItem("bpmsoft-quest-chapter2-v1");
+      localStorage.removeItem("bpmsoft-quest-chapter2-updated-at");
+      state = { ...initialState, answerOrders: {} };
+      window.BPMQuestChapter2?.setState?.(window.BPMQuestChapter2.initialState);
+    }
+    localStorage.setItem(ACCOUNT_CACHE_ID_KEY, accountId);
+    localStorage.removeItem(PLAYER_PROFILE_KEY);
+  } catch {
+    // The authenticated server state remains authoritative when local cache is unavailable.
+  }
+}
+
+async function submitPlayerAccess(event) {
+  event.preventDefault();
+  if (playerAccessBusy) return;
+  const displayName = elements.playerName.value.trim().replace(/\s+/g, " ").slice(0, 40);
+  const email = elements.playerEmail.value.trim().toLowerCase();
+  const password = elements.playerPassword.value;
+  const mode = elements.playerModeStudy.checked ? "study" : "progression";
+
+  if (playerAccessMode !== "login" && displayName.length < 2) {
+    setPlayerAccessError("Введите имя длиной не менее двух символов.");
+    return;
+  }
+  if (playerAccessMode !== "profile" && !/^\S+@\S+\.\S+$/.test(email)) {
+    setPlayerAccessError("Введите корректный email.");
+    return;
+  }
+  if (playerAccessMode !== "profile" && (password.length < 10 || password.length > 128)) {
+    setPlayerAccessError("Пароль должен содержать от 10 до 128 символов.");
+    return;
+  }
+  if (playerAccessMode === "register" && password !== elements.playerPasswordConfirm.value) {
+    setPlayerAccessError("Пароли не совпадают.");
+    return;
+  }
+
+  setPlayerAccessBusy(true);
+  try {
+    const previousMode = playerProfile?.mode || null;
+    const endpoint = playerAccessMode === "profile"
+      ? "/api/auth/profile"
+      : playerAccessMode === "register"
+        ? "/api/auth/register"
+        : "/api/auth/login";
+    const response = await fetch(endpoint, {
+      method: playerAccessMode === "profile" ? "PUT" : "POST",
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      body: JSON.stringify(playerAccessMode === "profile"
+        ? { displayName, mode }
+        : { email, password, mode, ...(playerAccessMode === "register" ? { displayName } : {}) })
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      const message = response.status === 409
+        ? "Аккаунт с таким email уже существует. Переключитесь на вход."
+        : response.status === 401
+          ? "Неверный email или пароль."
+          : response.status === 429
+            ? "Слишком много попыток. Подождите несколько минут."
+            : "Не удалось подключиться к аккаунту. Попробуйте ещё раз.";
+      setPlayerAccessError(message);
+      return;
+    }
+
+    const nextProfile = normalizePlayerProfile(payload.account);
+    if (!nextProfile) throw new Error("Invalid account response");
+    prepareAccountCache(nextProfile.id);
+    playerProfile = nextProfile;
+    if (previousMode === "study" && playerProfile.mode === "progression") state = loadState();
+    closePlayerAccess();
+    renderAll();
+    window.BPMQuestChapter2?.applyAccessMode?.(previousMode);
+    await syncStateFromServer();
+  } catch {
+    setPlayerAccessError("Сервер входа недоступен. Проверьте соединение и повторите попытку.");
+  } finally {
+    setPlayerAccessBusy(false);
+  }
+}
+
+async function logoutPlayerAccount() {
+  if (playerAccessBusy) return;
+  setPlayerAccessBusy(true);
+  try {
+    const response = await fetch("/api/auth/logout", { method: "POST", headers: { "Accept": "application/json" } });
+    if (!response.ok) throw new Error("Logout failed");
+  } catch {
+    setPlayerAccessError("Не удалось завершить серверную сессию. Проверьте соединение и повторите попытку.");
+    setPlayerAccessBusy(false);
+    return;
+  }
+  playerProfile = null;
+  state = { ...initialState, answerOrders: {} };
+  elements.playerName.value = "";
+  elements.playerEmail.value = "";
+  elements.playerPassword.value = "";
+  elements.playerPasswordConfirm.value = "";
+  window.BPMQuestChapter2?.setState?.(window.BPMQuestChapter2.initialState);
+  document.body?.classList.remove("theme-copper", "is-study-mode");
+  window.BPMQuestFirstChapter?.showMap?.();
+  renderAll();
+  openPlayerAccess("login");
+}
+
+async function restorePlayerSession() {
+  if (typeof fetch !== "function") {
+    openPlayerAccess("login");
+    return;
+  }
+  try {
+    const response = await fetch("/api/auth/session", { headers: { "Accept": "application/json" } });
+    if (!response.ok) {
+      openPlayerAccess("login");
+      return;
+    }
+    const payload = await response.json();
+    const account = normalizePlayerProfile(payload.account);
+    if (!account) throw new Error("Invalid account response");
+    prepareAccountCache(account.id);
+    playerProfile = account;
+    closePlayerAccess();
+    setPlayerAccessBusy(false);
+    renderAll();
+    window.BPMQuestChapter2?.applyAccessMode?.();
+    await syncStateFromServer();
+  } catch {
+    openPlayerAccess("login");
+    setPlayerAccessError("Не удалось проверить сессию. Войдите ещё раз.");
+  }
+}
 
 function loadAdminSession() {
   try {
@@ -1201,95 +1485,117 @@ function writeLocalState(savedState, updatedAt = new Date().toISOString()) {
   }
 }
 
-function createPlayerId() {
-  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
-    return crypto.randomUUID();
-  }
-
-  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (character) => {
-    const random = Math.floor(Math.random() * 16);
-    const value = character === "x" ? random : (random & 0x3) | 0x8;
-    return value.toString(16);
-  });
-}
-
-function getPlayerId() {
-  try {
-    const existing = localStorage.getItem(PLAYER_ID_KEY);
-    if (existing) return existing;
-    const playerId = createPlayerId();
-    localStorage.setItem(PLAYER_ID_KEY, playerId);
-    return playerId;
-  } catch {
-    return createPlayerId();
-  }
-}
-
-async function pushProgress(savedState = getPersistedState()) {
-  if (typeof fetch !== "function") return null;
-
-  const response = await fetch(`/api/progress/${getPlayerId()}`, {
+async function pushAccountProgress(chapter, savedState) {
+  if (typeof fetch !== "function" || !playerProfile || isStudyMode()) return null;
+  const response = await fetch(`/api/account/progress/${chapter}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", "Accept": "application/json" },
     body: JSON.stringify({ state: savedState })
   });
-
-  if (!response.ok) throw new Error(`Progress sync failed with status ${response.status}`);
+  if (response.status === 401) {
+    playerProfile = null;
+    renderAll();
+    openPlayerAccess("login");
+    return null;
+  }
+  if (!response.ok) throw new Error(`Account progress sync failed with status ${response.status}`);
   return response.json();
 }
 
 function scheduleProgressSync(savedState) {
-  if (typeof fetch !== "function" || typeof setTimeout !== "function") return;
+  if (typeof fetch !== "function" || typeof setTimeout !== "function" || !playerProfile || isStudyMode()) return;
   if (remoteSyncTimer) clearTimeout(remoteSyncTimer);
 
   remoteSyncTimer = setTimeout(() => {
     remoteSyncTimer = null;
-    pushProgress(savedState).catch(() => {
+    pushAccountProgress("chapter1", savedState).catch(() => {
       // localStorage remains the offline source until the next successful save or page load.
     });
   }, 250);
 }
 
+function scheduleChapter2ProgressSync(savedState) {
+  if (typeof fetch !== "function" || typeof setTimeout !== "function" || !playerProfile || isStudyMode()) return;
+  if (remoteChapter2SyncTimer) clearTimeout(remoteChapter2SyncTimer);
+  remoteChapter2SyncTimer = setTimeout(() => {
+    remoteChapter2SyncTimer = null;
+    pushAccountProgress("chapter2", savedState).catch(() => {
+      // Chapter 2 remains cached locally until the account server is available again.
+    });
+  }, 250);
+}
+
 function saveState() {
+  if (isStudyMode()) return;
   const savedState = getPersistedState();
   writeLocalState(savedState);
   scheduleProgressSync(savedState);
 }
 
 async function syncStateFromServer() {
-  if (typeof fetch !== "function") return;
+  if (typeof fetch !== "function" || !playerProfile) return;
 
   try {
-    const response = await fetch(`/api/progress/${getPlayerId()}`, {
+    const response = await fetch("/api/account/progress", {
       headers: { "Accept": "application/json" }
     });
-
-    if (response.status === 404) {
-      await pushProgress(getPersistedState());
-      return;
-    }
-
-    if (!response.ok) return;
-
-    const remote = await response.json();
-    const remoteState = normalizeState(remote.state);
-    const localRank = getProgressRank(state);
-    const remoteRank = getProgressRank(remoteState);
-    const localUpdatedAt = Date.parse(localStorage.getItem(STORAGE_UPDATED_AT_KEY) || "") || 0;
-    const remoteUpdatedAt = Date.parse(remote.updatedAt || "") || 0;
-
-    if (remoteRank > localRank || (remoteRank === localRank && remoteUpdatedAt > localUpdatedAt)) {
-      state = remoteState;
-      writeLocalState(getPersistedState(state), remote.updatedAt);
+    if (response.status === 401) {
+      playerProfile = null;
       renderAll();
+      openPlayerAccess("login");
       return;
     }
+    if (!response.ok) return;
+    const { progress } = await response.json();
 
-    if (localRank > remoteRank || localUpdatedAt > remoteUpdatedAt) {
-      await pushProgress(getPersistedState());
+    const localChapter1 = getPersistedState();
+    const localChapter1Rank = getProgressRank(localChapter1);
+    const remoteChapter1 = progress?.chapter1 || null;
+    if (!remoteChapter1) {
+      if (!isStudyMode()) await pushAccountProgress("chapter1", localChapter1);
+    } else {
+      const remoteState = normalizeState(remoteChapter1.state);
+      const remoteRank = getProgressRank(remoteState);
+      if (!isStudyMode() && localChapter1Rank > remoteRank) {
+        await pushAccountProgress("chapter1", localChapter1);
+      } else {
+        state = remoteState;
+        writeLocalState(getPersistedState(state), remoteChapter1.updatedAt);
+      }
     }
+
+    const chapter2Api = window.BPMQuestChapter2;
+    if (chapter2Api?.getPersistedState) {
+      const localChapter2 = chapter2Api.getPersistedState();
+      const localChapter2Rank = chapter2Api.getProgressRank(localChapter2);
+      const remoteChapter2 = progress?.chapter2 || null;
+      if (!remoteChapter2) {
+        if (!isStudyMode()) await pushAccountProgress("chapter2", localChapter2);
+      } else {
+        const remoteRank = chapter2Api.getProgressRank(remoteChapter2.state);
+        if (!isStudyMode() && localChapter2Rank > remoteRank) {
+          await pushAccountProgress("chapter2", localChapter2);
+        } else {
+          chapter2Api.hydrateState?.(remoteChapter2.state, remoteChapter2.updatedAt);
+        }
+      }
+    }
+    renderAll();
+    window.BPMQuestChapter2?.applyAccessMode?.();
   } catch {
     // Offline play continues from localStorage and retries on the next save or page load.
+  }
+}
+
+async function resetAccountProgress(chapter) {
+  if (!playerProfile || isStudyMode() || typeof fetch !== "function") return;
+  try {
+    await fetch(`/api/account/progress/${chapter}`, {
+      method: "DELETE",
+      headers: { "Accept": "application/json" }
+    });
+  } catch {
+    // The local reset remains visible and will retry on the next explicit reset.
   }
 }
 
@@ -1401,6 +1707,7 @@ function renderBrief(mission) {
 }
 
 function renderMapState() {
+  const studyMode = isStudyMode();
   const nextMission = !state.missionComplete
     ? missions.interface
     : !state.dataMissionComplete
@@ -1437,12 +1744,16 @@ function renderMapState() {
   const classificationRow = document.querySelector('[data-zone-row="classification"]');
   const solutionRow = document.querySelector('[data-zone-row="solution"]');
 
-  elements.mapLevelLabel.textContent = state.solutionMissionComplete
+  elements.mapLevelLabel.textContent = studyMode
+    ? "Свободный маршрут"
+    : state.solutionMissionComplete
     ? "Глава завершена"
     : state.caseMissionComplete
       ? "Уровень II"
       : "Уровень I";
-  elements.mapTitle.textContent = state.solutionMissionComplete
+  elements.mapTitle.textContent = studyMode
+    ? "Все задания первого города"
+    : state.solutionMissionComplete
     ? "Первый город освоен"
     : state.caseMissionComplete
       ? "Архитектура решения"
@@ -1454,49 +1765,49 @@ function renderMapState() {
   });
 
   dataButtons.forEach((button) => {
-    button.disabled = !state.missionComplete;
+    button.disabled = !studyMode && !state.missionComplete;
     button.classList.toggle("is-current", state.missionComplete && !state.dataMissionComplete);
     button.classList.toggle("is-complete", state.dataMissionComplete);
   });
 
   accessButtons.forEach((button) => {
-    button.disabled = !state.dataMissionComplete;
+    button.disabled = !studyMode && !state.dataMissionComplete;
     button.classList.toggle("is-current", state.dataMissionComplete && !state.accessMissionComplete);
     button.classList.toggle("is-complete", state.accessMissionComplete);
   });
 
   processButtons.forEach((button) => {
-    button.disabled = !state.accessMissionComplete;
+    button.disabled = !studyMode && !state.accessMissionComplete;
     button.classList.toggle("is-current", state.accessMissionComplete && !state.processMissionComplete);
     button.classList.toggle("is-complete", state.processMissionComplete);
   });
 
   caseButtons.forEach((button) => {
-    button.disabled = !state.processMissionComplete;
+    button.disabled = !studyMode && !state.processMissionComplete;
     button.classList.toggle("is-current", state.processMissionComplete && !state.caseMissionComplete);
     button.classList.toggle("is-complete", state.caseMissionComplete);
   });
 
   integrationButtons.forEach((button) => {
-    button.disabled = !state.caseMissionComplete;
+    button.disabled = !studyMode && !state.caseMissionComplete;
     button.classList.toggle("is-current", state.caseMissionComplete && !state.integrationMissionComplete);
     button.classList.toggle("is-complete", state.integrationMissionComplete);
   });
 
   insightButtons.forEach((button) => {
-    button.disabled = !state.integrationMissionComplete;
+    button.disabled = !studyMode && !state.integrationMissionComplete;
     button.classList.toggle("is-current", state.integrationMissionComplete && !state.insightMissionComplete);
     button.classList.toggle("is-complete", state.insightMissionComplete);
   });
 
   classificationButtons.forEach((button) => {
-    button.disabled = !state.insightMissionComplete;
+    button.disabled = !studyMode && !state.insightMissionComplete;
     button.classList.toggle("is-current", state.insightMissionComplete && !state.classificationMissionComplete);
     button.classList.toggle("is-complete", state.classificationMissionComplete);
   });
 
   solutionButtons.forEach((button) => {
-    button.disabled = !state.classificationMissionComplete;
+    button.disabled = !studyMode && !state.classificationMissionComplete;
     button.classList.toggle("is-current", state.classificationMissionComplete && !state.solutionMissionComplete);
     button.classList.toggle("is-complete", state.solutionMissionComplete);
   });
@@ -3219,6 +3530,21 @@ function startGatewayTests() {
 
 function completeMission(score) {
   const mission = getMission();
+  if (isStudyMode()) {
+    const missionIndex = MISSION_KEYS.indexOf(mission.key);
+    const nextMissionKey = MISSION_KEYS[missionIndex + 1] || null;
+    renderStats();
+    setMissionStep(2);
+    showFeedback({
+      success: true,
+      score,
+      title: mission.successTitle,
+      copy: `${mission.successCopy} Это учебный запуск: основной прогресс и награды не изменены.`,
+      action: nextMissionKey ? `Перейти к заданию ${missions[nextMissionKey].number}` : "Вернуться на карту",
+      actionType: nextMissionKey ? `next-${nextMissionKey}` : "map"
+    });
+    return;
+  }
   const firstCompletion = !state[mission.completionFlag];
   state[mission.completionFlag] = true;
   state.energy = Math.min(3, state.energy + 1);
@@ -3501,14 +3827,16 @@ function reviewMissionIntro() {
 }
 
 function beginMission(key) {
-  if (key === "data" && !state.missionComplete) return;
-  if (key === "access" && !state.dataMissionComplete) return;
-  if (key === "process" && !state.accessMissionComplete) return;
-  if (key === "case" && !state.processMissionComplete) return;
-  if (key === "integration" && !state.caseMissionComplete) return;
-  if (key === "insight" && !state.integrationMissionComplete) return;
-  if (key === "classification" && !state.insightMissionComplete) return;
-  if (key === "solution" && !state.classificationMissionComplete) return;
+  if (!isStudyMode()) {
+    if (key === "data" && !state.missionComplete) return;
+    if (key === "access" && !state.dataMissionComplete) return;
+    if (key === "process" && !state.accessMissionComplete) return;
+    if (key === "case" && !state.processMissionComplete) return;
+    if (key === "integration" && !state.caseMissionComplete) return;
+    if (key === "insight" && !state.integrationMissionComplete) return;
+    if (key === "classification" && !state.insightMissionComplete) return;
+    if (key === "solution" && !state.classificationMissionComplete) return;
+  }
 
   state.activeMission = key;
   state.answerOrders = {};
@@ -3554,12 +3882,14 @@ function resetProgress() {
   if (!confirmed) return;
 
   state = { ...initialState, answerOrders: {} };
-  saveState();
+  writeLocalState(getPersistedState(state));
+  resetAccountProgress("chapter1");
   renderAll();
   showView("map");
 }
 
 function renderAll() {
+  renderPlayerProfile();
   renderAdminState();
   renderStats();
   renderMapState();
@@ -3567,6 +3897,12 @@ function renderAll() {
   renderBuilder();
 }
 
+elements.playerAccessForm.addEventListener("submit", submitPlayerAccess);
+elements.playerAccessCancel.addEventListener("click", closePlayerAccess);
+elements.playerLoginTab.addEventListener("click", () => configurePlayerAccess("login"));
+elements.playerRegisterTab.addEventListener("click", () => configurePlayerAccess("register"));
+elements.playerLogout.addEventListener("click", logoutPlayerAccount);
+elements.playerProfile.addEventListener("click", () => openPlayerAccess("profile"));
 elements.startMission.addEventListener("click", (event) => beginMission(event.currentTarget.dataset.mission));
 elements.missionIntroStart.addEventListener("click", acceptMissionIntro);
 elements.missionIntroMap.addEventListener("click", dismissMissionIntro);
@@ -3645,6 +3981,10 @@ elements.finaleReplayAction.addEventListener("click", () => beginMission("soluti
 if (typeof window !== "undefined") {
   window.BPMQuestFirstChapter = {
     getState: () => state,
+    getPlayerProfile: () => playerProfile,
+    isStudyMode,
+    scheduleChapter2ProgressSync,
+    resetAccountProgress,
     isAdminActive: () => adminActive,
     showMap: () => {
       hideMissionIntro();
@@ -3656,4 +3996,8 @@ if (typeof window !== "undefined") {
 }
 
 renderAll();
-syncStateFromServer();
+openPlayerAccess("login");
+elements.playerAccessTitle.textContent = "Подключаем аккаунт…";
+elements.playerAccessCopy.textContent = "Проверяем защищённую сессию и готовим сохранённый прогресс.";
+setPlayerAccessBusy(true);
+restorePlayerSession();
