@@ -918,6 +918,7 @@ const elements = {
   missionIntroCopy: document.getElementById("mission-intro-copy"),
   missionIntroMap: document.getElementById("mission-intro-map"),
   missionIntroStart: document.getElementById("mission-intro-start"),
+  reviewMissionIntro: document.getElementById("review-mission-intro"),
   startMission: document.getElementById("start-mission"),
   backToMap: document.getElementById("back-to-map"),
   resetProgress: document.getElementById("reset-progress"),
@@ -3456,17 +3457,21 @@ function showView(view) {
 function hideMissionIntro() {
   elements.missionIntro.hidden = true;
   delete elements.missionIntro.dataset.mission;
+  delete elements.missionIntro.dataset.mode;
   document.body?.classList.remove("has-mission-intro");
 }
 
-function openMissionIntro(mission = getMission()) {
+function openMissionIntro(mission = getMission(), mode = "first-visit") {
   elements.missionIntro.dataset.mission = mission.key;
+  elements.missionIntro.dataset.mode = mode;
   elements.missionIntroImage.src = mission.scene;
   elements.missionIntroImage.alt = mission.sceneAlt;
   elements.missionIntroNumber.textContent = mission.number;
   elements.missionIntroKicker.textContent = `Предание · ${mission.zone}`;
   elements.missionIntroTitle.textContent = mission.introTitle;
   elements.missionIntroCopy.innerHTML = mission.intro.map((paragraph) => `<p>${paragraph}</p>`).join("");
+  elements.missionIntroMap.hidden = mode === "review";
+  elements.missionIntroStart.textContent = mode === "review" ? "Вернуться к заданию" : "Принять задание";
   elements.missionIntro.hidden = false;
   document.body?.classList.add("has-mission-intro");
 }
@@ -3483,6 +3488,10 @@ function acceptMissionIntro() {
 function dismissMissionIntro() {
   hideMissionIntro();
   showView("map");
+}
+
+function reviewMissionIntro() {
+  openMissionIntro(getMission(), "review");
 }
 
 function beginMission(key) {
@@ -3555,6 +3564,7 @@ function renderAll() {
 elements.startMission.addEventListener("click", (event) => beginMission(event.currentTarget.dataset.mission));
 elements.missionIntroStart.addEventListener("click", acceptMissionIntro);
 elements.missionIntroMap.addEventListener("click", dismissMissionIntro);
+elements.reviewMissionIntro.addEventListener("click", reviewMissionIntro);
 elements.adminToggle.addEventListener("click", toggleAdminMode);
 elements.adminForm.addEventListener("submit", submitAdminDialog);
 elements.adminCancel.addEventListener("click", closeAdminDialog);
