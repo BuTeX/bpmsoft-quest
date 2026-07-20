@@ -113,6 +113,7 @@ const exports = `
     openMissionIntro,
     acceptMissionIntro,
     dismissMissionIntro,
+    reviewMissionIntro,
     shuffleAnswers,
     checkSolution,
     assignEngineModule,
@@ -228,6 +229,16 @@ assert(
 );
 api.beginMission("interface");
 assert(elements.get("mission-intro").hidden, "Interface lore intro reopened after acceptance");
+api.reviewMissionIntro();
+assert(!elements.get("mission-intro").hidden, "Interface lore intro did not reopen from the mission button");
+assert(elements.get("mission-intro-map").hidden, "Map action remained visible while rereading mission lore");
+assert(
+  elements.get("mission-intro-start").textContent === "Вернуться к заданию",
+  "Reread action does not return the player to the mission"
+);
+api.acceptMissionIntro();
+assert(elements.get("mission-intro").hidden, "Reread lore intro did not close");
+assert(api.getState().introSeen.filter((key) => key === "interface").length === 1, "Rereading duplicated the seen state");
 assert(elements.get("scene-kicker").textContent === "Вопрос миссии", "Interface mission does not label its central question");
 assert(
   elements.get("scene-copy").textContent.endsWith("?"),

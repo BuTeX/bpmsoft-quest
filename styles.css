@@ -814,6 +814,13 @@ h3 {
   padding: 4px 0;
 }
 
+.mission-lore-action {
+  width: 100%;
+  margin-bottom: 24px;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
 .chapter-stamp {
   display: flex;
   align-items: baseline;
@@ -3182,6 +3189,11 @@ button.solution-slot {
   }
 
   .back-action {
+    margin: 0;
+  }
+
+  .mission-lore-action {
+    width: 100%;
     margin: 0;
   }
 
