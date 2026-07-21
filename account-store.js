@@ -16,7 +16,7 @@ function accountFromRow(row) {
 }
 
 function progressFromRow(row) {
-  if (!row) return { chapter1: null, chapter2: null, chapter3: null };
+  if (!row) return { chapter1: null, chapter2: null, chapter3: null, chapter4: null };
   return {
     chapter1: row.chapter1_state
       ? { state: row.chapter1_state, score: Number(row.chapter1_score) || 0, updatedAt: row.updated_at }
@@ -26,6 +26,9 @@ function progressFromRow(row) {
       : null,
     chapter3: row.chapter3_state
       ? { state: row.chapter3_state, score: Number(row.chapter3_score) || 0, updatedAt: row.updated_at }
+      : null,
+    chapter4: row.chapter4_state
+      ? { state: row.chapter4_state, score: Number(row.chapter4_score) || 0, updatedAt: row.updated_at }
       : null
   };
 }
@@ -33,7 +36,8 @@ function progressFromRow(row) {
 const progressColumns = {
   chapter1: ["chapter1_state", "chapter1_score"],
   chapter2: ["chapter2_state", "chapter2_score"],
-  chapter3: ["chapter3_state", "chapter3_score"]
+  chapter3: ["chapter3_state", "chapter3_score"],
+  chapter4: ["chapter4_state", "chapter4_score"]
 };
 
 export class PostgresAccountStore {
@@ -101,7 +105,7 @@ export class PostgresAccountStore {
   async getProgress(accountId) {
     const result = await this.database.query(
       `SELECT chapter1_state, chapter1_score, chapter2_state, chapter2_score,
-              chapter3_state, chapter3_score, updated_at
+              chapter3_state, chapter3_score, chapter4_state, chapter4_score, updated_at
        FROM account_progress WHERE account_id = $1`,
       [accountId]
     );
@@ -121,7 +125,7 @@ export class PostgresAccountStore {
            ${scoreColumn} = GREATEST(account_progress.${scoreColumn}, EXCLUDED.${scoreColumn}),
            updated_at = NOW()
        RETURNING chapter1_state, chapter1_score, chapter2_state, chapter2_score,
-                 chapter3_state, chapter3_score, updated_at`,
+                 chapter3_state, chapter3_score, chapter4_state, chapter4_score, updated_at`,
       [accountId, JSON.stringify(state), score]
     );
     return progressFromRow(result.rows[0])[chapter];
@@ -135,7 +139,7 @@ export class PostgresAccountStore {
        ON CONFLICT (account_id) DO UPDATE
        SET ${stateColumn} = NULL, ${scoreColumn} = 0, updated_at = NOW()
        RETURNING chapter1_state, chapter1_score, chapter2_state, chapter2_score,
-                 chapter3_state, chapter3_score, updated_at`,
+                 chapter3_state, chapter3_score, chapter4_state, chapter4_score, updated_at`,
       [accountId]
     );
     return progressFromRow(result.rows[0])[chapter];
@@ -199,11 +203,11 @@ export class MemoryAccountStore {
   }
 
   async getProgress(accountId) {
-    return clone(this.progress.get(accountId) || { chapter1: null, chapter2: null, chapter3: null });
+    return clone(this.progress.get(accountId) || { chapter1: null, chapter2: null, chapter3: null, chapter4: null });
   }
 
   async saveProgress(accountId, chapter, state, score) {
-    const saved = this.progress.get(accountId) || { chapter1: null, chapter2: null, chapter3: null };
+    const saved = this.progress.get(accountId) || { chapter1: null, chapter2: null, chapter3: null, chapter4: null };
     const current = saved[chapter];
     if (!current || score >= current.score) {
       saved[chapter] = { state: clone(state), score, updatedAt: new Date().toISOString() };
@@ -213,7 +217,7 @@ export class MemoryAccountStore {
   }
 
   async resetProgress(accountId, chapter) {
-    const saved = this.progress.get(accountId) || { chapter1: null, chapter2: null, chapter3: null };
+    const saved = this.progress.get(accountId) || { chapter1: null, chapter2: null, chapter3: null, chapter4: null };
     saved[chapter] = null;
     this.progress.set(accountId, saved);
     return null;

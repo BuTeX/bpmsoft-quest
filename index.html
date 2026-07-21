@@ -10,8 +10,9 @@
   <link rel="icon" type="image/png" sizes="512x512" href="assets/favicon.png?v=20260720-1">
   <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png?v=20260720-1">
   <link rel="stylesheet" href="styles.css?v=20260721-knowledge-links">
-  <link rel="stylesheet" href="chapter2.css?v=20260721-explicit-conditions">
-  <link rel="stylesheet" href="chapter3.css?v=20260721-orbit-360-3">
+  <link rel="stylesheet" href="chapter2.css?v=20260721-mobile-switcher">
+  <link rel="stylesheet" href="chapter3.css?v=20260721-finale-visibility">
+  <link rel="stylesheet" href="chapter4.css?v=20260721-golden-shelf-4">
 </head>
 <body>
   <div class="game-shell">
@@ -24,7 +25,7 @@
         <div class="player-access-heading">
           <p class="eyebrow">Вход в академию</p>
           <h2 id="player-access-title">С возвращением</h2>
-          <p id="player-access-copy">Войдите в аккаунт — прогресс трёх карт восстановится автоматически.</p>
+          <p id="player-access-copy">Войдите в аккаунт — прогресс четырёх карт восстановится автоматически.</p>
         </div>
         <label id="player-name-field" class="player-name-field" for="player-name" hidden>
           <span>Имя или ник</span>
@@ -56,7 +57,7 @@
             <input id="player-mode-study" name="questMode" type="radio" value="study">
             <span class="player-mode-card-copy">
               <strong>Изучение и осмотр</strong>
-              <small>Все три карты и 27 заданий доступны сразу. Основной прогресс не изменяется.</small>
+              <small>Все четыре карты и 36 заданий доступны сразу. Основной прогресс не изменяется.</small>
             </span>
           </label>
         </fieldset>
@@ -193,6 +194,45 @@
       </section>
     </div>
 
+    <div id="chapter4-prologue" class="c4-overlay" hidden>
+      <section class="c4-overlay-dialog" role="dialog" aria-modal="true" aria-labelledby="chapter4-prologue-title" aria-describedby="chapter4-prologue-copy">
+        <div class="c4-overlay-visual" aria-hidden="true">
+          <img src="assets/chapter4-world-map.png" alt="">
+          <div class="c4-overlay-orbit"><span></span><span></span><span></span></div>
+        </div>
+        <div class="c4-overlay-content">
+          <p class="eyebrow">Четвёртый проект · сеть «Золотая полка»</p>
+          <h2 id="chapter4-prologue-title">Три сети должны стать одной компанией</h2>
+          <div id="chapter4-prologue-copy" class="c4-overlay-copy">
+            <p>После трёх поглощений «Золотая полка» объединяет магазины, франчайзи, интернет-витрину, склады и контактный центр. У подразделений разные клиентские базы, правила коммуникации, статусы заказов и определения результата.</p>
+            <p>Ты входишь в проект как ведущий аналитик трансформации. Здесь недостаточно выбрать знакомый инструмент: сначала нужно найти факты на рабочей панораме, а затем собрать доказуемую цепочку «причина → механизм → проверка».</p>
+          </div>
+          <div class="c4-overlay-actions">
+            <button id="chapter4-prologue-back" class="secondary-action" type="button">Вернуться к проекту «Семь дорог»</button>
+            <button id="chapter4-prologue-start" class="primary-action" type="button">Начать трансформацию</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div id="chapter4-mission-intro" class="c4-overlay c4-mission-intro" hidden>
+      <section class="c4-overlay-dialog" role="dialog" aria-modal="true" aria-labelledby="chapter4-mission-intro-title" aria-describedby="chapter4-mission-intro-copy">
+        <div class="c4-overlay-visual c4-mission-intro-visual" aria-hidden="true">
+          <img id="chapter4-mission-intro-image" src="assets/mission-legacy-ledgers.png" alt="">
+          <div class="c4-mission-intro-number"><span>Задание</span><strong id="chapter4-mission-intro-number">28</strong></div>
+        </div>
+        <div class="c4-overlay-content">
+          <p id="chapter4-mission-intro-kicker" class="eyebrow">Аудит заказчика · Миграция данных</p>
+          <h2 id="chapter4-mission-intro-title">Покупатели размножились после миграции</h2>
+          <div id="chapter4-mission-intro-copy" class="c4-overlay-copy"></div>
+          <div class="c4-overlay-actions">
+            <button id="chapter4-mission-intro-map" class="secondary-action" type="button">Вернуться на карту</button>
+            <button id="chapter4-mission-intro-start" class="primary-action" type="button">Начать аудит</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
     <header class="topbar">
       <div class="brand" aria-label="BPMSoft Quest">
         <div class="company-logo-wrap">
@@ -208,6 +248,7 @@
         <button id="show-first-chapter" class="is-active" type="button" aria-pressed="true">Академия</button>
         <button id="show-second-chapter" type="button" aria-pressed="false">Медные машины</button>
         <button id="show-third-chapter" type="button" aria-pressed="false" disabled>Семь дорог</button>
+        <button id="show-fourth-chapter" type="button" aria-pressed="false" disabled>Золотая полка</button>
       </nav>
 
       <div class="player-stats" aria-label="Прогресс пользователя">
@@ -752,7 +793,134 @@
           <div class="finale-stats"><div><strong>9 / 9</strong><span>заданий</span></div><div><strong>600 XP</strong><span>за проект</span></div><div><strong>V–VI</strong><span>уровни</span></div></div>
           <div class="achievement-card"><img class="c3-finale-scout" src="assets/chapter3-scout-pico.png" alt="Диагностический дрон CRM-команды"><div><p class="eyebrow">Новое достижение</p><h3>Ведущий CRM-аналитик</h3><p>Вы помогли внутренней команде выстроить правила развития данных, процессов, сервиса, интеграций и AI.</p></div></div>
           <blockquote>Единая картина клиента — не одна большая карточка. Это договорённость команд и систем о том, какие данные они используют и как проверяют результат. <cite>— Лиора Вель</cite></blockquote>
-          <div class="finale-actions"><button id="chapter3-finale-map" class="primary-action" type="button">Вернуться к проекту</button><button id="chapter3-finale-replay" class="secondary-action" type="button">Повторить итоговую приёмку</button><button id="chapter3-finale-second" class="secondary-action" type="button">Перейти к «Медным машинам»</button><button id="chapter3-finale-first" class="secondary-action" type="button">Вернуться в Академию</button></div>
+          <div class="finale-actions"><button id="chapter3-finale-map" class="primary-action" type="button">Вернуться к проекту</button><button id="chapter3-finale-chapter4" class="primary-action c4-launch-action" type="button">Перейти к «Золотой полке»</button><button id="chapter3-finale-replay" class="secondary-action" type="button">Повторить итоговую приёмку</button><button id="chapter3-finale-second" class="secondary-action" type="button">Перейти к «Медным машинам»</button><button id="chapter3-finale-first" class="secondary-action" type="button">Вернуться в Академию</button></div>
+        </div>
+      </section>
+
+      <section id="chapter4-map-view" class="view c4-map-view" aria-labelledby="chapter4-map-title" hidden>
+        <div class="c4-map-layout">
+          <aside class="c4-zone-journal" aria-label="Задания сети «Золотая полка»">
+            <div class="panel-heading">
+              <p id="chapter4-level-label" class="eyebrow">Омниканальная трансформация</p>
+              <h2 id="chapter4-map-title">Объединение торговой сети</h2>
+            </div>
+            <ol class="c4-zone-list">
+              <li data-c4-zone-row="migration"><button type="button" data-c4-zone="migration"><span>28</span><strong>Миграция базы<small>Мастер-данные покупателя</small></strong></button></li>
+              <li data-c4-zone-row="consent"><button type="button" data-c4-zone="consent" disabled><span>29</span><strong>Согласия<small>Каналы и цели</small></strong></button></li>
+              <li data-c4-zone-row="campaign"><button type="button" data-c4-zone="campaign" disabled><span>30</span><strong>Кампании<small>Аудитория и маршрут</small></strong></button></li>
+              <li data-c4-zone-row="franchise"><button type="button" data-c4-zone="franchise" disabled><span>31</span><strong>Франчайзи<small>Портал партнёров</small></strong></button></li>
+              <li data-c4-zone-row="order"><button type="button" data-c4-zone="order" disabled><span>32</span><strong>Заказы<small>Омниканальный цикл</small></strong></button></li>
+              <li data-c4-zone-row="stock"><button type="button" data-c4-zone="stock" disabled><span>33</span><strong>Остатки<small>Резервы и события</small></strong></button></li>
+              <li data-c4-zone-row="returns"><button type="button" data-c4-zone="returns" disabled><span>34</span><strong>Возвраты<small>Кейс и компенсация</small></strong></button></li>
+              <li data-c4-zone-row="insight"><button type="button" data-c4-zone="insight" disabled><span>35</span><strong>Аналитика<small>Метрики и качество</small></strong></button></li>
+              <li data-c4-zone-row="transformation"><button type="button" data-c4-zone="transformation" disabled><span>36</span><strong>Трансформация<small>Сквозная приёмка</small></strong></button></li>
+            </ol>
+            <button id="chapter4-reset-progress" class="text-action" type="button">Сбросить прогресс проекта</button>
+          </aside>
+
+          <section class="c4-world-stage" aria-label="Карта торговой сети «Золотая полка»">
+            <img class="c4-world-map-image" src="assets/chapter4-world-map.png" alt="" aria-hidden="true">
+            <button class="c4-map-node" type="button" data-c4-zone="migration" style="--x: 16%; --y: 27%;"><span>28</span><strong>Миграция</strong></button>
+            <button class="c4-map-node" type="button" data-c4-zone="consent" style="--x: 42%; --y: 12%;" disabled><span>29</span><strong>Согласия</strong></button>
+            <button class="c4-map-node" type="button" data-c4-zone="campaign" style="--x: 68%; --y: 18%;" disabled><span>30</span><strong>Кампании</strong></button>
+            <button class="c4-map-node" type="button" data-c4-zone="franchise" style="--x: 86%; --y: 39%;" disabled><span>31</span><strong>Франчайзи</strong></button>
+            <button class="c4-map-node" type="button" data-c4-zone="order" style="--x: 76%; --y: 70%;" disabled><span>32</span><strong>Заказы</strong></button>
+            <button class="c4-map-node" type="button" data-c4-zone="stock" style="--x: 50%; --y: 82%;" disabled><span>33</span><strong>Остатки</strong></button>
+            <button class="c4-map-node" type="button" data-c4-zone="returns" style="--x: 21%; --y: 73%;" disabled><span>34</span><strong>Возвраты</strong></button>
+            <button class="c4-map-node" type="button" data-c4-zone="insight" style="--x: 10%; --y: 49%;" disabled><span>35</span><strong>Аналитика</strong></button>
+            <button class="c4-map-node c4-map-node-core" type="button" data-c4-zone="transformation" style="--x: 48%; --y: 48%;" disabled><span>36</span><strong>Приёмка сети</strong></button>
+            <div class="c4-map-caption">Сеть «Золотая полка» · единый клиентский маршрут</div>
+          </section>
+
+          <aside class="c4-quest-brief">
+            <div class="c4-mentor-block">
+              <img src="assets/chapter4-mentor-ruta.png" alt="Рута Мейл, директор по клиентскому опыту">
+              <div><p class="eyebrow">Представитель заказчика</p><strong>Рута Мейл</strong><small>Директор по клиентскому опыту</small></div>
+            </div>
+            <div class="c4-brief-copy">
+              <p id="chapter4-brief-number" class="quest-number">Задание 28</p>
+              <h2 id="chapter4-brief-title">Остановить дубли после миграции</h2>
+              <p id="chapter4-brief-copy">Команда трансформации просит сопоставить три клиентские базы и сохранить связанные заказы и возвраты.</p>
+              <dl class="reward-list">
+                <div><dt>Награда</dt><dd id="chapter4-brief-reward">70 XP карты</dd></div>
+                <div><dt>Механика</dt><dd id="chapter4-brief-time">6 наблюдений · 2 цепочки</dd></div>
+                <div><dt>Откроет</dt><dd id="chapter4-brief-unlock">Задание 29 · Согласия и предпочтения</dd></div>
+              </dl>
+            </div>
+            <button id="chapter4-start-mission" class="primary-action" type="button" data-c4-mission="migration">Открыть аудит</button>
+          </aside>
+        </div>
+      </section>
+
+      <section id="chapter4-mission-view" class="view c4-mission-view" aria-labelledby="chapter4-mission-title" hidden>
+        <div class="c4-mission-layout">
+          <aside class="c4-mission-rail">
+            <button id="chapter4-back-to-map" class="back-action" type="button">← К проекту «Золотая полка»</button>
+            <button id="chapter4-review-intro" class="secondary-action" type="button">Прочитать описание задания</button>
+            <div class="c4-chapter-stamp"><span>Аудит</span><strong id="chapter4-mission-number">28</strong></div>
+            <ol id="chapter4-stage-list" class="c4-stage-list" aria-label="Раунды аудита"></ol>
+            <div class="c4-lore-note"><span>Системный принцип</span><p id="chapter4-lore-copy"></p></div>
+          </aside>
+
+          <section class="c4-workspace">
+            <header class="c4-mission-header">
+              <div><p id="chapter4-mission-zone" class="eyebrow"></p><h2 id="chapter4-mission-title"></h2></div>
+              <span id="chapter4-attempt-badge" class="attempt-badge">Попытка 1</span>
+            </header>
+
+            <section id="chapter4-audit-panel" class="c4-audit-panel" aria-labelledby="chapter4-stage-title">
+              <div class="c4-stage-heading">
+                <div><p id="chapter4-stage-kicker" class="eyebrow"></p><h3 id="chapter4-stage-title"></h3></div>
+                <strong id="chapter4-audit-progress">0 / 3 фактов</strong>
+              </div>
+              <p id="chapter4-stage-instruction" class="c4-stage-instruction"></p>
+              <div class="c4-audit-image">
+                <img id="chapter4-scene-image" src="assets/mission-legacy-ledgers.png" alt="Рабочая панорама аудита">
+                <div id="chapter4-hotspot-layer" class="c4-hotspot-layer"></div>
+              </div>
+              <ol id="chapter4-evidence-list" class="c4-evidence-list" aria-label="Найденные факты"></ol>
+            </section>
+
+            <section class="c4-decision-panel" aria-labelledby="chapter4-decision-title">
+              <div class="c4-stage-heading">
+                <div><p class="eyebrow">Стол решения</p><h3 id="chapter4-decision-title">Соберите доказуемую цепочку</h3></div>
+                <span>Причина → механизм → проверка</span>
+              </div>
+              <p id="chapter4-decision-lock" class="c4-decision-lock">Стол откроется после полного аудита панорамы.</p>
+              <div id="chapter4-chain-slots" class="c4-chain-slots"></div>
+              <p class="c4-deck-label">Колода решений · нажмите карточку или перетащите её в нужное звено</p>
+              <div id="chapter4-card-deck" class="c4-card-deck"></div>
+              <div class="c4-mission-actions">
+                <p id="chapter4-chain-hint">Сначала найдите все факты на панораме.</p>
+                <button id="chapter4-check-chain" class="primary-action" type="button" disabled>Проверить цепочку</button>
+              </div>
+              <section id="chapter4-feedback" class="c4-feedback" aria-live="polite" hidden>
+                <div><p id="chapter4-feedback-kicker" class="eyebrow">Результат проверки</p><h3 id="chapter4-feedback-title"></h3><p id="chapter4-feedback-copy"></p></div>
+                <div class="c4-feedback-score"><strong id="chapter4-feedback-score">0</strong><span>XP</span></div>
+                <button id="chapter4-feedback-action" class="secondary-action" type="button">Продолжить</button>
+              </section>
+            </section>
+          </section>
+
+          <aside class="c4-codex-panel">
+            <p class="eyebrow">Справка аналитика</p>
+            <h2 id="chapter4-codex-title">Термины задания</h2>
+            <dl id="chapter4-codex-list"></dl>
+            <div class="source-note"><span>Источник знания</span><p id="chapter4-source-copy"></p></div>
+          </aside>
+        </div>
+      </section>
+
+      <section id="chapter4-finale-view" class="view c4-finale-view" aria-labelledby="chapter4-finale-title" hidden>
+        <div class="c4-finale-card">
+          <div class="c4-finale-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+          <p class="eyebrow">Трансформация принята</p>
+          <h2 id="chapter4-finale-title">«Золотая полка» работает как единая сеть</h2>
+          <p>Магазины, сайт, склады, франчайзи и контактный центр сохранили свои роли, но теперь используют согласованные данные, ограничения и измеримые события одного клиентского маршрута.</p>
+          <div class="finale-stats"><div><strong>9 / 9</strong><span>заданий</span></div><div><strong>700 XP</strong><span>за проект</span></div><div><strong>VII–VIII</strong><span>уровни</span></div></div>
+          <div class="achievement-card"><img class="c4-finale-scout" src="assets/chapter4-scout-tally.png" alt="Инвентарный помощник торговой сети"><div><p class="eyebrow">Новое достижение</p><h3>Архитектор клиентской трансформации</h3><p>Вы связали мастер-данные, маркетинг, партнёров, заказы, остатки, сервис и аналитику в доказуемую операционную модель.</p></div></div>
+          <blockquote>Единая сеть — не место, где все делают одно и то же. Это место, где каждый отвечает за свой шаг и никто не спорит с фактами. <cite>— Рута Мейл</cite></blockquote>
+          <div class="finale-actions"><button id="chapter4-finale-map" class="primary-action" type="button">Вернуться к проекту</button><button id="chapter4-finale-replay" class="secondary-action" type="button">Повторить сквозную приёмку</button><button id="chapter4-finale-third" class="secondary-action" type="button">Перейти к «Семи дорогам»</button><button id="chapter4-finale-first" class="secondary-action" type="button">Вернуться в Академию</button></div>
         </div>
       </section>
     </main>
@@ -763,5 +931,7 @@
   <script src="chapter2.js?v=20260721-knowledge-links"></script>
   <script src="chapter3-missions.js?v=20260721-knowledge-links"></script>
   <script src="chapter3.js?v=20260721-knowledge-links"></script>
+  <script src="chapter4-missions.js?v=20260721-golden-shelf-2"></script>
+  <script src="chapter4.js?v=20260721-golden-shelf-2"></script>
 </body>
 </html>

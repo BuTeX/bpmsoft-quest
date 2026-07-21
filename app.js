@@ -19,6 +19,7 @@ const COMPLETION_FLAGS = [
 let remoteSyncTimer = null;
 let remoteChapter2SyncTimer = null;
 let remoteChapter3SyncTimer = null;
+let remoteChapter4SyncTimer = null;
 
 const missions = {
   interface: {
@@ -1054,6 +1055,8 @@ function renderPlayerProfile() {
   if (chapter2Reset) chapter2Reset.hidden = isStudyMode();
   const chapter3Reset = document.getElementById("chapter3-reset-progress");
   if (chapter3Reset) chapter3Reset.hidden = isStudyMode();
+  const chapter4Reset = document.getElementById("chapter4-reset-progress");
+  if (chapter4Reset) chapter4Reset.hidden = isStudyMode();
   if (!hasProfile) return;
   elements.playerProfileName.textContent = playerProfile.name;
   elements.playerProfileMode.textContent = isStudyMode() ? "Изучение · всё открыто" : "Прохождение · по порядку";
@@ -1110,14 +1113,14 @@ function configurePlayerAccess(mode) {
     elements.playerEmail.value = playerProfile?.email || "";
     elements.playerPassword.value = "";
     elements.playerPasswordConfirm.value = "";
-    elements.playerAuthSecurity.textContent = "Прогресс трёх карт синхронизируется с аккаунтом в режиме прохождения.";
+    elements.playerAuthSecurity.textContent = "Прогресс четырёх карт синхронизируется с аккаунтом в режиме прохождения.";
   } else if (registrationMode) {
     elements.playerAccessTitle.textContent = "Создайте аккаунт аналитика";
     elements.playerAccessCopy.textContent = "Email и пароль позволят продолжить прохождение на другом устройстве.";
     elements.playerAuthSecurity.textContent = "Пароль хранится только в виде стойкого scrypt-хеша. Минимальная длина — 10 символов.";
   } else {
     elements.playerAccessTitle.textContent = "С возвращением";
-    elements.playerAccessCopy.textContent = "Войдите в аккаунт — прогресс трёх карт восстановится автоматически.";
+    elements.playerAccessCopy.textContent = "Войдите в аккаунт — прогресс четырёх карт восстановится автоматически.";
     elements.playerAuthSecurity.textContent = "Сессия хранится в защищённой HttpOnly cookie и действует 30 дней.";
   }
   setPlayerAccessError();
@@ -1150,9 +1153,12 @@ function prepareAccountCache(accountId) {
       localStorage.removeItem("bpmsoft-quest-chapter2-updated-at");
       localStorage.removeItem("bpmsoft-quest-chapter3-v1");
       localStorage.removeItem("bpmsoft-quest-chapter3-updated-at");
+      localStorage.removeItem("bpmsoft-quest-chapter4-v1");
+      localStorage.removeItem("bpmsoft-quest-chapter4-updated-at");
       state = { ...initialState, answerOrders: {} };
       window.BPMQuestChapter2?.setState?.(window.BPMQuestChapter2.initialState);
       window.BPMQuestChapter3?.setState?.(window.BPMQuestChapter3.initialState);
+      window.BPMQuestChapter4?.setState?.(window.BPMQuestChapter4.initialState);
     }
     localStorage.setItem(ACCOUNT_CACHE_ID_KEY, accountId);
     localStorage.removeItem(PLAYER_PROFILE_KEY);
@@ -1223,6 +1229,7 @@ async function submitPlayerAccess(event) {
     renderAll();
     window.BPMQuestChapter2?.applyAccessMode?.(previousMode);
     window.BPMQuestChapter3?.applyAccessMode?.(previousMode);
+    window.BPMQuestChapter4?.applyAccessMode?.(previousMode);
     await syncStateFromServer();
   } catch {
     setPlayerAccessError("Сервер входа недоступен. Проверьте соединение и повторите попытку.");
@@ -1250,7 +1257,8 @@ async function logoutPlayerAccount() {
   elements.playerPasswordConfirm.value = "";
   window.BPMQuestChapter2?.setState?.(window.BPMQuestChapter2.initialState);
   window.BPMQuestChapter3?.setState?.(window.BPMQuestChapter3.initialState);
-  document.body?.classList.remove("theme-copper", "theme-orbit", "is-study-mode");
+  window.BPMQuestChapter4?.setState?.(window.BPMQuestChapter4.initialState);
+  document.body?.classList.remove("theme-copper", "theme-orbit", "theme-market", "is-study-mode");
   window.BPMQuestFirstChapter?.showMap?.();
   renderAll();
   openPlayerAccess("login");
@@ -1277,6 +1285,7 @@ async function restorePlayerSession() {
     renderAll();
     window.BPMQuestChapter2?.applyAccessMode?.();
     window.BPMQuestChapter3?.applyAccessMode?.();
+    window.BPMQuestChapter4?.applyAccessMode?.();
     await syncStateFromServer();
   } catch {
     openPlayerAccess("login");
@@ -1313,6 +1322,7 @@ function renderAdminState() {
 function refreshChapter2AdminAnswers() {
   window.BPMQuestChapter2?.refreshAdminHighlights?.();
   window.BPMQuestChapter3?.refreshAdminHighlights?.();
+  window.BPMQuestChapter4?.refreshAdminHighlights?.();
 }
 
 function markAdminAnswer(button, answerId, correctId) {
@@ -1563,6 +1573,17 @@ function scheduleChapter3ProgressSync(savedState) {
   }, 250);
 }
 
+function scheduleChapter4ProgressSync(savedState) {
+  if (typeof fetch !== "function" || typeof setTimeout !== "function" || !playerProfile || isStudyMode()) return;
+  if (remoteChapter4SyncTimer) clearTimeout(remoteChapter4SyncTimer);
+  remoteChapter4SyncTimer = setTimeout(() => {
+    remoteChapter4SyncTimer = null;
+    pushAccountProgress("chapter4", savedState).catch(() => {
+      // Chapter 4 remains cached locally until the account server is available again.
+    });
+  }, 250);
+}
+
 function saveState() {
   if (isStudyMode()) return;
   const savedState = getPersistedState();
@@ -1635,9 +1656,27 @@ async function syncStateFromServer() {
         }
       }
     }
+
+    const chapter4Api = window.BPMQuestChapter4;
+    if (chapter4Api?.getPersistedState) {
+      const localChapter4 = chapter4Api.getPersistedState();
+      const localChapter4Rank = chapter4Api.getProgressRank(localChapter4);
+      const remoteChapter4 = progress?.chapter4 || null;
+      if (!remoteChapter4) {
+        if (!isStudyMode()) await pushAccountProgress("chapter4", localChapter4);
+      } else {
+        const remoteRank = chapter4Api.getProgressRank(remoteChapter4.state);
+        if (!isStudyMode() && localChapter4Rank > remoteRank) {
+          await pushAccountProgress("chapter4", localChapter4);
+        } else {
+          chapter4Api.hydrateState?.(remoteChapter4.state, remoteChapter4.updatedAt);
+        }
+      }
+    }
     renderAll();
     window.BPMQuestChapter2?.applyAccessMode?.();
     window.BPMQuestChapter3?.applyAccessMode?.();
+    window.BPMQuestChapter4?.applyAccessMode?.();
   } catch {
     // Offline play continues from localStorage and retries on the next save or page load.
   }
@@ -4065,6 +4104,7 @@ if (typeof window !== "undefined") {
     isStudyMode,
     scheduleChapter2ProgressSync,
     scheduleChapter3ProgressSync,
+    scheduleChapter4ProgressSync,
     resetAccountProgress,
     isAdminActive: () => adminActive,
     showMap: () => {

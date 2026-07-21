@@ -210,12 +210,14 @@ function setChapter3SwitcherState(activeChapter) {
   const first = document.getElementById("show-first-chapter");
   const second = document.getElementById("show-second-chapter");
   const third = document.getElementById("show-third-chapter");
-  if (!switcher || !first || !second || !third) return;
+  const fourth = document.getElementById("show-fourth-chapter");
+  if (!switcher || !first || !second || !third || !fourth) return;
   const firstUnlocked = isChapter3StudyMode() || window.BPMQuestFirstChapter?.getState?.().solutionMissionComplete === true;
   switcher.hidden = !firstUnlocked;
   third.disabled = !isChapter3Unlocked();
-  [first, second, third].forEach((button, index) => {
-    const key = ["chapter1", "chapter2", "chapter3"][index];
+  fourth.disabled = !(isChapter3StudyMode() || chapter3State.orbitComplete === true);
+  [first, second, third, fourth].forEach((button, index) => {
+    const key = ["chapter1", "chapter2", "chapter3", "chapter4"][index];
     const active = activeChapter === key;
     button.classList.toggle("is-active", active);
     button.setAttribute("aria-pressed", String(active));
@@ -287,7 +289,7 @@ function activateChapter3Map({ reviewPrologue = false } = {}) {
     view.classList.remove("is-active");
     view.hidden = true;
   });
-  document.body?.classList.remove("theme-copper");
+  document.body?.classList.remove("theme-copper", "theme-market");
   document.body?.classList.add("theme-orbit");
   const view = document.getElementById("chapter3-map-view");
   view.hidden = false;
@@ -303,13 +305,13 @@ function activateChapter3Map({ reviewPrologue = false } = {}) {
 
 function activateChapter2FromChapter3() {
   hideChapter3Overlays();
-  document.body?.classList.remove("theme-orbit");
+  document.body?.classList.remove("theme-orbit", "theme-market");
   window.BPMQuestChapter2?.activateMap?.();
 }
 
 function activateFirstFromChapter3() {
   hideChapter3Overlays();
-  document.body?.classList.remove("theme-orbit", "theme-copper");
+  document.body?.classList.remove("theme-orbit", "theme-copper", "theme-market");
   window.BPMQuestChapter2?.activateFirstChapter?.();
 }
 
@@ -459,7 +461,7 @@ function showChapter3View(id) {
     view.classList.toggle("is-active", active);
     view.hidden = !active;
   });
-  document.body?.classList.remove("theme-copper");
+  document.body?.classList.remove("theme-copper", "theme-market");
   document.body?.classList.add("theme-orbit");
   setChapter3SwitcherState("chapter3");
   renderChapter3Stats();

@@ -307,11 +307,13 @@ function setChapterSwitcherState(activeChapter) {
   const firstButton = document.getElementById("show-first-chapter");
   const secondButton = document.getElementById("show-second-chapter");
   const thirdButton = document.getElementById("show-third-chapter");
+  const fourthButton = document.getElementById("show-fourth-chapter");
   if (!switcher || !firstButton || !secondButton) return;
   switcher.hidden = !isChapter2Unlocked();
   const firstActive = activeChapter === "chapter1";
   const secondActive = activeChapter === "chapter2";
   const thirdActive = activeChapter === "chapter3";
+  const fourthActive = activeChapter === "chapter4";
   firstButton.classList.toggle("is-active", firstActive);
   secondButton.classList.toggle("is-active", secondActive);
   firstButton.setAttribute("aria-pressed", String(firstActive));
@@ -321,6 +323,12 @@ function setChapterSwitcherState(activeChapter) {
     thirdButton.disabled = !thirdUnlocked;
     thirdButton.classList.toggle("is-active", thirdActive);
     thirdButton.setAttribute("aria-pressed", String(thirdActive));
+  }
+  if (fourthButton) {
+    const fourthUnlocked = isChapter2StudyMode() || window.BPMQuestChapter3?.getState?.().orbitComplete === true;
+    fourthButton.disabled = !fourthUnlocked;
+    fourthButton.classList.toggle("is-active", fourthActive);
+    fourthButton.setAttribute("aria-pressed", String(fourthActive));
   }
 }
 
@@ -393,7 +401,7 @@ function activateChapter2Map({ reviewPrologue = false } = {}) {
     view.classList.remove("is-active");
     view.hidden = true;
   });
-  document.body?.classList.remove("theme-orbit");
+  document.body?.classList.remove("theme-orbit", "theme-market");
   document.body?.classList.add("theme-copper");
   const mapView = document.getElementById("chapter2-map-view");
   mapView.hidden = false;
@@ -410,7 +418,7 @@ function activateChapter2Map({ reviewPrologue = false } = {}) {
 function activateFirstChapter() {
   hideChapter2Prologue();
   window.BPMQuestChapter3?.closeOverlays?.();
-  document.body?.classList.remove("theme-copper", "theme-orbit");
+  document.body?.classList.remove("theme-copper", "theme-orbit", "theme-market");
   const mapView = document.getElementById("chapter2-map-view");
   if (mapView) {
     mapView.classList.remove("is-active");
@@ -601,6 +609,7 @@ function showChapter2View(id) {
     view.classList.toggle("is-active", active);
     view.hidden = !active;
   });
+  document.body?.classList.remove("theme-orbit", "theme-market");
   document.body?.classList.add("theme-copper");
   setChapterSwitcherState("chapter2");
   renderChapter2Stats();

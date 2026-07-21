@@ -6,6 +6,7 @@ import {
   resetMemoryAccountStore,
   sanitizeChapter2ProgressState,
   sanitizeChapter3ProgressState,
+  sanitizeChapter4ProgressState,
   sanitizeProgressState,
   verifyPassword
 } from "./server.js";
@@ -89,6 +90,28 @@ test("chapter 3 scripts, styles and generated art are public", async () => {
   responses.forEach((response, index) => assert.equal(response.status, 200, `${files[index]} is not served`));
 });
 
+test("chapter 4 scripts, styles and generated art are public", async () => {
+  const files = [
+    "chapter4.css",
+    "chapter4-missions.js",
+    "chapter4.js",
+    "assets/chapter4-world-map.png",
+    "assets/chapter4-mentor-ruta.png",
+    "assets/chapter4-scout-tally.png",
+    "assets/mission-legacy-ledgers.png",
+    "assets/mission-consent-pavilion.png",
+    "assets/mission-campaign-house.png",
+    "assets/mission-franchise-arcade.png",
+    "assets/mission-order-courtyard.png",
+    "assets/mission-stock-exchange.png",
+    "assets/mission-returns-center.png",
+    "assets/mission-insight-ledger.png",
+    "assets/mission-transformation-room.png"
+  ];
+  const responses = await Promise.all(files.map((file) => fetch(`${baseUrl}/${file}`, { method: "HEAD" })));
+  responses.forEach((response, index) => assert.equal(response.status, 200, `${files[index]} is not served`));
+});
+
 test("server-side source files are not exposed as static assets", async () => {
   for (const file of ["server.js", "account-store.js", "db/schema.sql", ".env"]) {
     const response = await fetch(`${baseUrl}/${file}`);
@@ -150,6 +173,35 @@ test("chapter 3 sanitizer enforces canonical completion order and four energy ce
   assert.equal(state.missionProgress.unknown, undefined);
 });
 
+test("chapter 4 sanitizer keeps only valid audit evidence and chain cards", () => {
+  const state = sanitizeChapter4ProgressState({
+    energy: 99,
+    introSeen: ["migration", "unknown", "migration"],
+    migrationComplete: true,
+    consentComplete: false,
+    campaignComplete: true,
+    missionProgress: {
+      migration: {
+        stage: 1,
+        seen: { match: ["legacy", "legacy", 42] },
+        placements: { "match:cause": "cause-collision", invalid: 42 },
+        cardOrders: { match: ["cause-collision", 42] },
+        lastWrong: ["cause", "unknown", "cause"]
+      },
+      unknown: { stage: 99 }
+    }
+  });
+  assert.deepEqual(state.introSeen, ["migration"]);
+  assert.equal(state.energy, 4);
+  assert.equal(state.migrationComplete, true);
+  assert.equal(state.consentComplete, false);
+  assert.equal(state.campaignComplete, false);
+  assert.deepEqual(state.missionProgress.migration.seen.match, ["legacy"]);
+  assert.equal(state.missionProgress.migration.placements["match:cause"], "cause-collision");
+  assert.deepEqual(state.missionProgress.migration.lastWrong, ["cause"]);
+  assert.equal(state.missionProgress.unknown, undefined);
+});
+
 test("password hashes use salted scrypt and constant-time verification", async () => {
   const first = await hashPassword("correct horse battery staple");
   const second = await hashPassword("correct horse battery staple");
@@ -205,12 +257,21 @@ test("account registration, session and all chapter saves work together", async 
   assert.equal(chapter3.status, 200);
   assert.equal((await chapter3.json()).progress.score, 1);
 
+  const chapter4 = await fetch(`${baseUrl}/api/account/progress/chapter4`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json", Cookie: cookie },
+    body: JSON.stringify({ state: { migrationComplete: true, energy: 4 } })
+  });
+  assert.equal(chapter4.status, 200);
+  assert.equal((await chapter4.json()).progress.score, 1);
+
   const progress = await fetch(`${baseUrl}/api/account/progress`, { headers: { Cookie: cookie } });
   assert.equal(progress.status, 200);
   const saved = (await progress.json()).progress;
   assert.equal(saved.chapter1.state.dataMissionComplete, true);
   assert.equal(saved.chapter2.state.sortingComplete, true);
   assert.equal(saved.chapter3.state.contactComplete, true);
+  assert.equal(saved.chapter4.state.migrationComplete, true);
 
   const profile = await fetch(`${baseUrl}/api/auth/profile`, {
     method: "PUT",
@@ -248,6 +309,7 @@ test("account registration, session and all chapter saves work together", async 
   assert.equal(restored.chapter1.score, 2);
   assert.equal(restored.chapter2.score, 1);
   assert.equal(restored.chapter3.score, 1);
+  assert.equal(restored.chapter4.score, 1);
 });
 
 test("admin login stays disabled without a server-side secret", async () => {

@@ -32,11 +32,15 @@ const publicRootFiles = new Set([
   "chapter2.js",
   "chapter3.css",
   "chapter3-missions.js",
-  "chapter3.js"
+  "chapter3.js",
+  "chapter4.css",
+  "chapter4-missions.js",
+  "chapter4.js"
 ]);
 const missionKeys = ["interface", "data", "access", "process", "case", "integration", "insight", "classification", "solution"];
 const chapter2MissionKeys = ["sorting", "portal", "signal", "cycle", "package", "trace", "change", "oracle", "contour"];
 const chapter3MissionKeys = ["contact", "lead", "channel", "bpmn", "sla", "access", "integration", "ai", "orbit"];
+const chapter4MissionKeys = ["migration", "consent", "campaign", "franchise", "order", "stock", "returns", "insight", "transformation"];
 
 const completionFlags = [
   "missionComplete",
@@ -51,6 +55,7 @@ const completionFlags = [
 ];
 const chapter2CompletionFlags = chapter2MissionKeys.map((key) => `${key}Complete`);
 const chapter3CompletionFlags = chapter3MissionKeys.map((key) => `${key}Complete`);
+const chapter4CompletionFlags = chapter4MissionKeys.map((key) => `${key}Complete`);
 
 const mimeTypes = new Map([
   [".css", "text/css; charset=utf-8"],
@@ -117,16 +122,17 @@ function getProgressScore(state) {
 
 function sanitizeStringRecord(input, { booleanValues = false, arrayValues = false } = {}) {
   if (!input || typeof input !== "object" || Array.isArray(input)) return {};
-  return Object.fromEntries(
-    Object.entries(input)
-      .filter(([key, value]) => {
-        if (typeof key !== "string" || key.length > 100) return false;
-        if (booleanValues) return value === true || value === false;
-        if (arrayValues) return Array.isArray(value) && value.length <= 30 && value.every((item) => typeof item === "string" && item.length <= 100);
-        return typeof value === "string" && value.length <= 100;
-      })
-      .slice(0, 100)
-  );
+  const entries = [];
+  for (const [key, value] of Object.entries(input)) {
+    if (entries.length >= 100) break;
+    if (typeof key !== "string" || key.length > 100) continue;
+    if (booleanValues && (value === true || value === false)) entries.push([key, value]);
+    else if (arrayValues && Array.isArray(value)) {
+      const strings = [...new Set(value.filter((item) => typeof item === "string" && item.length <= 100))].slice(0, 30);
+      entries.push([key, strings]);
+    } else if (!booleanValues && !arrayValues && typeof value === "string" && value.length <= 100) entries.push([key, value]);
+  }
+  return Object.fromEntries(entries);
 }
 
 export function sanitizeChapter2ProgressState(input) {
@@ -222,6 +228,50 @@ export function sanitizeChapter3ProgressState(input) {
 
 function getChapter3ProgressScore(state) {
   return chapter3CompletionFlags.reduce((score, flag) => score + Number(state[flag] === true), 0);
+}
+
+export function sanitizeChapter4ProgressState(input) {
+  if (!input || typeof input !== "object" || Array.isArray(input)) return null;
+  const state = {
+    chapterId: "golden-shelf",
+    energy: Number.isInteger(input.energy) ? Math.max(0, Math.min(input.energy, 4)) : 4,
+    introSeen: Array.isArray(input.introSeen)
+      ? [...new Set(input.introSeen.filter((key) => chapter4MissionKeys.includes(key)))]
+      : [],
+    prologueSeen: input.prologueSeen === true,
+    attempts: Math.max(1, Math.min(Number(input.attempts) || 1, 100)),
+    missionProgress: {},
+    achievementGranted: input.achievementGranted === true
+  };
+  let previousComplete = true;
+
+  chapter4CompletionFlags.forEach((flag) => {
+    const complete = previousComplete && input[flag] === true;
+    state[flag] = complete;
+    previousComplete = complete;
+  });
+
+  const missionProgress = input.missionProgress && typeof input.missionProgress === "object" && !Array.isArray(input.missionProgress)
+    ? input.missionProgress
+    : {};
+  chapter4MissionKeys.forEach((key) => {
+    const progress = missionProgress[key];
+    if (!progress || typeof progress !== "object" || Array.isArray(progress)) return;
+    state.missionProgress[key] = {
+      stage: Math.max(0, Math.min(Number(progress.stage) || 0, 10)),
+      seen: sanitizeStringRecord(progress.seen, { arrayValues: true }),
+      placements: sanitizeStringRecord(progress.placements),
+      cardOrders: sanitizeStringRecord(progress.cardOrders, { arrayValues: true }),
+      lastWrong: Array.isArray(progress.lastWrong)
+        ? [...new Set(progress.lastWrong.filter((value) => ["cause", "mechanism", "test"].includes(value)))].slice(0, 3)
+        : []
+    };
+  });
+  return state;
+}
+
+function getChapter4ProgressScore(state) {
+  return chapter4CompletionFlags.reduce((score, flag) => score + Number(state[flag] === true), 0);
 }
 
 function normalizeEmail(value) {
@@ -617,7 +667,7 @@ async function handleAccountProgress(request, response, chapter = null) {
     return;
   }
 
-  if (!chapter || !["chapter1", "chapter2", "chapter3"].includes(chapter)) {
+  if (!chapter || !["chapter1", "chapter2", "chapter3", "chapter4"].includes(chapter)) {
     json(response, 404, { error: "Not found" });
     return;
   }
@@ -629,20 +679,24 @@ async function handleAccountProgress(request, response, chapter = null) {
 
   if (request.method === "PUT") {
     const body = await readJsonBody(request);
-    const state = chapter === "chapter1"
-      ? sanitizeProgressState(body.state)
-      : chapter === "chapter2"
-        ? sanitizeChapter2ProgressState(body.state)
-        : sanitizeChapter3ProgressState(body.state);
+    const sanitizers = {
+      chapter1: sanitizeProgressState,
+      chapter2: sanitizeChapter2ProgressState,
+      chapter3: sanitizeChapter3ProgressState,
+      chapter4: sanitizeChapter4ProgressState
+    };
+    const scoreReaders = {
+      chapter1: getProgressScore,
+      chapter2: getChapter2ProgressScore,
+      chapter3: getChapter3ProgressScore,
+      chapter4: getChapter4ProgressScore
+    };
+    const state = sanitizers[chapter](body.state);
     if (!state) {
       json(response, 400, { error: "Invalid progress state" });
       return;
     }
-    const score = chapter === "chapter1"
-      ? getProgressScore(state)
-      : chapter === "chapter2"
-        ? getChapter2ProgressScore(state)
-        : getChapter3ProgressScore(state);
+    const score = scoreReaders[chapter](state);
     const saved = await store.saveProgress(account.id, chapter, state, score);
     json(response, 200, { ok: true, progress: saved });
     return;
@@ -755,7 +809,7 @@ export function createApplicationServer() {
         return;
       }
 
-      const accountProgressMatch = url.pathname.match(/^\/api\/account\/progress\/(chapter1|chapter2|chapter3)$/);
+      const accountProgressMatch = url.pathname.match(/^\/api\/account\/progress\/(chapter1|chapter2|chapter3|chapter4)$/);
       if (accountProgressMatch) {
         await handleAccountProgress(request, response, accountProgressMatch[1]);
         return;

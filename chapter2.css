@@ -1157,7 +1157,7 @@
   margin-top: 28px;
 }
 
-.c2-finale-view {
+.c2-finale-view.is-active {
   min-height: calc(100vh - 87px);
   padding: 48px 20px;
   background:
@@ -1356,7 +1356,9 @@
 
 @media (max-width: 560px) {
   .chapter-switcher {
+    box-sizing: border-box;
     width: 100%;
+    min-width: 0;
   }
 
   .chapter-switcher button {

@@ -1,6 +1,6 @@
 # Промпты ассетов BPMSoft Quest
 
-Актуально на 2026-07-21. Видимый канон: Академия аналитиков → АО «Медные машины» → группа «Семь дорог».
+Актуально на 2026-07-21. Видимый канон: Академия аналитиков → АО «Медные машины» → группа «Семь дорог» → сеть «Золотая полка».
 
 Имена существующих файлов сохраняются как технический контракт. Они не определяют видимые названия областей и заданий.
 
@@ -160,6 +160,27 @@ Very wide panorama of a real CRM work area inside a premium fantasy logistics co
 | `mission-integration-dock.png` | входящий webhook, исходящий REST, auth, timeout и retry |
 | `mission-ai-core.png` | прогнозные и генеративные задачи, данные и проверка сотрудником |
 | `mission-orbit-360.png` | итоговая приёмка клиента, процесса, SLA, прав, интеграции и AI |
+
+## Карта 4. Сеть «Золотая полка»
+
+Премиальная городская торговая сеть после трёх поглощений. Палитра: emerald green, warm cream, terracotta, brushed copper, restrained amber, cyan and violet accents. Каждая панорама строится как три отдельные зоны расследования слева, в центре и справа; важные детали остаются в центральной горизонтальной полосе для итогового кадра `1600 × 500`.
+
+| Файл | Сцена и исходный prompt brief |
+|---|---|
+| `chapter4-world-map.png` | top-down oblique strategy map of an elegant fantasy retail network with nine connected business districts and calm marker zones |
+| `chapter4-mentor-ruta.png` | square portrait of Ruta Mail, director of customer experience, dark green suit, terracotta scarf, copper-and-cream retail office |
+| `chapter4-scout-tally.png` | square portrait of a compact inventory assistant with scanner, cream shell, green panels and copper joints |
+| `mission-legacy-ledgers.png` | legacy customer ledgers, repeat import desk and related-order archive |
+| `mission-consent-pavilion.png` | paper form, application consent and contact communication profile |
+| `mission-campaign-house.png` | regional audiences, campaign route and sales outcome |
+| `mission-franchise-arcade.png` | franchise access gate, allowed portal workspace and audit balcony |
+| `mission-order-courtyard.png` | web, call-center and store sources, master order board and pickup counter |
+| `mission-stock-exchange.png` | physical stock, event-version ledger and pickup reservation station |
+| `mission-returns-center.png` | return desk, case workflow and protected refund reconciliation |
+| `mission-insight-ledger.png` | conflicting reports, governed metrics and executive decision board |
+| `mission-transformation-room.png` | customer and consent → campaign, order and stock → return, refund and metrics |
+
+Общий отрицательный prompt для карты: no readable text, no letters, no logos, no watermark, no magic, no combat, no military imagery. Исходники сгенерированы встроенным ImageGen и кадрированы без удаления оригинальных результатов генерации.
 
 ## Финальные экраны
 
