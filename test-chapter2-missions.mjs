@@ -136,6 +136,13 @@ const completeMission = (key) => {
   mission.phases.forEach((phase, phaseIndex) => {
     const progress = api.getMissionProgress(key);
     assert(progress.phase === phaseIndex, `${key}: unexpected active phase ${progress.phase}`);
+    const expectedCondition = Array.isArray(phase.conditions) && phase.conditions.length > 0
+      ? phase.conditions[0]
+      : phase.condition.replace(/([.;!?])\s+/g, "$1\n").split("\n").filter(Boolean)[0];
+    assert(
+      elements.get("chapter2-board-conditions-list").innerHTML.includes(expectedCondition),
+      `${key}/${phase.id}: conditions are not rendered above the questions`
+    );
     phase.slots.forEach((slot) => {
       api.assignAnswer(slot.id, slot.correct);
       const order = progress.optionOrders[`${phase.id}:${slot.id}`];
@@ -201,6 +208,7 @@ completeMission("signal");
 assert(api.getState().chapterXp === 150, "Signal Yard did not award canonical XP");
 completeMission("cycle");
 assert(api.getState().chapterXp === 200, "Cycle Foundry did not award canonical XP");
+assert(api.missions.package.phases[0].conditions.length === 8, "Package Depot does not list all package conditions");
 completeMission("package");
 assert(api.getState().chapterXp === 250, "Package Depot did not award canonical XP");
 assert(api.getState().level === 4, "Level IV did not open after Package Depot");

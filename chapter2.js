@@ -614,6 +614,12 @@ function renderChapter2Board(mission, progress) {
   document.getElementById("chapter2-board-kicker").textContent = phase.kicker;
   document.getElementById("chapter2-board-title").textContent = phase.title;
   document.getElementById("chapter2-board-instruction").textContent = phase.instruction;
+  const conditions = Array.isArray(phase.conditions) && phase.conditions.length > 0
+    ? phase.conditions
+    : phase.condition.replace(/([.;!?])\s+/g, "$1\n").split("\n").filter(Boolean);
+  document.getElementById("chapter2-board-conditions-list").innerHTML = conditions
+    .map((condition) => `<li>${condition}</li>`)
+    .join("");
   document.getElementById("chapter2-selection-count").textContent = `${selectedCount} / ${phase.slots.length}`;
   document.getElementById("chapter2-mission-hint").textContent = selectedCount === phase.slots.length
     ? "Конфигурация заполнена. Проведите пробный запуск."
@@ -626,12 +632,7 @@ function renderChapter2Board(mission, progress) {
     const wrong = progress.lastWrong.includes(slot.id);
     const slotElement = document.createElement("article");
     slotElement.className = `c2-slot${selected ? " is-answered" : ""}${locked ? " is-locked" : ""}${wrong ? " is-wrong" : ""}`;
-    slotElement.innerHTML = `
-      <span class="c2-slot-label">${slot.label}</span>
-      <div class="c2-slot-condition"><strong>Дано</strong><span>${phase.condition}</span></div>
-      <div class="c2-slot-question"><strong>Конкретный вопрос или ситуация</strong><p>${slot.prompt}</p></div>
-      <div class="c2-slot-task"><strong>Задача</strong><span>${phase.instruction} Выберите один вариант ответа.</span></div>
-    `;
+    slotElement.innerHTML = `<span class="c2-slot-label">${slot.label}</span><p class="c2-slot-prompt">${slot.prompt}</p>`;
     const optionsElement = document.createElement("div");
     optionsElement.className = "c2-options";
 

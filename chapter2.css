@@ -925,44 +925,46 @@
   text-transform: uppercase;
 }
 
-.c2-slot-condition,
-.c2-slot-task {
-  display: grid;
-  gap: 4px;
-  padding: 9px 10px;
-  border-left: 3px solid rgba(254, 85, 0, 0.6);
+.c2-board-conditions {
+  margin: 12px 0 16px;
+  padding: 14px 16px;
+  border: 1px solid rgba(254, 85, 0, 0.24);
+  border-left: 4px solid #fe5500;
+  border-radius: 5px;
   background: rgba(254, 85, 0, 0.045);
-  color: #625b55;
-  font-size: 11px;
-  line-height: 1.5;
 }
 
-.c2-slot-condition strong,
-.c2-slot-task strong,
-.c2-slot-question > strong {
+.c2-board-conditions-title {
+  margin: 0;
   color: #8f3a12;
-  font-size: 9px;
+  font-size: 10px;
+  font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
-.c2-slot-question {
+.c2-board-conditions-list {
   display: grid;
-  gap: 5px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px 24px;
+  margin: 10px 0 0;
+  padding-left: 18px;
+  color: #41372f;
+  font-size: 11px;
+  line-height: 1.5;
 }
 
-.c2-slot-question p {
-  min-height: 34px;
+.c2-board-conditions-list li::marker {
+  color: #fe5500;
+}
+
+.c2-slot-prompt {
+  min-height: 40px;
   margin: 0;
   color: #000000;
   font-size: 12px;
   font-weight: 700;
   line-height: 1.45;
-}
-
-.c2-slot-task {
-  border-left-color: #41372f;
-  background: rgba(65, 55, 47, 0.045);
 }
 
 .c2-options {
@@ -1460,6 +1462,10 @@
   }
 
   .c2-slot-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .c2-board-conditions-list {
     grid-template-columns: 1fr;
   }
 
