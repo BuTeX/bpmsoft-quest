@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="styles.css?v=20260721-knowledge-links">
   <link rel="stylesheet" href="chapter2.css?v=20260721-mobile-switcher">
   <link rel="stylesheet" href="chapter3.css?v=20260721-finale-visibility">
-  <link rel="stylesheet" href="chapter4.css?v=20260721-golden-shelf-4">
+  <link rel="stylesheet" href="chapter4.css?v=20260721-workflow-guide-4">
 </head>
 <body>
   <div class="game-shell">
@@ -201,11 +201,13 @@
           <div class="c4-overlay-orbit"><span></span><span></span><span></span></div>
         </div>
         <div class="c4-overlay-content">
-          <p class="eyebrow">Четвёртый проект · сеть «Золотая полка»</p>
-          <h2 id="chapter4-prologue-title">Три сети должны стать одной компанией</h2>
-          <div id="chapter4-prologue-copy" class="c4-overlay-copy">
-            <p>После трёх поглощений «Золотая полка» объединяет магазины, франчайзи, интернет-витрину, склады и контактный центр. У подразделений разные клиентские базы, правила коммуникации, статусы заказов и определения результата.</p>
-            <p>Ты входишь в проект как ведущий аналитик трансформации. Здесь недостаточно выбрать знакомый инструмент: сначала нужно найти факты на рабочей панораме, а затем собрать доказуемую цепочку «причина → механизм → проверка».</p>
+          <div class="c4-overlay-scroll">
+            <p class="eyebrow">Четвёртый проект · сеть «Золотая полка»</p>
+            <h2 id="chapter4-prologue-title">Три сети должны стать одной компанией</h2>
+            <div id="chapter4-prologue-copy" class="c4-overlay-copy">
+              <p>После трёх поглощений «Золотая полка» объединяет магазины, франчайзи, интернет-витрину, склады и контактный центр. У подразделений разные клиентские базы, правила коммуникации, статусы заказов и определения результата.</p>
+              <p>Ты входишь в проект как ведущий аналитик трансформации. Здесь недостаточно выбрать знакомый инструмент: сначала нужно найти факты на рабочей панораме, а затем собрать доказуемую цепочку «причина → механизм → проверка».</p>
+            </div>
           </div>
           <div class="c4-overlay-actions">
             <button id="chapter4-prologue-back" class="secondary-action" type="button">Вернуться к проекту «Семь дорог»</button>
@@ -222,9 +224,22 @@
           <div class="c4-mission-intro-number"><span>Задание</span><strong id="chapter4-mission-intro-number">28</strong></div>
         </div>
         <div class="c4-overlay-content">
-          <p id="chapter4-mission-intro-kicker" class="eyebrow">Аудит заказчика · Миграция данных</p>
-          <h2 id="chapter4-mission-intro-title">Покупатели размножились после миграции</h2>
-          <div id="chapter4-mission-intro-copy" class="c4-overlay-copy"></div>
+          <div class="c4-overlay-scroll">
+            <p id="chapter4-mission-intro-kicker" class="eyebrow">Аудит заказчика · Миграция данных</p>
+            <h2 id="chapter4-mission-intro-title">Покупатели размножились после миграции</h2>
+            <div id="chapter4-mission-intro-copy" class="c4-overlay-copy"></div>
+            <section class="c4-intro-guide" aria-label="Порядок выполнения задания">
+              <strong>Как выполнить задание</strong>
+              <ol>
+                <li><span>1</span>Найдите 3 факта на изображении</li>
+                <li><span>2</span>Выберите карточку «Причина»</li>
+                <li><span>3</span>Выберите карточку «Механизм»</li>
+                <li><span>4</span>Выберите карточку «Проверка»</li>
+                <li><span>5</span>Проверьте цепочку</li>
+              </ol>
+              <small>Нажатая карточка сама встанет в нужное звено. Чтобы заменить выбор, нажмите другую карточку того же типа.</small>
+            </section>
+          </div>
           <div class="c4-overlay-actions">
             <button id="chapter4-mission-intro-map" class="secondary-action" type="button">Вернуться на карту</button>
             <button id="chapter4-mission-intro-start" class="primary-action" type="button">Начать аудит</button>
@@ -868,6 +883,17 @@
               <span id="chapter4-attempt-badge" class="attempt-badge">Попытка 1</span>
             </header>
 
+            <nav class="c4-task-guide" aria-label="Порядок выполнения текущего раунда">
+              <ol id="chapter4-task-steps">
+                <li data-c4-task-step="audit"><span>1</span><strong>Факты</strong></li>
+                <li data-c4-task-step="cause"><span>2</span><strong>Причина</strong></li>
+                <li data-c4-task-step="mechanism"><span>3</span><strong>Механизм</strong></li>
+                <li data-c4-task-step="test"><span>4</span><strong>Проверка</strong></li>
+                <li data-c4-task-step="submit"><span>5</span><strong>Подтвердить</strong></li>
+              </ol>
+              <p id="chapter4-next-action">Шаг 1 из 5. Нажмите три пронумерованные метки на изображении.</p>
+            </nav>
+
             <section id="chapter4-audit-panel" class="c4-audit-panel" aria-labelledby="chapter4-stage-title">
               <div class="c4-stage-heading">
                 <div><p id="chapter4-stage-kicker" class="eyebrow"></p><h3 id="chapter4-stage-title"></h3></div>
@@ -886,13 +912,13 @@
                 <div><p class="eyebrow">Стол решения</p><h3 id="chapter4-decision-title">Соберите доказуемую цепочку</h3></div>
                 <span>Причина → механизм → проверка</span>
               </div>
-              <p id="chapter4-decision-lock" class="c4-decision-lock">Стол откроется после полного аудита панорамы.</p>
+              <p id="chapter4-decision-lock" class="c4-decision-lock">Сначала завершите шаг 1: нажмите все три метки на изображении. После этого откроются карточки.</p>
               <div id="chapter4-chain-slots" class="c4-chain-slots"></div>
-              <p class="c4-deck-label">Колода решений · нажмите карточку или перетащите её в нужное звено</p>
+              <p class="c4-deck-label"><strong>Выбирайте слева направо:</strong> сначала «Причина», затем «Механизм», потом «Проверка». Нажатая карточка сама попадёт в нужное звено.</p>
               <div id="chapter4-card-deck" class="c4-card-deck"></div>
               <div class="c4-mission-actions">
                 <p id="chapter4-chain-hint">Сначала найдите все факты на панораме.</p>
-                <button id="chapter4-check-chain" class="primary-action" type="button" disabled>Проверить цепочку</button>
+                <button id="chapter4-check-chain" class="primary-action" type="button" disabled>Шаг 5 · Проверить цепочку</button>
               </div>
               <section id="chapter4-feedback" class="c4-feedback" aria-live="polite" hidden>
                 <div><p id="chapter4-feedback-kicker" class="eyebrow">Результат проверки</p><h3 id="chapter4-feedback-title"></h3><p id="chapter4-feedback-copy"></p></div>
@@ -932,6 +958,6 @@
   <script src="chapter3-missions.js?v=20260721-knowledge-links"></script>
   <script src="chapter3.js?v=20260721-knowledge-links"></script>
   <script src="chapter4-missions.js?v=20260721-golden-shelf-2"></script>
-  <script src="chapter4.js?v=20260721-golden-shelf-2"></script>
+  <script src="chapter4.js?v=20260721-workflow-guide-1"></script>
 </body>
 </html>

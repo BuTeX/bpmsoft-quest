@@ -16,9 +16,14 @@ const CHAPTER4_MISSION_IMAGES = {
   transformation: "assets/mission-transformation-room.png"
 };
 const CHAPTER4_SLOT_LABELS = {
-  cause: ["Причина", "Какой факт объясняет проблему"],
-  mechanism: ["Механизм", "Что изменить в BPMSoft или интеграции"],
-  test: ["Проверка", "Как доказать результат"]
+  cause: ["Шаг 2 · Причина", "Какой факт объясняет проблему"],
+  mechanism: ["Шаг 3 · Механизм", "Что изменить в BPMSoft или интеграции"],
+  test: ["Шаг 4 · Проверка", "Как доказать результат"]
+};
+const CHAPTER4_ROLE_NAMES = {
+  cause: "Причина",
+  mechanism: "Механизм",
+  test: "Проверка"
 };
 
 const chapter4InitialState = {
@@ -584,11 +589,48 @@ function renderChapter4Decision(stage, progress) {
   const check = document.getElementById("chapter4-check-chain");
   check.disabled = !auditComplete || placements < 3;
   document.getElementById("chapter4-decision-lock").hidden = auditComplete;
-  document.getElementById("chapter4-chain-hint").textContent = auditComplete
-    ? placements === 3
-      ? "Цепочка собрана. Проверьте, объясняет ли она все найденные факты."
-      : `Заполнено звеньев: ${placements} / 3.`
-    : `Сначала найдите все факты на панораме: ${seen.length} / ${stage.hotspots.length}.`;
+  renderChapter4TaskGuide(stage, progress);
+}
+
+function renderChapter4TaskGuide(stage, progress) {
+  const seen = getChapter4Seen(stage, progress);
+  const auditComplete = seen.length === stage.hotspots.length;
+  const selected = {
+    cause: Boolean(getChapter4Placement(stage, progress, "cause")),
+    mechanism: Boolean(getChapter4Placement(stage, progress, "mechanism")),
+    test: Boolean(getChapter4Placement(stage, progress, "test"))
+  };
+  const currentStep = !auditComplete
+    ? "audit"
+    : !selected.cause
+      ? "cause"
+      : !selected.mechanism
+        ? "mechanism"
+        : !selected.test
+          ? "test"
+          : "submit";
+  const stepOrder = ["audit", "cause", "mechanism", "test", "submit"];
+  const currentIndex = stepOrder.indexOf(currentStep);
+  document.querySelectorAll("[data-c4-task-step]").forEach((item) => {
+    const index = stepOrder.indexOf(item.dataset.c4TaskStep);
+    const active = index === currentIndex;
+    item.classList.toggle("is-active", active);
+    item.classList.toggle("is-complete", index < currentIndex);
+    if (active) item.setAttribute("aria-current", "step");
+    else item.removeAttribute("aria-current");
+  });
+
+  const copy = currentStep === "audit"
+    ? `Шаг 1 из 5. Нажмите оставшиеся метки на изображении: ${seen.length} из ${stage.hotspots.length} найдено.`
+    : currentStep === "cause"
+      ? "Шаг 2 из 5. В колоде выберите карточку с меткой «Причина»: она должна объяснять найденные факты."
+      : currentStep === "mechanism"
+        ? "Шаг 3 из 5. Теперь выберите «Механизм»: конкретное изменение в BPMSoft или интеграции."
+        : currentStep === "test"
+          ? "Шаг 4 из 5. Выберите «Проверку»: сценарий, который докажет, что механизм устранил причину."
+          : "Шаг 5 из 5. Прочитайте цепочку слева направо и нажмите «Проверить цепочку».";
+  document.getElementById("chapter4-next-action").textContent = copy;
+  document.getElementById("chapter4-chain-hint").textContent = copy;
 }
 
 function renderChapter4Mission() {
@@ -673,7 +715,7 @@ function checkChapter4Chain() {
       title: exhausted ? "Запас попыток исчерпан" : `Слабых звеньев: ${wrong.length}`,
       copy: exhausted
         ? "Факты уже собраны. Перезапустите стол решения и заново сопоставьте причину, механизм и проверку."
-        : `Пересмотрите звенья «${wrong.map((role) => CHAPTER4_SLOT_LABELS[role][0].toLowerCase()).join("», «") }». Верные звенья можно оставить на месте.`,
+        : `Пересмотрите звенья «${wrong.map((role) => CHAPTER4_ROLE_NAMES[role].toLowerCase()).join("», «") }». Верные звенья можно оставить на месте.`,
       action: exhausted ? "retry" : "dismiss",
       actionLabel: exhausted ? "Перезапустить стол" : "Исправить цепочку"
     });
