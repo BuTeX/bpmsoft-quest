@@ -1150,6 +1150,26 @@ body.is-study-mode .player-profile-action {
   margin: 7px 0 0;
 }
 
+.source-note a {
+  display: block;
+  width: fit-content;
+  margin-top: 8px;
+  color: var(--blue);
+  font-weight: 700;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.source-note a:hover {
+  color: var(--gold-dark);
+}
+
+.source-note a:focus-visible {
+  border-radius: 2px;
+  outline: 3px solid var(--blue);
+  outline-offset: 3px;
+}
+
 .mission-workspace {
   min-width: 0;
   padding: 28px clamp(20px, 3vw, 44px) 46px;

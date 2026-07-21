@@ -607,12 +607,24 @@ function showChapter2View(id) {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
+function renderChapter2KnowledgeSource(element, mission) {
+  element.textContent = mission.source;
+  if (!mission.sourceUrl) return;
+
+  const link = document.createElement("a");
+  link.href = mission.sourceUrl;
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+  link.textContent = "Открыть статью BPMSoft ↗";
+  element.append(" ", link);
+}
+
 function renderChapter2Codex(mission) {
   document.getElementById("chapter2-codex-title").textContent = mission.zone;
   document.getElementById("chapter2-codex-list").innerHTML = mission.codex
     .map(([term, definition]) => `<div><dt>${term}</dt><dd>${definition}</dd></div>`)
     .join("");
-  document.getElementById("chapter2-source-copy").textContent = mission.source;
+  renderChapter2KnowledgeSource(document.getElementById("chapter2-source-copy"), mission);
 }
 
 function renderChapter2PhaseList(mission, progress) {

@@ -58,6 +58,7 @@ const missions = {
     lore: "Интерфейс BPMSoft строится от рабочего места к конкретной записи и её связанным данным.",
     codexTitle: "Памятка по интерфейсу",
     source: "Документация BPMSoft 1.9: интерфейс, страницы раздела, создание и настройка деталей.",
+    sourceUrl: "https://edu.bpmsoft.ru/baza-znaniy/obzor-interfeysa-bpmsoft/obzor-interfeysa-sistemy/?version=1.9",
     tools: [
       { id: "workplace", name: "Рабочее место", note: "Группирует разделы" },
       { id: "section", name: "Раздел", note: "Точка входа в объект" },
@@ -119,6 +120,7 @@ const missions = {
     lore: "Модель данных начинается с объекта; его запись содержит поля, использует справочники и связывается с другими записями.",
     codexTitle: "Памятка по модели данных",
     source: "Документация BPMSoft 1.9: схемы объектов, справочники, страницы раздела и детали.",
+    sourceUrl: "https://edu.bpmsoft.ru/baza-znaniy/konfiguratsionnye-elementy/obekt/?version=1.9",
     tools: [
       { id: "object", name: "Объект", note: "Сущность и структура данных" },
       { id: "field", name: "Поле", note: "Одно значение записи" },
@@ -187,6 +189,7 @@ const missions = {
     lore: "В BPMSoft роли определяют группы пользователей, а права ограничивают операции, записи и отдельные колонки объекта.",
     codexTitle: "Памятка по модели доступа",
     source: "Документация BPMSoft 1.9: виды пользовательских ролей и права доступа по операциям, записям и колонкам.",
+    sourceUrl: "https://edu.bpmsoft.ru/baza-znaniy/polzovateli-i-prava-dostupa/vidy-prav-dostupa/?version=1.9",
     tools: [
       { id: "orgRole", name: "Организационная роль", note: "Место в структуре компании" },
       { id: "funcRole", name: "Функциональная роль", note: "Обязанность вне оргструктуры" },
@@ -287,6 +290,7 @@ const missions = {
     lore: "Бизнес-процесс BPMSoft — low-code инструмент BPMN 2.0, который связывает события, действия с данными и потоки выполнения.",
     codexTitle: "Памятка по автоматизации",
     source: "Документация BPMSoft 1.9: бизнес-процессы и пример создания лида или активности из входящего email.",
+    sourceUrl: "https://edu.bpmsoft.ru/baza-znaniy/biznes-protsessy/?version=1.9",
     tools: [
       { id: "startSignal", name: "Начальный сигнал", note: "Получение email запускает процесс" },
       { id: "signalFilter", name: "Условия сигнала", note: "Отсекают неподходящие письма" },
@@ -348,6 +352,7 @@ const missions = {
     lore: "DCM-кейс ведёт запись по стадиям, объединяя обязательные шаги, ограничения переходов и бизнес-результат.",
     codexTitle: "Памятка по DCM-кейсу",
     source: "Документация BPMSoft 1.9: дизайнер кейсов, параметры стадий, элементы кейса и автоматические переходы.",
+    sourceUrl: "https://edu.bpmsoft.ru/baza-znaniy/lenta-stadiy-v-razdelakh/nastroyka-keysa/?version=1.9",
     tools: [
       { id: "task", name: "Выполнить задачу", note: "Проверить комплектность заявки" },
       { id: "approval", name: "Визирование", note: "Получить решение согласующего" },
@@ -417,6 +422,7 @@ const missions = {
     lore: "Входящий webhook принимает данные от внешней системы, а бизнес-процесс позволяет добавить проверку дублей, маршрутизацию и управляемый ответ.",
     codexTitle: "Памятка по входящему webhook",
     source: "Документация BPMSoft 1.9: настройка webhook, JWT-аутентификация, параметры JSONPath и действия при получении webhook.",
+    sourceUrl: "https://edu.bpmsoft.ru/baza-znaniy/veb-servisy/nastroyka-integratsii-vebkhukov/?version=1.9",
     prompts: [
       "Канал: внешний портал инициирует передачу сразу после отправки формы",
       "Доступ: анонимные изменения данных запрещены",
@@ -521,6 +527,7 @@ const missions = {
     lore: "Панель итогов объединяет дашборды одной темы, а фильтры ограничивают данные тем же способом, что и в реестре раздела.",
     codexTitle: "Памятка по аналитике",
     source: "Документация BPMSoft 1.9: дашборды и аналитика; раздел «Обращения» — панели итогов и KPI.",
+    sourceUrl: "https://edu.bpmsoft.ru/baza-znaniy/nastroyka-analitiki/diagramma-i-analitika/?version=1.9",
     tools: [
       { id: "indicator", name: "Показатель", note: "Одно агрегированное число" },
       { id: "chart", name: "График", note: "Динамика и сравнение значений" },
@@ -614,6 +621,7 @@ const missions = {
     lore: "Хорошая архитектура начинается с самого простого подтверждённого механизма и честно оставляет TBD там, где не хватает лицензий или контракта.",
     codexTitle: "Памятка по оценке требований",
     source: "Документация BPMSoft 1.9: карточки и импорт, no-code страницы, BPMN и DCM, webhook и веб-сервисы, клиентские и серверные схемы.",
+    sourceUrl: "https://edu.bpmsoft.ru/baza-znaniy/kastomizatsiya-no-code-1.0/?version=1.9",
     tools: [
       { id: "base", name: "Базовый функционал", note: "Возможность уже есть в нужной редакции" },
       { id: "lowcode", name: "Low-code настройка", note: "Дизайнеры, правила, процессы и кейсы" },
@@ -746,6 +754,7 @@ const missions = {
     lore: "Целостное решение появляется не из одного универсального инструмента, а из ясных границ ответственности между интерфейсом, данными, доступом, DCM, процессами и аналитикой.",
     codexTitle: "Памятка по выпускному решению",
     source: "Документация BPMSoft 1.9: страницы раздела и справочники, права доступа, DCM-кейсы, BPMN-процессы, центр уведомлений, дашборды и обращения.",
+    sourceUrl: "https://edu.bpmsoft.ru/baza-znaniy/obrashcheniya/razdel-obrashcheniya/?version=1.9",
     tools: [
       { id: "requestSection", name: "Раздел и карточка обращения", note: "Реестр и полная страница записи" },
       { id: "categoryDirectory", name: "Справочник категорий", note: "Управляемые значения поля выбора" },
@@ -1914,6 +1923,18 @@ function renderMapState() {
   renderBrief(nextMission);
 }
 
+function renderKnowledgeSource(element, mission) {
+  element.textContent = mission.source;
+  if (!mission.sourceUrl) return;
+
+  const link = document.createElement("a");
+  link.href = mission.sourceUrl;
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+  link.textContent = "Открыть статью BPMSoft ↗";
+  element.append(" ", link);
+}
+
 function renderMissionContent() {
   const mission = getMission();
   const forge = mission.sceneInteraction === "forge";
@@ -1964,7 +1985,7 @@ function renderMissionContent() {
   elements.codexList.innerHTML = mission.codex
     .map(([term, description]) => `<div><dt>${term}</dt><dd>${description}</dd></div>`)
     .join("");
-  elements.sourceCopy.textContent = mission.source;
+  renderKnowledgeSource(elements.sourceCopy, mission);
   elements.missionHint.textContent = mission.hint;
   elements.buildArea.hidden = forge || citadel || engine || arena || harbor || dialog;
   elements.forgeLayer.hidden = !forge;

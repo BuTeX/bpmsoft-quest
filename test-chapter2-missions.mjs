@@ -117,6 +117,7 @@ const assert = (condition, message) => {
 
 assert(Object.keys(api.missions).length === 9, "Missions 10–18 are not all implemented");
 Object.values(api.missions).forEach((mission) => {
+  assert(/^https:\/\/edu\.bpmsoft\.ru\/baza-znaniy\//.test(mission.sourceUrl), `${mission.key}: official BPMSoft source URL is missing`);
   mission.phases.forEach((phase) => {
     assert(
       typeof phase.condition === "string" && phase.condition.length >= 120,
@@ -132,6 +133,10 @@ assert(!api.beginMission("portal"), "Portal Gate opened before Sorting Furnace")
 const completeMission = (key) => {
   assert(api.beginMission(key), `${key}: mission did not start`);
   const mission = api.missions[key];
+  assert(
+    elements.get("chapter2-source-copy").children.at(-1).href === mission.sourceUrl,
+    `${key}: knowledge source link was not rendered`
+  );
 
   mission.phases.forEach((phase, phaseIndex) => {
     const progress = api.getMissionProgress(key);

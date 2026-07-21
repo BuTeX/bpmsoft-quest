@@ -137,6 +137,10 @@ const assert = (condition, message) => {
 };
 
 Object.values(api.missions).forEach((mission) => {
+  assert(
+    /^https:\/\/edu\.bpmsoft\.ru\/baza-znaniy\//.test(mission.sourceUrl),
+    `${mission.key}: official BPMSoft source URL is missing`
+  );
   assert(Array.isArray(mission.intro) && mission.intro.length >= 2, `${mission.key}: lore intro needs at least two paragraphs`);
   assert(
     mission.intro.every((paragraph) => typeof paragraph === "string" && paragraph.length >= 120),
@@ -238,6 +242,10 @@ const completeBlueprintMission = () => {
 api.setState({ ...api.initialState });
 api.setPlayerProfile({ name: "Коллега", mode: "study" });
 api.renderAll();
+assert(
+  elements.get("source-copy").children.at(-1).href === api.missions.interface.sourceUrl,
+  "Knowledge source link was not rendered for the active mission"
+);
 api.beginMission("solution");
 assert(api.getState().activeMission === "solution", "Study mode did not open the final mission directly");
 api.beginMission("interface");

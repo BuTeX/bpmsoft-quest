@@ -88,6 +88,7 @@ const assert = (condition, message) => { if (!condition) throw new Error(message
 
 assert(Object.keys(api.missions).length === 9, "Missions 19–27 are not all implemented");
 Object.values(api.missions).forEach((mission) => {
+  assert(/^https:\/\/edu\.bpmsoft\.ru\/baza-znaniy\//.test(mission.sourceUrl), `${mission.key}: official BPMSoft source URL is missing`);
   assert(mission.phases.length >= 4, `${mission.key}: fewer than four simulation orbits`);
   assert(mission.phases.reduce((sum, phase) => sum + phase.slots.length, 0) >= 12, `${mission.key}: fewer than twelve decisions`);
   mission.phases.forEach((phase) => {
@@ -104,6 +105,10 @@ assert(!api.beginMission("lead"), "Lead Spectrum opened before Contact Genome");
 const completeMission = (key) => {
   assert(api.beginMission(key), `${key}: mission did not start`);
   const mission = api.missions[key];
+  assert(
+    elements.get("chapter3-source-copy").children.at(-1).href === mission.sourceUrl,
+    `${key}: knowledge source link was not rendered`
+  );
   mission.phases.forEach((phase, phaseIndex) => {
     const progress = api.getMissionProgress(key);
     assert(progress.phase === phaseIndex, `${key}: unexpected active phase ${progress.phase}`);
