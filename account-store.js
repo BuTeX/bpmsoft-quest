@@ -16,16 +16,25 @@ function accountFromRow(row) {
 }
 
 function progressFromRow(row) {
-  if (!row) return { chapter1: null, chapter2: null };
+  if (!row) return { chapter1: null, chapter2: null, chapter3: null };
   return {
     chapter1: row.chapter1_state
       ? { state: row.chapter1_state, score: Number(row.chapter1_score) || 0, updatedAt: row.updated_at }
       : null,
     chapter2: row.chapter2_state
       ? { state: row.chapter2_state, score: Number(row.chapter2_score) || 0, updatedAt: row.updated_at }
+      : null,
+    chapter3: row.chapter3_state
+      ? { state: row.chapter3_state, score: Number(row.chapter3_score) || 0, updatedAt: row.updated_at }
       : null
   };
 }
+
+const progressColumns = {
+  chapter1: ["chapter1_state", "chapter1_score"],
+  chapter2: ["chapter2_state", "chapter2_score"],
+  chapter3: ["chapter3_state", "chapter3_score"]
+};
 
 export class PostgresAccountStore {
   constructor(database) {
@@ -91,7 +100,8 @@ export class PostgresAccountStore {
 
   async getProgress(accountId) {
     const result = await this.database.query(
-      `SELECT chapter1_state, chapter1_score, chapter2_state, chapter2_score, updated_at
+      `SELECT chapter1_state, chapter1_score, chapter2_state, chapter2_score,
+              chapter3_state, chapter3_score, updated_at
        FROM account_progress WHERE account_id = $1`,
       [accountId]
     );
@@ -99,9 +109,7 @@ export class PostgresAccountStore {
   }
 
   async saveProgress(accountId, chapter, state, score) {
-    const firstChapter = chapter === "chapter1";
-    const stateColumn = firstChapter ? "chapter1_state" : "chapter2_state";
-    const scoreColumn = firstChapter ? "chapter1_score" : "chapter2_score";
+    const [stateColumn, scoreColumn] = progressColumns[chapter];
     const result = await this.database.query(
       `INSERT INTO account_progress (account_id, ${stateColumn}, ${scoreColumn})
        VALUES ($1, $2::jsonb, $3)
@@ -112,22 +120,22 @@ export class PostgresAccountStore {
            END,
            ${scoreColumn} = GREATEST(account_progress.${scoreColumn}, EXCLUDED.${scoreColumn}),
            updated_at = NOW()
-       RETURNING chapter1_state, chapter1_score, chapter2_state, chapter2_score, updated_at`,
+       RETURNING chapter1_state, chapter1_score, chapter2_state, chapter2_score,
+                 chapter3_state, chapter3_score, updated_at`,
       [accountId, JSON.stringify(state), score]
     );
     return progressFromRow(result.rows[0])[chapter];
   }
 
   async resetProgress(accountId, chapter) {
-    const firstChapter = chapter === "chapter1";
-    const stateColumn = firstChapter ? "chapter1_state" : "chapter2_state";
-    const scoreColumn = firstChapter ? "chapter1_score" : "chapter2_score";
+    const [stateColumn, scoreColumn] = progressColumns[chapter];
     const result = await this.database.query(
       `INSERT INTO account_progress (account_id, ${stateColumn}, ${scoreColumn})
        VALUES ($1, NULL, 0)
        ON CONFLICT (account_id) DO UPDATE
        SET ${stateColumn} = NULL, ${scoreColumn} = 0, updated_at = NOW()
-       RETURNING chapter1_state, chapter1_score, chapter2_state, chapter2_score, updated_at`,
+       RETURNING chapter1_state, chapter1_score, chapter2_state, chapter2_score,
+                 chapter3_state, chapter3_score, updated_at`,
       [accountId]
     );
     return progressFromRow(result.rows[0])[chapter];
@@ -191,11 +199,11 @@ export class MemoryAccountStore {
   }
 
   async getProgress(accountId) {
-    return clone(this.progress.get(accountId) || { chapter1: null, chapter2: null });
+    return clone(this.progress.get(accountId) || { chapter1: null, chapter2: null, chapter3: null });
   }
 
   async saveProgress(accountId, chapter, state, score) {
-    const saved = this.progress.get(accountId) || { chapter1: null, chapter2: null };
+    const saved = this.progress.get(accountId) || { chapter1: null, chapter2: null, chapter3: null };
     const current = saved[chapter];
     if (!current || score >= current.score) {
       saved[chapter] = { state: clone(state), score, updatedAt: new Date().toISOString() };
@@ -205,7 +213,7 @@ export class MemoryAccountStore {
   }
 
   async resetProgress(accountId, chapter) {
-    const saved = this.progress.get(accountId) || { chapter1: null, chapter2: null };
+    const saved = this.progress.get(accountId) || { chapter1: null, chapter2: null, chapter3: null };
     saved[chapter] = null;
     this.progress.set(accountId, saved);
     return null;

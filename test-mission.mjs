@@ -283,7 +283,7 @@ assert(
 api.acceptMissionIntro();
 assert(elements.get("mission-intro").hidden, "Reread lore intro did not close");
 assert(api.getState().introSeen.filter((key) => key === "interface").length === 1, "Rereading duplicated the seen state");
-assert(elements.get("scene-kicker").textContent === "Вопрос миссии", "Interface mission does not label its central question");
+assert(elements.get("scene-kicker").textContent === api.missions.interface.sceneKicker, "Interface assignment does not label its central question");
 assert(
   elements.get("scene-copy").textContent.startsWith("Дано:") && elements.get("scene-copy").textContent.includes("Задача:"),
   "Interface mission does not show explicit conditions and task"
@@ -302,8 +302,8 @@ assert(api.getState().xp === 55, `Expected 55 XP after Interface Hub, got ${api.
 
 api.beginMission("data");
 const activeForgeMarker = elements.get("forge-layer").children[0];
-assert(activeForgeMarker.innerHTML.includes("Центральное ядро"), "Forge landmark is missing under the active marker");
-assert(activeForgeMarker.innerHTML.includes("Назовите конструкцию"), "Forge instruction is missing under the active marker");
+assert(activeForgeMarker.innerHTML.includes("Сущность проекта"), "Data-model landmark is missing under the active marker");
+assert(activeForgeMarker.innerHTML.includes("Выберите термин"), "Data-model instruction is missing under the active marker");
 assert(activeForgeMarker.innerHTML.includes(api.missions.data.prompts[0]), "Forge definition is missing under the active marker");
 api.getState().selected = ["field", "object", "directory", "detail", "relation"];
 api.checkSolution();
@@ -321,8 +321,8 @@ api.beginMission("access");
 const firstAccessOrder = [...api.getState().answerOrders["access:question-0"]];
 assert(firstAccessOrder[0] !== api.missions.access.questions[0].correct, "Access correct answer is still first");
 const activeAccessMarker = elements.get("access-layer").children[0];
-assert(activeAccessMarker.innerHTML.includes("Страж структуры"), "Active access landmark is missing from the scene");
-assert(activeAccessMarker.innerHTML.includes("Выберите печать доступа"), "Access instruction is missing under the active marker");
+assert(activeAccessMarker.innerHTML.includes("Структура компании"), "Active access landmark is missing from the scene");
+assert(activeAccessMarker.innerHTML.includes("Выберите механизм доступа"), "Access instruction is missing under the active marker");
 assert(activeAccessMarker.innerHTML.includes(api.missions.access.questions[0].prompt), "Access question is missing under the active marker");
 api.answerQuiz("funcRole");
 assert(
@@ -341,8 +341,8 @@ assert(api.getState().accessComplete, "Access Citadel scene did not activate aft
 
 api.beginMission("process");
 const activeEngineMarker = elements.get("engine-layer").children[1];
-assert(activeEngineMarker.innerHTML.includes("Приёмный кристалл"), "Active process station is missing from the scene");
-assert(activeEngineMarker.innerHTML.includes("Установите модуль"), "Process instruction is missing under the active marker");
+assert(activeEngineMarker.innerHTML.includes("Старт процесса"), "Active process step is missing from the scene");
+assert(activeEngineMarker.innerHTML.includes("Выберите элемент"), "Process instruction is missing under the active marker");
 assert(activeEngineMarker.innerHTML.includes(api.missions.process.processPrompts[0]), "Process prompt is missing under the active marker");
 assert(api.getState().selected.length === 5, "Process Engine did not initialize five image stations");
 api.assignEngineModule("signalFilter");

@@ -29,10 +29,14 @@ const publicRootFiles = new Set([
   "styles.css",
   "chapter2.css",
   "chapter2-missions.js",
-  "chapter2.js"
+  "chapter2.js",
+  "chapter3.css",
+  "chapter3-missions.js",
+  "chapter3.js"
 ]);
 const missionKeys = ["interface", "data", "access", "process", "case", "integration", "insight", "classification", "solution"];
 const chapter2MissionKeys = ["sorting", "portal", "signal", "cycle", "package", "trace", "change", "oracle", "contour"];
+const chapter3MissionKeys = ["contact", "lead", "channel", "bpmn", "sla", "access", "integration", "ai", "orbit"];
 
 const completionFlags = [
   "missionComplete",
@@ -46,6 +50,7 @@ const completionFlags = [
   "solutionMissionComplete"
 ];
 const chapter2CompletionFlags = chapter2MissionKeys.map((key) => `${key}Complete`);
+const chapter3CompletionFlags = chapter3MissionKeys.map((key) => `${key}Complete`);
 
 const mimeTypes = new Map([
   [".css", "text/css; charset=utf-8"],
@@ -170,6 +175,53 @@ export function sanitizeChapter2ProgressState(input) {
 
 function getChapter2ProgressScore(state) {
   return chapter2CompletionFlags.reduce((score, flag) => score + Number(state[flag] === true), 0);
+}
+
+export function sanitizeChapter3ProgressState(input) {
+  if (!input || typeof input !== "object" || Array.isArray(input)) return null;
+  const state = {
+    chapterId: "orbit-360",
+    energy: Number.isInteger(input.energy) ? Math.max(0, Math.min(input.energy, 4)) : 4,
+    introSeen: Array.isArray(input.introSeen)
+      ? [...new Set(input.introSeen.filter((key) => chapter3MissionKeys.includes(key)))]
+      : [],
+    prologueSeen: input.prologueSeen === true,
+    attempts: Math.max(1, Math.min(Number(input.attempts) || 1, 100)),
+    activePhase: Math.max(0, Math.min(Number(input.activePhase) || 0, 20)),
+    answers: sanitizeStringRecord(input.answers),
+    locked: sanitizeStringRecord(input.locked, { booleanValues: true }),
+    missionProgress: {},
+    achievementGranted: input.achievementGranted === true
+  };
+  let previousComplete = true;
+
+  chapter3CompletionFlags.forEach((flag) => {
+    const complete = previousComplete && input[flag] === true;
+    state[flag] = complete;
+    previousComplete = complete;
+  });
+
+  const missionProgress = input.missionProgress && typeof input.missionProgress === "object" && !Array.isArray(input.missionProgress)
+    ? input.missionProgress
+    : {};
+  chapter3MissionKeys.forEach((key) => {
+    const progress = missionProgress[key];
+    if (!progress || typeof progress !== "object" || Array.isArray(progress)) return;
+    state.missionProgress[key] = {
+      phase: Math.max(0, Math.min(Number(progress.phase) || 0, 20)),
+      answers: sanitizeStringRecord(progress.answers),
+      locked: sanitizeStringRecord(progress.locked, { booleanValues: true }),
+      optionOrders: sanitizeStringRecord(progress.optionOrders, { arrayValues: true }),
+      lastWrong: Array.isArray(progress.lastWrong)
+        ? progress.lastWrong.filter((value) => typeof value === "string" && value.length <= 100).slice(0, 30)
+        : []
+    };
+  });
+  return state;
+}
+
+function getChapter3ProgressScore(state) {
+  return chapter3CompletionFlags.reduce((score, flag) => score + Number(state[flag] === true), 0);
 }
 
 function normalizeEmail(value) {
@@ -565,7 +617,7 @@ async function handleAccountProgress(request, response, chapter = null) {
     return;
   }
 
-  if (!chapter || !["chapter1", "chapter2"].includes(chapter)) {
+  if (!chapter || !["chapter1", "chapter2", "chapter3"].includes(chapter)) {
     json(response, 404, { error: "Not found" });
     return;
   }
@@ -579,12 +631,18 @@ async function handleAccountProgress(request, response, chapter = null) {
     const body = await readJsonBody(request);
     const state = chapter === "chapter1"
       ? sanitizeProgressState(body.state)
-      : sanitizeChapter2ProgressState(body.state);
+      : chapter === "chapter2"
+        ? sanitizeChapter2ProgressState(body.state)
+        : sanitizeChapter3ProgressState(body.state);
     if (!state) {
       json(response, 400, { error: "Invalid progress state" });
       return;
     }
-    const score = chapter === "chapter1" ? getProgressScore(state) : getChapter2ProgressScore(state);
+    const score = chapter === "chapter1"
+      ? getProgressScore(state)
+      : chapter === "chapter2"
+        ? getChapter2ProgressScore(state)
+        : getChapter3ProgressScore(state);
     const saved = await store.saveProgress(account.id, chapter, state, score);
     json(response, 200, { ok: true, progress: saved });
     return;
@@ -697,7 +755,7 @@ export function createApplicationServer() {
         return;
       }
 
-      const accountProgressMatch = url.pathname.match(/^\/api\/account\/progress\/(chapter1|chapter2)$/);
+      const accountProgressMatch = url.pathname.match(/^\/api\/account\/progress\/(chapter1|chapter2|chapter3)$/);
       if (accountProgressMatch) {
         await handleAccountProgress(request, response, accountProgressMatch[1]);
         return;

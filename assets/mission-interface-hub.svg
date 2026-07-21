@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 500" role="img" aria-labelledby="title desc">
-  <title id="title">Interface Hub</title>
-  <desc id="desc">Панорама фэнтезийного города с пятью связанными зданиями.</desc>
+  <title id="title">Учебное рабочее место</title>
+  <desc id="desc">Пять связанных уровней навигации менеджера в учебной системе.</desc>
   <rect width="1600" height="500" fill="#527e8b"/>
   <path d="M0 304 C180 230 318 274 453 239 C611 198 774 248 918 213 C1094 171 1314 224 1600 153 V500 H0Z" fill="#345e59"/>
   <circle cx="1322" cy="104" r="62" fill="#e3c16a" opacity="0.9"/>

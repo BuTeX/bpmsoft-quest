@@ -194,66 +194,66 @@ if (typeof window !== "undefined") {
 const chapter2MissionBriefs = {
   sorting: {
     number: "10",
-    zone: "Sorting Furnace",
-    title: "Поставка двойников",
-    copy: "Остановите повторный импорт, пока одинаковые корпуса не заполнили все склады Сортировочной домны.",
-    unlock: "Portal Gate"
+    zone: "Планирование производства",
+    title: "Импорт производственных заказов",
+    copy: "Настройте повторный Excel-импорт без дублей заказов и загрязнения справочников.",
+    unlock: "Дилерский портал"
   },
   portal: {
     number: "11",
-    zone: "Portal Gate",
-    title: "Печати чужого цеха",
-    copy: "Верните внешним гильдиям доступ к своим заказам, не открывая данные соседних организаций.",
-    unlock: "Signal Yard"
+    zone: "Дилерский портал",
+    title: "Доступ дилеров к заказам",
+    copy: "Разделите данные организаций и скройте внутреннюю себестоимость от внешних пользователей.",
+    unlock: "Интеграция с перевозчиком"
   },
   signal: {
     number: "12",
-    zone: "Signal Yard",
-    title: "Контракт релейных башен",
-    copy: "Соберите исходящий REST-вызов и восстановите секретную печать, потерянную при переносе между средами.",
-    unlock: "Cycle Foundry"
+    zone: "Интеграция с перевозчиком",
+    title: "Передача заказа перевозчику",
+    copy: "Настройте исходящий REST-вызов и восстановите секрет, не перенесённый на новую среду.",
+    unlock: "Согласование заказов"
   },
   cycle: {
     number: "13",
-    zone: "Cycle Foundry",
-    title: "Смена, которая не заканчивается",
+    zone: "Согласование заказов",
+    title: "Зацикленное согласование",
     copy: "Найдите исполняемую версию процесса, остановите бесконечный повтор и верните трассу выполнения.",
-    unlock: "Package Depot"
+    unlock: "Управление конфигурацией"
   },
   package: {
     number: "14",
-    zone: "Package Depot",
-    title: "Краны противоречий",
-    copy: "Разберите циклические зависимости и сформируйте управляемую поставку для внутреннего кольца.",
-    unlock: "Уровень IV · Trace Furnace"
+    zone: "Управление конфигурацией",
+    title: "Состав решения и зависимости",
+    copy: "Разберите циклические зависимости и подготовьте управляемый перенос на тестовую среду.",
+    unlock: "Аудит изменений"
   },
   trace: {
     number: "15",
-    zone: "Trace Furnace",
-    title: "Кто изменил директиву",
-    copy: "Разделите бизнес-изменения и события безопасности, затем восстановите доказуемую хронологию аварии.",
-    unlock: "Change Assembly"
+    zone: "Аудит изменений",
+    title: "История изменения заказа",
+    copy: "Разделите бизнес-изменения и события безопасности, затем восстановите доказуемую хронологию инцидента.",
+    unlock: "Управление релизами"
   },
   change: {
     number: "16",
-    zone: "Change Assembly",
-    title: "Выпуск без общего плана",
-    copy: "Свяжите проблему, изменение, затронутые механизмы и релиз в один управляемый выпуск.",
-    unlock: "Oracle Forge"
+    zone: "Управление релизами",
+    title: "Подготовка рабочего релиза",
+    copy: "Свяжите проблему, изменение, затронутые компоненты и релиз в один управляемый выпуск.",
+    unlock: "Аналитика продаж"
   },
   oracle: {
     number: "17",
-    zone: "Oracle Forge",
-    title: "Разбудить модель",
-    copy: "Подготовьте данные, выберите ML или LLM и запустите Оракула как помощника, а не как источник безусловной истины.",
-    unlock: "Contour Heart"
+    zone: "Аналитика продаж",
+    title: "Помощник отдела продаж",
+    copy: "Подготовьте данные, разделите задачи ML и LLM и встроите результат в контролируемый процесс.",
+    unlock: "Приёмочный стенд"
   },
   contour: {
     number: "18",
-    zone: "Contour Heart",
-    title: "Синхронизация Медного Предела",
-    copy: "Докажите причины общего инцидента, проведите согласованное исправление и выдержите четыре приёмочных сигнала.",
-    unlock: "Финал второй главы"
+    zone: "Приёмочный стенд",
+    title: "Приёмка рабочего релиза",
+    copy: "Докажите причины общего инцидента, проведите согласованное исправление и выполните четыре приёмочных сценария.",
+    unlock: "Завершение клиентского проекта"
   }
 };
 
@@ -306,13 +306,22 @@ function setChapterSwitcherState(activeChapter) {
   const switcher = document.getElementById("chapter-switcher");
   const firstButton = document.getElementById("show-first-chapter");
   const secondButton = document.getElementById("show-second-chapter");
+  const thirdButton = document.getElementById("show-third-chapter");
   if (!switcher || !firstButton || !secondButton) return;
   switcher.hidden = !isChapter2Unlocked();
+  const firstActive = activeChapter === "chapter1";
   const secondActive = activeChapter === "chapter2";
-  firstButton.classList.toggle("is-active", !secondActive);
+  const thirdActive = activeChapter === "chapter3";
+  firstButton.classList.toggle("is-active", firstActive);
   secondButton.classList.toggle("is-active", secondActive);
-  firstButton.setAttribute("aria-pressed", String(!secondActive));
+  firstButton.setAttribute("aria-pressed", String(firstActive));
   secondButton.setAttribute("aria-pressed", String(secondActive));
+  if (thirdButton) {
+    const thirdUnlocked = isChapter2StudyMode() || chapter2State.contourComplete === true;
+    thirdButton.disabled = !thirdUnlocked;
+    thirdButton.classList.toggle("is-active", thirdActive);
+    thirdButton.setAttribute("aria-pressed", String(thirdActive));
+  }
 }
 
 function renderChapter2Brief(key) {
@@ -321,20 +330,20 @@ function renderChapter2Brief(key) {
   const studyMode = isChapter2StudyMode();
   const completed = chapter2State[CHAPTER2_COMPLETION_FLAGS[CHAPTER2_MISSION_KEYS.indexOf(key)]];
   document.getElementById("chapter2-brief-number").textContent = completed
-    ? `Задание ${mission.number} синхронизировано`
+    ? `Задание ${mission.number} завершено`
     : `Задание ${mission.number}`;
   document.getElementById("chapter2-brief-title").textContent = completed
-    ? `${mission.zone} работает согласованно`
+    ? `${mission.zone}: проверка пройдена`
     : mission.title;
   document.getElementById("chapter2-brief-copy").textContent = completed
-    ? "Контур уже восстановлен. Диагностику можно повторить без повторной награды."
+    ? "Задание уже выполнено. Его можно повторить без повторного начисления баллов."
     : mission.copy;
   document.getElementById("chapter2-brief-reward").textContent = studyMode ? "учебный запуск" : completed ? "получена" : key === "contour" ? "100 XP карты" : "50 XP карты";
   document.getElementById("chapter2-brief-time").textContent = key === "contour" ? "15–20 минут" : "8–12 минут";
   document.getElementById("chapter2-brief-unlock").textContent = studyMode ? "все задания открыты" : completed ? "повторное прохождение" : mission.unlock;
   const start = document.getElementById("chapter2-start-mission");
   start.dataset.c2Mission = key;
-  start.textContent = completed ? `Повторить задание ${mission.number}` : "Запустить диагностику";
+  start.textContent = completed ? `Повторить задание ${mission.number}` : "Открыть задание";
 }
 
 function renderChapter2MapState() {
@@ -343,8 +352,8 @@ function renderChapter2MapState() {
   const currentKey = getCurrentChapter2MissionKey();
   const levelLabel = document.getElementById("chapter2-level-label");
   const mapTitle = document.getElementById("chapter2-map-title");
-  if (levelLabel) levelLabel.textContent = studyMode ? "Свободный маршрут" : chapter2State.chapterComplete ? "Глава завершена" : chapter2State.level === 3 ? "Уровень III" : "Уровень IV";
-  if (mapTitle) mapTitle.textContent = studyMode ? "Все задания Медного Предела" : chapter2State.chapterComplete ? "Медный Предел синхронизирован" : chapter2State.level === 3 ? "Внешний контур" : "Внутренний контур";
+  if (levelLabel) levelLabel.textContent = studyMode ? "Свободное прохождение" : chapter2State.chapterComplete ? "Проект завершён" : "Производственный проект";
+  if (mapTitle) mapTitle.textContent = studyMode ? "Все задания АО «Медные машины»" : chapter2State.chapterComplete ? "Проект АО «Медные машины» завершён" : chapter2State.level === 3 ? "Производственные операции" : "Управление изменениями";
 
   CHAPTER2_MISSION_KEYS.forEach((key, index) => {
     const complete = chapter2State[CHAPTER2_COMPLETION_FLAGS[index]] === true;
@@ -379,10 +388,12 @@ function openChapter2Prologue() {
 
 function activateChapter2Map({ reviewPrologue = false } = {}) {
   if (!isChapter2Unlocked()) return false;
+  window.BPMQuestChapter3?.closeOverlays?.();
   document.querySelectorAll(".view").forEach((view) => {
     view.classList.remove("is-active");
     view.hidden = true;
   });
+  document.body?.classList.remove("theme-orbit");
   document.body?.classList.add("theme-copper");
   const mapView = document.getElementById("chapter2-map-view");
   mapView.hidden = false;
@@ -398,7 +409,8 @@ function activateChapter2Map({ reviewPrologue = false } = {}) {
 
 function activateFirstChapter() {
   hideChapter2Prologue();
-  document.body?.classList.remove("theme-copper");
+  window.BPMQuestChapter3?.closeOverlays?.();
+  document.body?.classList.remove("theme-copper", "theme-orbit");
   const mapView = document.getElementById("chapter2-map-view");
   if (mapView) {
     mapView.classList.remove("is-active");
@@ -416,13 +428,14 @@ function acceptChapter2Prologue() {
 }
 
 function resetChapter2Progress() {
-  const confirmed = window.confirm("Сбросить XP и открытые задания только в Медном Пределе?");
+  const confirmed = window.confirm("Сбросить баллы и открытые задания проекта АО «Медные машины»?");
   if (!confirmed) return;
   chapter2State = { ...chapter2InitialState };
   writeChapter2LocalState(getPersistedChapter2State());
   window.BPMQuestFirstChapter?.resetAccountProgress?.("chapter2");
   renderChapter2Stats();
   renderChapter2MapState();
+  window.BPMQuestChapter3?.applyAccessMode?.();
   openChapter2Prologue();
 }
 
@@ -477,6 +490,10 @@ function initializeChapter2Map() {
   window.BPMQuestChapter2.activateFirstChapter = activateFirstChapter;
   window.BPMQuestChapter2.renderMap = renderChapter2MapState;
   window.BPMQuestChapter2.applyAccessMode = applyChapter2AccessMode;
+  window.BPMQuestChapter2.closeOverlays = () => {
+    hideChapter2Prologue();
+    hideChapter2MissionIntro();
+  };
   applyChapter2AccessMode();
 }
 
@@ -541,7 +558,7 @@ function renderChapter2MissionIntro(mission, mode = "first-visit") {
   intro.dataset.mission = mission.key;
   intro.dataset.mode = mode;
   document.getElementById("chapter2-mission-intro-number").textContent = mission.number;
-  document.getElementById("chapter2-mission-intro-kicker").textContent = `Сигнал · ${mission.zone}`;
+  document.getElementById("chapter2-mission-intro-kicker").textContent = `Запрос заказчика · ${mission.zone}`;
   document.getElementById("chapter2-mission-intro-title").textContent = mission.introTitle;
   document.getElementById("chapter2-mission-intro-copy").innerHTML = mission.intro.map((paragraph) => `<p>${paragraph}</p>`).join("");
   const visual = document.getElementById("chapter2-mission-intro-visual");
@@ -623,7 +640,7 @@ function renderChapter2Board(mission, progress) {
   document.getElementById("chapter2-selection-count").textContent = `${selectedCount} / ${phase.slots.length}`;
   document.getElementById("chapter2-mission-hint").textContent = selectedCount === phase.slots.length
     ? "Конфигурация заполнена. Проведите пробный запуск."
-    : `Заполнено ${selectedCount} из ${phase.slots.length}. Исследование не расходует энергию.`;
+    : `Выбрано ${selectedCount} из ${phase.slots.length}. Просмотр вариантов не расходует попытку.`;
 
   grid.innerHTML = "";
   phase.slots.forEach((slot) => {
@@ -728,6 +745,7 @@ function completeChapter2Mission(mission) {
   saveChapter2State();
   renderChapter2Stats();
   renderChapter2MapState();
+  window.BPMQuestChapter3?.applyAccessMode?.();
   return alreadyComplete ? 0 : mission.score;
 }
 
@@ -759,13 +777,13 @@ function checkChapter2Phase() {
     renderChapter2Stats();
     renderChapter2Mission();
     showChapter2Feedback({
-      kicker: exhausted ? "Инженерный разбор" : "Контур не запустился",
-      title: exhausted ? "Энергоячейки исчерпаны" : "Часть решений требует пересборки",
+      kicker: exhausted ? "Разбор с руководителем проекта" : "Проверка не пройдена",
+      title: exhausted ? "Попытки этого этапа исчерпаны" : "Часть решений требует исправления",
       copy: exhausted
-        ? `${explanation} ГЕФЕСТ-7 сбросил временную конфигурацию этой фазы; используйте разбор и соберите её заново.`
+        ? `${explanation} Временные ответы этого этапа сброшены; используйте разбор и пройдите его заново.`
         : explanation,
       action: exhausted ? "retry-phase" : "dismiss",
-      actionLabel: exhausted ? "Пересобрать фазу" : "Исправить узлы"
+      actionLabel: exhausted ? "Повторить этап" : "Исправить решения"
     });
     return false;
   }
@@ -780,11 +798,11 @@ function checkChapter2Phase() {
     saveChapter2State();
     renderChapter2Mission();
     showChapter2Feedback({
-      kicker: "Фаза завершена",
+      kicker: "Этап завершён",
       title: phase.successTitle,
       copy: phase.successCopy,
       action: "continue",
-      actionLabel: "Перейти к следующей фазе"
+      actionLabel: "Перейти к следующему этапу"
     });
     return true;
   }
@@ -795,16 +813,16 @@ function checkChapter2Phase() {
   const nextKey = CHAPTER2_MISSION_KEYS[currentIndex + 1];
   const nextMission = nextKey ? chapter2Missions[nextKey] : null;
   showChapter2Feedback({
-    kicker: studyMode ? "Учебный запуск" : awarded > 0 ? "Контур синхронизирован" : "Повторная синхронизация",
+    kicker: studyMode ? "Учебный запуск" : awarded > 0 ? "Задание выполнено" : "Повторное прохождение",
     title: phase.successTitle,
     copy: studyMode
       ? `${phase.successCopy} Основной прогресс и награды не изменены.`
-      : awarded > 0 ? phase.successCopy : `${phase.successCopy} Награда за этот район уже получена.`,
+      : awarded > 0 ? phase.successCopy : `${phase.successCopy} Баллы за это задание уже начислены.`,
     score: awarded,
     action: studyMode ? nextMission ? `next:${nextKey}` : "map" : mission.key === "contour" ? "finale" : nextMission ? `next:${nextKey}` : "map",
     actionLabel: studyMode
       ? nextMission ? `Открыть задание ${nextMission.number}` : "Вернуться на карту"
-      : mission.key === "contour" ? "Завершить главу" : nextMission ? `Открыть задание ${nextMission.number}` : "Вернуться на карту"
+      : mission.key === "contour" ? "Завершить проект" : nextMission ? `Открыть задание ${nextMission.number}` : "Вернуться на карту"
   });
   return true;
 }

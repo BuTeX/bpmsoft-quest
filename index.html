@@ -11,6 +11,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png?v=20260720-1">
   <link rel="stylesheet" href="styles.css?v=20260720-accounts">
   <link rel="stylesheet" href="chapter2.css?v=20260721-explicit-conditions">
+  <link rel="stylesheet" href="chapter3.css?v=20260721-orbit-360-3">
 </head>
 <body>
   <div class="game-shell">
@@ -22,8 +23,8 @@
         </div>
         <div class="player-access-heading">
           <p class="eyebrow">Вход в академию</p>
-          <h2 id="player-access-title">С возвращением, Архитектор</h2>
-          <p id="player-access-copy">Войдите в аккаунт — прогресс обеих карт восстановится автоматически.</p>
+          <h2 id="player-access-title">С возвращением</h2>
+          <p id="player-access-copy">Войдите в аккаунт — прогресс трёх карт восстановится автоматически.</p>
         </div>
         <label id="player-name-field" class="player-name-field" for="player-name" hidden>
           <span>Имя или ник</span>
@@ -48,14 +49,14 @@
             <input id="player-mode-progression" name="questMode" type="radio" value="progression" checked>
             <span class="player-mode-card-copy">
               <strong>Прохождение</strong>
-              <small>Миссии открываются по очереди. XP, энергия и достижения сохраняются.</small>
+              <small>Задания открываются по очереди. Баллы, попытки и достижения сохраняются.</small>
             </span>
           </label>
           <label class="player-mode-card">
             <input id="player-mode-study" name="questMode" type="radio" value="study">
             <span class="player-mode-card-copy">
               <strong>Изучение и осмотр</strong>
-              <small>Обе карты и все 18 миссий доступны сразу. Основной прогресс не изменяется.</small>
+              <small>Все три карты и 27 заданий доступны сразу. Основной прогресс не изменяется.</small>
             </span>
           </label>
         </fieldset>
@@ -89,18 +90,18 @@
     <div id="mission-intro" class="mission-intro" hidden>
       <section class="mission-intro-dialog" role="dialog" aria-modal="true" aria-labelledby="mission-intro-title" aria-describedby="mission-intro-copy">
         <div class="mission-intro-visual">
-          <img id="mission-intro-image" src="assets/mission-interface-hub.png" alt="Фэнтезийный город интерфейсов с архивами и переходами">
+          <img id="mission-intro-image" src="assets/mission-interface-hub.png" alt="Учебное рабочее место Академии">
           <div class="mission-intro-seal" aria-hidden="true">
             <span>Задание</span>
             <strong id="mission-intro-number">01</strong>
           </div>
         </div>
         <div class="mission-intro-content">
-          <p id="mission-intro-kicker" class="eyebrow">Предание · Interface Hub</p>
-          <h2 id="mission-intro-title">Утраченный Скрипт Путей</h2>
+          <p id="mission-intro-kicker" class="eyebrow">Учебный кейс · Навигация менеджера</p>
+          <h2 id="mission-intro-title">Найти нужные данные в системе</h2>
           <div id="mission-intro-copy" class="mission-intro-copy">
-            <p>Над Interface Hub сгустился фиолетовый туман: маги-навигации потеряли древний Скрипт Путей, в котором был описан маршрут каждого пользователя по системе.</p>
-            <p>Архивариусы нашли пять обгоревших рун. Восстановите цепочку, пока двери разделов окончательно не запечатались.</p>
+            <p>Куратор выпускного курса просит проверить, понимаете ли вы структуру интерфейса BPMSoft. Менеджер должен открыть список клиентов, перейти в карточку и найти связанные активности.</p>
+            <p>Соберите путь пользователя от рабочего места до нужных данных и объясните назначение каждого уровня навигации.</p>
           </div>
           <div class="mission-intro-actions">
             <button id="mission-intro-map" class="secondary-action" type="button">Вернуться на карту</button>
@@ -116,18 +117,18 @@
           <img class="c2-prologue-image" src="assets/chapter2-world-map.png" alt="">
           <div class="c2-prologue-core"><span></span></div>
           <div class="c2-prologue-route"></div>
-          <p>Контур Δ-47</p>
+          <p>АО «Медные машины»</p>
         </div>
         <div class="c2-prologue-content">
-          <p class="eyebrow">Глава II · Медный Предел</p>
-          <h2 id="chapter2-prologue-title">Сердце сбилось с ритма</h2>
+          <p class="eyebrow">Карта II · Первый проект</p>
+          <h2 id="chapter2-prologue-title">Производству нужна единая система</h2>
           <div id="chapter2-prologue-copy" class="c2-prologue-copy">
-            <p>Первый производственный заказ City Nexus не получил ответа. За Морем Конфигурации фабрики продолжают работать, но каждая магистраль передаёт собственную версию сигнала.</p>
-            <p>Инспекционный голем ГЕФЕСТ-7 вызывает Архитектора в Медный Предел. Нужно войти в действующую систему, найти рассогласование и восстановить общий контур без полной остановки региона.</p>
+            <p>После выпуска из Академии вы начинаете работать аналитиком в компании «Системная практика». Первый заказчик — АО «Медные машины», производитель грузовых големов, приводов и комплектующих.</p>
+            <p>Компания расширяет производство и дилерскую сеть, но заказы дублируются, интеграции работают нестабильно, а изменения сложно выпускать. Ваша задача — разобраться в процессах и подготовить решения, которые можно принять в эксплуатацию.</p>
           </div>
           <div class="c2-prologue-actions">
-            <button id="chapter2-prologue-back" class="secondary-action" type="button">Остаться в первом городе</button>
-            <button id="chapter2-prologue-start" class="primary-action" type="button">Принять вызов ГЕФЕСТА-7</button>
+            <button id="chapter2-prologue-back" class="secondary-action" type="button">Вернуться в Академию</button>
+            <button id="chapter2-prologue-start" class="primary-action" type="button">Начать проект</button>
           </div>
         </div>
       </section>
@@ -140,12 +141,53 @@
           <div class="c2-mission-intro-number"><span>Задание</span><strong id="chapter2-mission-intro-number">10</strong></div>
         </div>
         <div class="c2-prologue-content">
-          <p id="chapter2-mission-intro-kicker" class="eyebrow">Сигнал · Sorting Furnace</p>
-          <h2 id="chapter2-mission-intro-title">Плавка одинаковых лиц</h2>
+          <p id="chapter2-mission-intro-kicker" class="eyebrow">Запрос заказчика · Планирование производства</p>
+          <h2 id="chapter2-mission-intro-title">Импорт производственных заказов</h2>
           <div id="chapter2-mission-intro-copy" class="c2-prologue-copy"></div>
           <div class="c2-prologue-actions">
             <button id="chapter2-mission-intro-map" class="secondary-action" type="button">Вернуться на карту</button>
             <button id="chapter2-mission-intro-start" class="primary-action" type="button">Принять задание</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div id="chapter3-prologue" class="c3-overlay" hidden>
+      <section class="c3-overlay-dialog" role="dialog" aria-modal="true" aria-labelledby="chapter3-prologue-title" aria-describedby="chapter3-prologue-copy">
+        <div class="c3-overlay-visual" aria-hidden="true">
+          <img src="assets/chapter3-world-map.png" alt="">
+          <div class="c3-orbit-rings"><span></span><span></span><span></span></div>
+          <div class="c3-prism-mark"></div>
+          <p>Группа «Семь дорог»</p>
+        </div>
+        <div class="c3-overlay-content">
+          <p class="eyebrow">Карта III · Развитие CRM</p>
+          <h2 id="chapter3-prologue-title">От внедрения к центру компетенций</h2>
+          <div id="chapter3-prologue-copy" class="c3-overlay-copy">
+            <p>Группа «Семь дорог» оказывает транспортные и складские услуги по всему королевству. Компания уже внедрила CRM, а теперь создаёт собственный центр компетенций и постепенно передаёт ему развитие системы.</p>
+            <p>Команде предстоит привести в порядок клиентские данные, квалификацию лидов, коммуникации, сервис, права, интеграции и AI-сценарии. Вы подключаетесь как ведущий аналитик и помогаете выстроить рабочие правила.</p>
+          </div>
+          <div class="c3-overlay-actions">
+            <button id="chapter3-prologue-back" class="secondary-action" type="button">Вернуться к проекту «Медные машины»</button>
+            <button id="chapter3-prologue-start" class="primary-action" type="button">Начать работу</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div id="chapter3-mission-intro" class="c3-overlay c3-mission-intro" hidden>
+      <section class="c3-overlay-dialog" role="dialog" aria-modal="true" aria-labelledby="chapter3-mission-intro-title" aria-describedby="chapter3-mission-intro-copy">
+        <div id="chapter3-mission-intro-visual" class="c3-overlay-visual c3-mission-intro-visual" aria-hidden="true">
+          <img id="chapter3-mission-intro-image" src="assets/mission-contact-genome.png" alt="">
+          <div class="c3-mission-intro-number"><span>Задание</span><strong id="chapter3-mission-intro-number">19</strong></div>
+        </div>
+        <div class="c3-overlay-content">
+          <p id="chapter3-mission-intro-kicker" class="eyebrow">Запрос заказчика · Клиентские данные</p>
+          <h2 id="chapter3-mission-intro-title">Дубли в клиентской базе</h2>
+          <div id="chapter3-mission-intro-copy" class="c3-overlay-copy"></div>
+          <div class="c3-overlay-actions">
+            <button id="chapter3-mission-intro-map" class="secondary-action" type="button">Вернуться на карту</button>
+            <button id="chapter3-mission-intro-start" class="primary-action" type="button">Начать работу</button>
           </div>
         </div>
       </section>
@@ -162,14 +204,15 @@
         </div>
       </div>
 
-      <nav id="chapter-switcher" class="chapter-switcher" aria-label="Выбор главы" hidden>
-        <button id="show-first-chapter" class="is-active" type="button" aria-pressed="true">Первый город</button>
-        <button id="show-second-chapter" type="button" aria-pressed="false">Медный Предел</button>
+      <nav id="chapter-switcher" class="chapter-switcher" aria-label="Выбор карты" hidden>
+        <button id="show-first-chapter" class="is-active" type="button" aria-pressed="true">Академия</button>
+        <button id="show-second-chapter" type="button" aria-pressed="false">Медные машины</button>
+        <button id="show-third-chapter" type="button" aria-pressed="false" disabled>Семь дорог</button>
       </nav>
 
-      <div class="player-stats" aria-label="Прогресс игрока">
+      <div class="player-stats" aria-label="Прогресс пользователя">
         <button id="player-profile" class="player-profile-action" type="button" hidden>
-          <strong id="player-profile-name">Игрок</strong>
+          <strong id="player-profile-name">Слушатель</strong>
           <span id="player-profile-mode">Прохождение</span>
         </button>
         <button id="admin-toggle" class="admin-action" type="button" aria-pressed="false">Войти в админ панель</button>
@@ -186,8 +229,8 @@
             <div id="xp-bar" class="progress-fill"></div>
           </div>
         </div>
-        <div class="energy-stat" aria-label="Энергия низкого кода">
-          <span>Энергия</span>
+        <div class="energy-stat" aria-label="Оставшиеся попытки">
+          <span>Попытки</span>
           <div id="energy-runes" class="energy-runes"></div>
         </div>
       </div>
@@ -196,133 +239,133 @@
     <main>
       <section id="map-view" class="view is-active" aria-labelledby="map-title">
         <div class="map-layout">
-          <aside class="zone-journal" aria-label="Журнал зон">
+          <aside class="zone-journal" aria-label="Программа выпускного курса">
             <div class="panel-heading">
-              <p id="map-level-label" class="eyebrow">Уровень I</p>
-              <h2 id="map-title">Основы платформы</h2>
+              <p id="map-level-label" class="eyebrow">Базовый курс</p>
+              <h2 id="map-title">Академия аналитиков</h2>
             </div>
             <ol class="zone-list">
               <li class="is-current" data-zone-row="interface">
                 <button type="button" data-zone="interface">
                   <span class="zone-index">01</span>
-                  <span><strong>Interface Hub</strong><small>5 терминов интерфейса</small></span>
+                  <span><strong>Учебное рабочее место</strong><small>Навигация менеджера</small></span>
                 </button>
               </li>
               <li data-zone-row="data">
                 <button type="button" data-zone="data" disabled>
                   <span class="zone-index">02</span>
-                  <span><strong>Data Forge</strong><small>5 терминов данных</small></span>
+                  <span><strong>Лаборатория данных</strong><small>Основы модели данных</small></span>
                 </button>
               </li>
               <li data-zone-row="access">
                 <button type="button" data-zone="access" disabled>
                   <span class="zone-index">03</span>
-                  <span><strong>Access Citadel</strong><small>5 терминов доступа</small></span>
+                  <span><strong>Практикум по доступу</strong><small>Права отдела продаж</small></span>
                 </button>
               </li>
               <li data-zone-row="process">
                 <button type="button" data-zone="process" disabled>
                   <span class="zone-index">04</span>
-                  <span><strong>Process Engine</strong><small>Low-code автоматизация</small></span>
+                  <span><strong>Практикум по процессам</strong><small>Обработка входящего письма</small></span>
                 </button>
               </li>
               <li data-zone-row="case">
                 <button type="button" data-zone="case" disabled>
                   <span class="zone-index">05</span>
-                  <span><strong>Case Arena</strong><small>DCM-кейсы</small></span>
+                  <span><strong>Практикум по кейсам</strong><small>Жизненный цикл заявки</small></span>
                 </button>
               </li>
               <li data-zone-row="integration">
                 <button type="button" data-zone="integration" disabled>
                   <span class="zone-index">06</span>
-                  <span><strong>Integration Harbor</strong><small>Входящий интеграционный шлюз</small></span>
+                  <span><strong>Лаборатория интеграций</strong><small>Приём заявок с портала</small></span>
                 </button>
               </li>
               <li data-zone-row="insight">
                 <button type="button" data-zone="insight" disabled>
                   <span class="zone-index">07</span>
-                  <span><strong>Insight Tower</strong><small>Дашборды и KPI</small></span>
+                  <span><strong>Лаборатория аналитики</strong><small>Панель руководителя</small></span>
                 </button>
               </li>
               <li data-zone-row="classification">
                 <button type="button" data-zone="classification" disabled>
                   <span class="zone-index">08</span>
-                  <span><strong>Solution Gate</strong><small>Коробка или доработка</small></span>
+                  <span><strong>Предпроектная оценка</strong><small>Оценка требований</small></span>
                 </button>
               </li>
               <li data-zone-row="solution">
                 <button type="button" data-zone="solution" disabled>
                   <span class="zone-index">09</span>
-                  <span><strong>City Nexus</strong><small>Собери мини-решение</small></span>
+                  <span><strong>Выпускной проект</strong><small>Обработка обращений</small></span>
                 </button>
               </li>
             </ol>
             <button id="reset-progress" class="text-action" type="button">Сбросить прогресс</button>
           </aside>
 
-          <section class="world-stage" aria-label="Игровая карта BPMSoft">
-            <img class="world-map" src="assets/world-map.png" alt="Фэнтезийная карта регионов BPMSoft Quest">
+          <section class="world-stage" aria-label="Карта учебного кампуса">
+            <img class="world-map" src="assets/world-map.png" alt="Кампус Академии аналитиков BPMSoft">
 
             <button class="map-node node-interface is-current" type="button" data-zone="interface" style="--x: 29%; --y: 29%;">
               <span class="node-pin">01</span>
-              <span class="node-label">Interface Hub</span>
+              <span class="node-label">Рабочее место</span>
             </button>
             <button class="map-node node-data" type="button" data-zone="data" style="--x: 53%; --y: 20%;" disabled>
               <span class="node-pin">02</span>
-              <span class="node-label">Data Forge</span>
+              <span class="node-label">Данные</span>
             </button>
             <button class="map-node node-access" type="button" data-zone="access" style="--x: 82%; --y: 38%;" disabled>
               <span class="node-pin">03</span>
-              <span class="node-label">Access Citadel</span>
+              <span class="node-label">Доступ</span>
             </button>
             <button class="map-node node-process" type="button" data-zone="process" style="--x: 47%; --y: 49%;" disabled>
               <span class="node-pin">04</span>
-              <span class="node-label">Process Engine</span>
+              <span class="node-label">Процессы</span>
             </button>
             <button class="map-node node-case" type="button" data-zone="case" style="--x: 68%; --y: 69%;" disabled>
               <span class="node-pin">05</span>
-              <span class="node-label">Case Arena</span>
+              <span class="node-label">Кейсы</span>
             </button>
             <button class="map-node node-integration" type="button" data-zone="integration" style="--x: 18%; --y: 72%;" disabled>
               <span class="node-pin">06</span>
-              <span class="node-label">Integration Harbor</span>
+              <span class="node-label">Интеграции</span>
             </button>
             <button class="map-node node-insight" type="button" data-zone="insight" style="--x: 86%; --y: 16%;" disabled>
               <span class="node-pin">07</span>
-              <span class="node-label">Insight Tower</span>
+              <span class="node-label">Аналитика</span>
             </button>
             <button class="map-node node-classification" type="button" data-zone="classification" style="--x: 91%; --y: 84%;" disabled>
               <span class="node-pin">08</span>
-              <span class="node-label">Solution Gate</span>
+              <span class="node-label">Оценка</span>
             </button>
             <button class="map-node node-solution" type="button" data-zone="solution" style="--x: 52%; --y: 87%;" disabled>
               <span class="node-pin">09</span>
-              <span class="node-label">City Nexus</span>
+              <span class="node-label">Выпускной проект</span>
             </button>
-            <div class="map-caption" aria-hidden="true">Архипелаг конфигурации</div>
+            <div class="map-caption" aria-hidden="true">Академия · выпускной курс</div>
           </section>
 
           <aside class="quest-brief">
             <div class="mentor-block">
               <div class="mentor-portrait">
-                <img src="assets/mentor-archivist.png" alt="Профессор Гуд Программиус, проводник по BPMSoft">
+                <img src="assets/mentor-archivist.png" alt="Ирина Лейт, куратор выпускного курса">
               </div>
               <div>
-                <p class="eyebrow">Проводник</p>
-                <strong>Профессор Гуд Программиус</strong>
+                <p class="eyebrow">Куратор курса</p>
+                <strong>Ирина Лейт</strong>
               </div>
             </div>
             <div class="brief-copy">
               <p id="brief-number" class="quest-number">Задание 01</p>
-              <h2 id="brief-title">Где живёт работа</h2>
-              <p id="brief-copy">Гильдия продаж потеряла путь к клиентским записям. Соберите правильную структуру интерфейса и восстановите навигацию.</p>
+              <h2 id="brief-title">Навигация менеджера</h2>
+              <p id="brief-copy">Куратор просит показать путь от рабочего места до карточки клиента и связанных активностей.</p>
               <dl class="reward-list">
                 <div><dt>Награда</dt><dd id="brief-reward">до 55 XP</dd></div>
                 <div><dt>Время</dt><dd id="brief-time">3–5 минут</dd></div>
-                <div><dt>Откроет</dt><dd id="brief-unlock">Data Forge</dd></div>
+                <div><dt>Откроет</dt><dd id="brief-unlock">Задание 02 · Основы модели данных</dd></div>
               </dl>
             </div>
-            <button id="start-mission" class="primary-action" type="button">Войти в Interface Hub</button>
+            <button id="start-mission" class="primary-action" type="button">Начать задание</button>
           </aside>
         </div>
       </section>
@@ -336,7 +379,7 @@
               <span>Задание</span>
               <strong id="mission-number">01</strong>
             </div>
-            <ol class="mission-steps" aria-label="Этапы миссии">
+            <ol class="mission-steps" aria-label="Этапы задания">
               <li class="is-active">Получить задачу</li>
               <li id="mission-step-two">Собрать путь</li>
               <li>Проверить решение</li>
@@ -350,23 +393,23 @@
           <section id="mission-workspace" class="mission-workspace">
             <header class="mission-header">
               <div>
-                <p id="mission-zone" class="eyebrow">Interface Hub</p>
-                <h2 id="mission-title">Где живёт работа</h2>
+                <p id="mission-zone" class="eyebrow">Учебное рабочее место</p>
+                <h2 id="mission-title">Навигация менеджера</h2>
               </div>
               <span id="attempt-badge" class="attempt-badge">Попытка 1</span>
             </header>
 
             <div id="scene-banner" class="scene-banner">
-              <img id="scene-image" src="assets/mission-interface-hub.png" alt="Фэнтезийный город интерфейсов с архивами и переходами">
+              <img id="scene-image" src="assets/mission-interface-hub.png" alt="Учебное рабочее место Академии">
               <div id="scene-route" class="scene-route" aria-label="Маршрут по сцене" aria-live="polite" hidden></div>
-              <div id="forge-layer" class="forge-layer" aria-label="Интерактивные станции кузницы" aria-live="polite" hidden></div>
-              <div id="access-layer" class="access-layer" aria-label="Стражи и рубежи цитадели" aria-live="polite" hidden></div>
-              <div id="engine-layer" class="engine-layer" aria-label="Узлы конвейера Process Engine" aria-live="polite" hidden></div>
-              <div id="arena-layer" class="node-layer arena-layer" aria-label="Узлы жизненного цикла на Case Arena" aria-live="polite" hidden></div>
-              <div id="harbor-layer" class="node-layer harbor-layer" aria-label="Причалы Integration Harbor" aria-live="polite" hidden></div>
-              <div id="dialog-layer" class="dialog-layer" aria-label="Диалог с проводником" aria-live="polite" hidden></div>
+              <div id="forge-layer" class="forge-layer" aria-label="Интерактивная схема модели данных" aria-live="polite" hidden></div>
+              <div id="access-layer" class="access-layer" aria-label="Уровни настройки доступа" aria-live="polite" hidden></div>
+              <div id="engine-layer" class="engine-layer" aria-label="Узлы бизнес-процесса" aria-live="polite" hidden></div>
+              <div id="arena-layer" class="node-layer arena-layer" aria-label="Этапы жизненного цикла кейса" aria-live="polite" hidden></div>
+              <div id="harbor-layer" class="node-layer harbor-layer" aria-label="Узлы интеграционного решения" aria-live="polite" hidden></div>
+              <div id="dialog-layer" class="dialog-layer" aria-label="Диалог с куратором" aria-live="polite" hidden></div>
               <div class="scene-copy">
-                <span id="scene-kicker" class="scene-kicker">Вопрос миссии</span>
+                <span id="scene-kicker" class="scene-kicker">Условие задания</span>
                 <p id="scene-copy">Как выстроить путь менеджера в BPMSoft — от входа в рабочее место до списка клиентов, карточки клиента и связанных активностей?</p>
               </div>
             </div>
@@ -385,7 +428,7 @@
             <div id="tool-area" class="tool-area">
               <div class="section-title">
                 <div>
-                  <p id="palette-eyebrow" class="eyebrow">Арсенал</p>
+                  <p id="palette-eyebrow" class="eyebrow">Варианты</p>
                   <h3 id="palette-title">Термины BPMSoft</h3>
                 </div>
                 <button id="clear-build" class="secondary-action" type="button">Очистить</button>
@@ -414,7 +457,7 @@
           </section>
 
           <aside class="codex-panel">
-            <p class="eyebrow">Кодекс платформы</p>
+            <p class="eyebrow">Справка по платформе</p>
             <h2 id="codex-title">Пять опор интерфейса</h2>
             <dl id="codex-list">
               <div><dt>Рабочее место</dt><dd>Группирует разделы под роль и сценарий.</dd></div>
@@ -434,11 +477,11 @@
       <section id="finale-view" class="view finale-view" aria-labelledby="finale-title" hidden>
         <div class="finale-card">
           <div class="finale-crest" aria-hidden="true"><span>✓</span></div>
-          <p class="eyebrow">Первый город завершён</p>
-          <h2 id="finale-title">Архипелаг конфигурации освоен</h2>
+          <p class="eyebrow">Выпускной курс завершён</p>
+          <h2 id="finale-title">Вы готовы к работе аналитиком</h2>
           <p class="finale-lead">Вы прошли девять заданий и собрали целостное решение BPMSoft: от интерфейса и данных до доступа, автоматизации и аналитики.</p>
 
-          <div class="finale-stats" aria-label="Итоги главы">
+          <div class="finale-stats" aria-label="Итоги карты">
             <div><strong>9 / 9</strong><span>заданий</span></div>
             <div><strong>500 XP</strong><span>опыта</span></div>
             <div><strong>250 / 250</strong><span>уровень II</span></div>
@@ -448,77 +491,77 @@
             <span class="achievement-icon" aria-hidden="true">◆</span>
             <div>
               <p class="eyebrow">Новое достижение</p>
-              <h3>Архитектор первого города</h3>
-              <p>Вы связали шесть механизмов платформы в одну работающую систему обработки обращений.</p>
+              <h3>Выпускник Академии</h3>
+              <p>Вы разобрали базовые возможности BPMSoft и защитили учебное решение по обработке обращений.</p>
             </div>
           </div>
 
           <div class="next-expedition">
-            <p class="eyebrow">Следующая экспедиция</p>
-            <h3>Медный Предел ждёт Архитектора</h3>
-            <p>За Морем Конфигурации фабрики-големы выполняют противоречащие директивы. Отправляйтесь к Сердцу Контура; первый город останется доступен для повторного прохождения.</p>
+            <p class="eyebrow">Первый рабочий проект</p>
+            <h3>«Системная практика» приглашает в команду</h3>
+            <p>Ваш первый заказчик — АО «Медные машины». Производитель грузовых големов и комплектующих развивает дилерские продажи, интеграции и управление изменениями.</p>
           </div>
 
           <div class="finale-actions">
-            <button id="finale-map-action" class="primary-action" type="button">Вернуться на карту города</button>
-            <button id="finale-chapter2-action" class="primary-action copper-action" type="button">Отправиться в Медный Предел</button>
-            <button id="finale-replay-action" class="secondary-action" type="button">Повторить финальный boss</button>
+            <button id="finale-map-action" class="primary-action" type="button">Вернуться в Академию</button>
+            <button id="finale-chapter2-action" class="primary-action copper-action" type="button">Начать первый проект</button>
+            <button id="finale-replay-action" class="secondary-action" type="button">Повторить выпускной проект</button>
           </div>
         </div>
       </section>
 
       <section id="chapter2-map-view" class="view c2-map-view" aria-labelledby="chapter2-map-title" hidden>
         <div class="c2-map-layout">
-          <aside class="c2-zone-journal" aria-label="Реестр производственных контуров">
+          <aside class="c2-zone-journal" aria-label="Задания проекта АО «Медные машины»">
             <div class="panel-heading">
-              <p id="chapter2-level-label" class="eyebrow">Уровень III</p>
-              <h2 id="chapter2-map-title">Внешний контур</h2>
+              <p id="chapter2-level-label" class="eyebrow">Производственные операции</p>
+              <h2 id="chapter2-map-title">АО «Медные машины»</h2>
             </div>
             <ol class="c2-zone-list">
-              <li data-c2-zone-row="sorting"><button type="button" data-c2-zone="sorting"><span>10</span><strong>Sorting Furnace<small>Импорт и дубли</small></strong></button></li>
-              <li data-c2-zone-row="portal"><button type="button" data-c2-zone="portal" disabled><span>11</span><strong>Portal Gate<small>Портал и доступ</small></strong></button></li>
-              <li data-c2-zone-row="signal"><button type="button" data-c2-zone="signal" disabled><span>12</span><strong>Signal Yard<small>Исходящий REST</small></strong></button></li>
-              <li data-c2-zone-row="cycle"><button type="button" data-c2-zone="cycle" disabled><span>13</span><strong>Cycle Foundry<small>Диагностика процесса</small></strong></button></li>
-              <li data-c2-zone-row="package"><button type="button" data-c2-zone="package" disabled><span>14</span><strong>Package Depot<small>Пакеты и зависимости</small></strong></button></li>
-              <li data-c2-zone-row="trace"><button type="button" data-c2-zone="trace" disabled><span>15</span><strong>Trace Furnace<small>Журналы и аудит</small></strong></button></li>
-              <li data-c2-zone-row="change"><button type="button" data-c2-zone="change" disabled><span>16</span><strong>Change Assembly<small>Изменения и релизы</small></strong></button></li>
-              <li data-c2-zone-row="oracle"><button type="button" data-c2-zone="oracle" disabled><span>17</span><strong>Oracle Forge<small>ML и LLM</small></strong></button></li>
-              <li data-c2-zone-row="contour"><button type="button" data-c2-zone="contour" disabled><span>18</span><strong>Contour Heart<small>Финальная синхронизация</small></strong></button></li>
+              <li data-c2-zone-row="sorting"><button type="button" data-c2-zone="sorting"><span>10</span><strong>Планирование производства<small>Импорт заказов и дубли</small></strong></button></li>
+              <li data-c2-zone-row="portal"><button type="button" data-c2-zone="portal" disabled><span>11</span><strong>Дилерский портал<small>Доступ к заказам</small></strong></button></li>
+              <li data-c2-zone-row="signal"><button type="button" data-c2-zone="signal" disabled><span>12</span><strong>Интеграция с перевозчиком<small>Передача заказа по REST</small></strong></button></li>
+              <li data-c2-zone-row="cycle"><button type="button" data-c2-zone="cycle" disabled><span>13</span><strong>Согласование заказов<small>Диагностика процесса</small></strong></button></li>
+              <li data-c2-zone-row="package"><button type="button" data-c2-zone="package" disabled><span>14</span><strong>Управление конфигурацией<small>Пакеты и зависимости</small></strong></button></li>
+              <li data-c2-zone-row="trace"><button type="button" data-c2-zone="trace" disabled><span>15</span><strong>Аудит изменений<small>История заказа</small></strong></button></li>
+              <li data-c2-zone-row="change"><button type="button" data-c2-zone="change" disabled><span>16</span><strong>Управление релизами<small>Подготовка рабочего релиза</small></strong></button></li>
+              <li data-c2-zone-row="oracle"><button type="button" data-c2-zone="oracle" disabled><span>17</span><strong>Аналитика продаж<small>ML и LLM</small></strong></button></li>
+              <li data-c2-zone-row="contour"><button type="button" data-c2-zone="contour" disabled><span>18</span><strong>Приёмочный стенд<small>Приёмка рабочего релиза</small></strong></button></li>
             </ol>
-            <button id="chapter2-reset-progress" class="text-action" type="button">Сбросить прогресс Медного Предела</button>
+            <button id="chapter2-reset-progress" class="text-action" type="button">Сбросить прогресс проекта</button>
           </aside>
 
-          <section class="c2-world-stage" aria-label="Карта Медного Предела">
+          <section class="c2-world-stage" aria-label="Карта проекта АО «Медные машины»">
             <img class="c2-world-map-image" src="assets/chapter2-world-map.png" alt="" aria-hidden="true">
 
-            <button class="c2-map-node" type="button" data-c2-zone="sorting" style="--x: 18%; --y: 75%;"><span>10</span><strong>Sorting Furnace</strong></button>
-            <button class="c2-map-node" type="button" data-c2-zone="portal" style="--x: 22%; --y: 22%;" disabled><span>11</span><strong>Portal Gate</strong></button>
-            <button class="c2-map-node" type="button" data-c2-zone="signal" style="--x: 51%; --y: 12%;" disabled><span>12</span><strong>Signal Yard</strong></button>
-            <button class="c2-map-node" type="button" data-c2-zone="cycle" style="--x: 73%; --y: 19%;" disabled><span>13</span><strong>Cycle Foundry</strong></button>
-            <button class="c2-map-node" type="button" data-c2-zone="package" style="--x: 80%; --y: 49%;" disabled><span>14</span><strong>Package Depot</strong></button>
-            <button class="c2-map-node" type="button" data-c2-zone="trace" style="--x: 79%; --y: 76%;" disabled><span>15</span><strong>Trace Furnace</strong></button>
-            <button class="c2-map-node" type="button" data-c2-zone="change" style="--x: 31%; --y: 47%;" disabled><span>16</span><strong>Change Assembly</strong></button>
-            <button class="c2-map-node" type="button" data-c2-zone="oracle" style="--x: 52%; --y: 75%;" disabled><span>17</span><strong>Oracle Forge</strong></button>
-            <button class="c2-map-node c2-map-node-heart" type="button" data-c2-zone="contour" style="--x: 52%; --y: 43%;" disabled><span>18</span><strong>Contour Heart</strong></button>
-            <div class="c2-map-caption">Медный Предел · производственные кольца</div>
+            <button class="c2-map-node" type="button" data-c2-zone="sorting" style="--x: 18%; --y: 75%;"><span>10</span><strong>Планирование</strong></button>
+            <button class="c2-map-node" type="button" data-c2-zone="portal" style="--x: 22%; --y: 22%;" disabled><span>11</span><strong>Дилерский портал</strong></button>
+            <button class="c2-map-node" type="button" data-c2-zone="signal" style="--x: 51%; --y: 12%;" disabled><span>12</span><strong>Перевозчики</strong></button>
+            <button class="c2-map-node" type="button" data-c2-zone="cycle" style="--x: 73%; --y: 19%;" disabled><span>13</span><strong>Согласование</strong></button>
+            <button class="c2-map-node" type="button" data-c2-zone="package" style="--x: 80%; --y: 49%;" disabled><span>14</span><strong>Конфигурация</strong></button>
+            <button class="c2-map-node" type="button" data-c2-zone="trace" style="--x: 79%; --y: 76%;" disabled><span>15</span><strong>Аудит</strong></button>
+            <button class="c2-map-node" type="button" data-c2-zone="change" style="--x: 31%; --y: 47%;" disabled><span>16</span><strong>Релизы</strong></button>
+            <button class="c2-map-node" type="button" data-c2-zone="oracle" style="--x: 52%; --y: 75%;" disabled><span>17</span><strong>Аналитика</strong></button>
+            <button class="c2-map-node c2-map-node-heart" type="button" data-c2-zone="contour" style="--x: 52%; --y: 43%;" disabled><span>18</span><strong>Приёмка</strong></button>
+            <div class="c2-map-caption">АО «Медные машины» · производство и продажи</div>
           </section>
 
           <aside class="c2-quest-brief">
             <div class="c2-mentor-block">
-              <img class="c2-mentor-portrait" src="assets/chapter2-mentor-hephaestus.png" alt="ГЕФЕСТ-7, инспекционный голем Медного Предела">
-              <div><p class="eyebrow">Проводник</p><strong>ГЕФЕСТ-7</strong><small>Инспекционный голем</small></div>
+              <img class="c2-mentor-portrait" src="assets/chapter2-mentor-hephaestus.png" alt="Бран Коваль, руководитель производственных систем">
+              <div><p class="eyebrow">Представитель заказчика</p><strong>Бран Коваль</strong><small>Руководитель производственных систем</small></div>
             </div>
             <div class="c2-brief-copy">
               <p id="chapter2-brief-number" class="quest-number">Задание 10</p>
-              <h2 id="chapter2-brief-title">Поставка двойников</h2>
-              <p id="chapter2-brief-copy">Остановите повторный импорт, пока одинаковые корпуса не заполнили все склады Сортировочной домны.</p>
+              <h2 id="chapter2-brief-title">Импорт производственных заказов</h2>
+              <p id="chapter2-brief-copy">Координатор производственных систем сообщает, что повторная загрузка файла создаёт дубли заказов. Нужно предложить безопасный импорт.</p>
               <dl class="reward-list">
                 <div><dt>Награда</dt><dd id="chapter2-brief-reward">50 XP карты</dd></div>
                 <div><dt>Время</dt><dd id="chapter2-brief-time">8–12 минут</dd></div>
-                <div><dt>Откроет</dt><dd id="chapter2-brief-unlock">Portal Gate</dd></div>
+                <div><dt>Откроет</dt><dd id="chapter2-brief-unlock">Задание 11 · Дилерский портал</dd></div>
               </dl>
             </div>
-            <button id="chapter2-start-mission" class="primary-action" type="button" data-c2-mission="sorting">Запустить диагностику</button>
+            <button id="chapter2-start-mission" class="primary-action" type="button" data-c2-mission="sorting">Открыть задание</button>
           </aside>
         </div>
       </section>
@@ -526,7 +569,7 @@
       <section id="chapter2-mission-view" class="view c2-mission-view" aria-labelledby="chapter2-mission-title" hidden>
         <div class="c2-mission-layout">
           <aside class="c2-mission-rail">
-            <button id="chapter2-back-to-map" class="back-action" type="button">← На карту Медного Предела</button>
+            <button id="chapter2-back-to-map" class="back-action" type="button">← К проекту «Медные машины»</button>
             <button id="chapter2-review-intro" class="secondary-action" type="button">Прочитать описание задания</button>
             <div class="c2-chapter-stamp"><span>Задание</span><strong id="chapter2-mission-number">10</strong></div>
             <ol id="chapter2-phase-list" class="c2-phase-list" aria-label="Этапы задания"></ol>
@@ -539,8 +582,8 @@
               <span id="chapter2-attempt-badge" class="attempt-badge">Попытка 1</span>
             </header>
 
-            <div id="chapter2-scene" class="c2-scene" aria-label="Состояние производственного района">
-              <img id="chapter2-scene-image" class="c2-scene-image" src="assets/mission-sorting-furnace.png" alt="Панорама Sorting Furnace">
+            <div id="chapter2-scene" class="c2-scene" aria-label="Исходные данные задания">
+              <img id="chapter2-scene-image" class="c2-scene-image" src="assets/mission-sorting-furnace.png" alt="Участок планирования производства">
               <div class="c2-scene-copy"><span id="chapter2-scene-kicker">Диагностика</span><p id="chapter2-scene-copy"></p></div>
             </div>
 
@@ -570,8 +613,8 @@
           </section>
 
           <aside class="c2-codex-panel">
-            <p class="eyebrow">Инженерный кодекс</p>
-            <h2 id="chapter2-codex-title">Граница механизма</h2>
+            <p class="eyebrow">Справка аналитика</p>
+            <h2 id="chapter2-codex-title">Термины задания</h2>
             <dl id="chapter2-codex-list"></dl>
             <div class="source-note"><span>Источник знания</span><p id="chapter2-source-copy"></p></div>
           </aside>
@@ -581,13 +624,135 @@
       <section id="chapter2-finale-view" class="view c2-finale-view" aria-labelledby="chapter2-finale-title" hidden>
         <div class="c2-finale-card">
           <div class="c2-finale-core" aria-hidden="true"><span></span></div>
-          <p class="eyebrow">Медный Предел синхронизирован</p>
-          <h2 id="chapter2-finale-title">Сердце снова держит общий ритм</h2>
-          <p>Девять производственных контуров работают как одна система. Цеха сохранили автономность, но теперь публикуют версии правил, следы выполнения и подтверждения общего выпуска.</p>
-          <div class="finale-stats"><div><strong>9 / 9</strong><span>контуров</span></div><div><strong>500 XP</strong><span>Медного Предела</span></div><div><strong>III–IV</strong><span>уровни</span></div></div>
-          <div class="achievement-card"><img class="c2-finale-scout" src="assets/chapter2-scout-bolt.png" alt="Болт, ремонтный автомат Медного Предела"><div><p class="eyebrow">Новое достижение</p><h3>Синхронизатор Медного Предела</h3><p>Вы восстановили работающую систему без разрушения её самостоятельных механизмов.</p></div></div>
-          <blockquote>Контур синхронизирован. Не потому, что все его части стали одинаковыми, а потому, что каждая снова знает своё место в общей системе. <cite>— ГЕФЕСТ-7</cite></blockquote>
-          <div class="finale-actions"><button id="chapter2-finale-map" class="primary-action" type="button">Вернуться на карту Медного Предела</button><button id="chapter2-finale-replay" class="secondary-action" type="button">Повторить финальную синхронизацию</button><button id="chapter2-finale-first" class="secondary-action" type="button">Перейти в первый город</button></div>
+          <p class="eyebrow">Проект завершён</p>
+          <h2 id="chapter2-finale-title">Рабочий релиз принят в эксплуатацию</h2>
+          <p>АО «Медные машины» получило управляемый импорт заказов, разграниченный дилерский портал, наблюдаемые интеграции и понятный процесс выпуска изменений.</p>
+          <div class="finale-stats"><div><strong>9 / 9</strong><span>заданий</span></div><div><strong>500 XP</strong><span>за проект</span></div><div><strong>III–IV</strong><span>уровни</span></div></div>
+          <div class="achievement-card"><img class="c2-finale-scout" src="assets/chapter2-scout-bolt.png" alt="Ремонтный голем производственной компании"><div><p class="eyebrow">Новое достижение</p><h3>Аналитик производственного проекта</h3><p>Вы связали требования подразделений, конфигурацию, интеграции и приёмку рабочего релиза.</p></div></div>
+          <blockquote>Хорошее решение видно не по схеме, а по тому, что заказ проходит весь путь без дублей, потерянных прав и ручных обходов. <cite>— Бран Коваль</cite></blockquote>
+          <div class="finale-actions"><button id="chapter2-finale-map" class="primary-action" type="button">Вернуться к проекту</button><button id="chapter2-finale-chapter3" class="primary-action c3-launch-action" type="button">Перейти к проекту «Семь дорог»</button><button id="chapter2-finale-replay" class="secondary-action" type="button">Повторить приёмку релиза</button><button id="chapter2-finale-first" class="secondary-action" type="button">Вернуться в Академию</button></div>
+        </div>
+      </section>
+
+      <section id="chapter3-map-view" class="view c3-map-view" aria-labelledby="chapter3-map-title" hidden>
+        <div class="c3-map-layout">
+          <aside class="c3-zone-journal" aria-label="Задания CRM-центра компетенций">
+            <div class="panel-heading">
+              <p id="chapter3-level-label" class="eyebrow">Клиентские процессы</p>
+              <h2 id="chapter3-map-title">Центр CRM-компетенций</h2>
+            </div>
+            <ol class="c3-zone-list">
+              <li data-c3-zone-row="contact"><button type="button" data-c3-zone="contact"><span>19</span><strong>Клиентские данные<small>Связать записи клиента</small></strong></button></li>
+              <li data-c3-zone-row="lead"><button type="button" data-c3-zone="lead" disabled><span>20</span><strong>Лиды и квалификация<small>Новый интерес клиента</small></strong></button></li>
+              <li data-c3-zone-row="channel"><button type="button" data-c3-zone="channel" disabled><span>21</span><strong>Каналы коммуникации<small>Общая история обращений</small></strong></button></li>
+              <li data-c3-zone-row="bpmn"><button type="button" data-c3-zone="bpmn" disabled><span>22</span><strong>Автоматизация процессов<small>Процесс квалификации</small></strong></button></li>
+              <li data-c3-zone-row="sla"><button type="button" data-c3-zone="sla" disabled><span>23</span><strong>Клиентский сервис<small>Сроки обращения</small></strong></button></li>
+              <li data-c3-zone-row="access"><button type="button" data-c3-zone="access" disabled><span>24</span><strong>Управление доступом<small>Клиенты и сотрудники</small></strong></button></li>
+              <li data-c3-zone-row="integration"><button type="button" data-c3-zone="integration" disabled><span>25</span><strong>Интеграции<small>Обмен с учётной системой</small></strong></button></li>
+              <li data-c3-zone-row="ai"><button type="button" data-c3-zone="ai" disabled><span>26</span><strong>AI-практика<small>Продажи и сервис</small></strong></button></li>
+              <li data-c3-zone-row="orbit"><button type="button" data-c3-zone="orbit" disabled><span>27</span><strong>CRM-центр компетенций<small>Итоговая приёмка</small></strong></button></li>
+            </ol>
+            <button id="chapter3-reset-progress" class="text-action" type="button">Сбросить прогресс проекта</button>
+          </aside>
+
+          <section class="c3-world-stage" aria-label="Карта проекта группы «Семь дорог»">
+            <img class="c3-world-map-image" src="assets/chapter3-world-map.png" alt="" aria-hidden="true">
+            <button class="c3-map-node" type="button" data-c3-zone="contact" style="--x: 18%; --y: 22%;"><span>19</span><strong>Данные клиента</strong></button>
+            <button class="c3-map-node" type="button" data-c3-zone="lead" style="--x: 48%; --y: 10%;" disabled><span>20</span><strong>Квалификация</strong></button>
+            <button class="c3-map-node" type="button" data-c3-zone="channel" style="--x: 78%; --y: 22%;" disabled><span>21</span><strong>Каналы</strong></button>
+            <button class="c3-map-node" type="button" data-c3-zone="bpmn" style="--x: 85%; --y: 55%;" disabled><span>22</span><strong>Процессы</strong></button>
+            <button class="c3-map-node" type="button" data-c3-zone="sla" style="--x: 72%; --y: 80%;" disabled><span>23</span><strong>Сервис</strong></button>
+            <button class="c3-map-node" type="button" data-c3-zone="access" style="--x: 28%; --y: 80%;" disabled><span>24</span><strong>Доступ</strong></button>
+            <button class="c3-map-node" type="button" data-c3-zone="integration" style="--x: 12%; --y: 56%;" disabled><span>25</span><strong>Интеграции</strong></button>
+            <button class="c3-map-node" type="button" data-c3-zone="ai" style="--x: 34%; --y: 47%;" disabled><span>26</span><strong>AI-практика</strong></button>
+            <button class="c3-map-node c3-map-node-core" type="button" data-c3-zone="orbit" style="--x: 55%; --y: 48%;" disabled><span>27</span><strong>Приёмка CRM</strong></button>
+            <div class="c3-map-caption">Группа «Семь дорог» · развитие CRM</div>
+          </section>
+
+          <aside class="c3-quest-brief">
+            <div class="c3-mentor-block">
+              <img src="assets/chapter3-mentor-nova.png" alt="Лиора Вель, руководитель CRM-центра">
+              <div><p class="eyebrow">Представитель заказчика</p><strong>Лиора Вель</strong><small>Руководитель CRM-центра</small></div>
+            </div>
+            <div class="c3-brief-copy">
+              <p id="chapter3-brief-number" class="quest-number">Задание 19</p>
+              <h2 id="chapter3-brief-title">Разобраться с дублями клиента</h2>
+              <p id="chapter3-brief-copy">CRM-координатор просит связать записи одного клиента, не смешивая контакт, организацию и историю взаимодействия.</p>
+              <dl class="reward-list">
+                <div><dt>Награда</dt><dd id="chapter3-brief-reward">60 XP карты</dd></div>
+                <div><dt>Решений</dt><dd id="chapter3-brief-time">12–16 узлов</dd></div>
+                <div><dt>Откроет</dt><dd id="chapter3-brief-unlock">Задание 20 · Квалификация нового интереса</dd></div>
+              </dl>
+            </div>
+            <button id="chapter3-start-mission" class="primary-action" type="button" data-c3-mission="contact">Открыть задание</button>
+          </aside>
+        </div>
+      </section>
+
+      <section id="chapter3-mission-view" class="view c3-mission-view" aria-labelledby="chapter3-mission-title" hidden>
+        <div class="c3-mission-layout">
+          <aside class="c3-mission-rail">
+            <button id="chapter3-back-to-map" class="back-action" type="button">← К проекту «Семь дорог»</button>
+            <button id="chapter3-review-intro" class="secondary-action" type="button">Прочитать описание задания</button>
+            <div class="c3-chapter-stamp"><span>Задание</span><strong id="chapter3-mission-number">19</strong></div>
+            <ol id="chapter3-phase-list" class="c3-phase-list" aria-label="Этапы задания"></ol>
+            <div class="c3-lore-note"><span>Системный принцип</span><p id="chapter3-lore-copy"></p></div>
+          </aside>
+
+          <section id="chapter3-workspace" class="c3-workspace">
+            <header class="c3-mission-header">
+              <div><p id="chapter3-mission-zone" class="eyebrow"></p><h2 id="chapter3-mission-title"></h2></div>
+              <span id="chapter3-attempt-badge" class="attempt-badge">Попытка 1</span>
+            </header>
+            <div class="c3-scene">
+              <img id="chapter3-scene-image" src="assets/mission-contact-genome.png" alt="Рабочая область клиентских данных">
+              <div class="c3-scene-copy"><span id="chapter3-scene-kicker">Исходные данные</span><p id="chapter3-scene-copy"></p></div>
+              <div class="c3-telemetry" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+            </div>
+
+            <section class="c3-board">
+              <div class="section-title">
+                <div><p id="chapter3-board-kicker" class="eyebrow"></p><h3 id="chapter3-board-title"></h3></div>
+                <span id="chapter3-selection-count">0 / 0</span>
+              </div>
+              <p id="chapter3-board-instruction" class="c3-board-instruction"></p>
+              <section class="c3-dossier" aria-labelledby="chapter3-dossier-title">
+                <p id="chapter3-dossier-title">Условия задания</p>
+                <ul id="chapter3-conditions-list"></ul>
+              </section>
+              <div id="chapter3-slot-grid" class="c3-slot-grid"></div>
+            </section>
+
+            <div class="c3-mission-actions">
+              <p id="chapter3-mission-hint">Выберите решение для каждого вопроса этапа.</p>
+              <button id="chapter3-check-phase" class="primary-action" type="button">Проверить этап</button>
+            </div>
+            <section id="chapter3-feedback" class="c3-feedback" aria-live="polite" hidden>
+              <div><p id="chapter3-feedback-kicker" class="eyebrow">Результат проверки</p><h3 id="chapter3-feedback-title"></h3><p id="chapter3-feedback-copy"></p></div>
+              <div class="c3-feedback-score"><strong id="chapter3-feedback-score">0</strong><span>XP</span></div>
+              <button id="chapter3-feedback-action" class="secondary-action" type="button">Продолжить</button>
+            </section>
+          </section>
+
+          <aside class="c3-codex-panel">
+            <p class="eyebrow">Справка аналитика</p>
+            <h2 id="chapter3-codex-title">Термины задания</h2>
+            <dl id="chapter3-codex-list"></dl>
+            <div class="source-note"><span>Источник знания</span><p id="chapter3-source-copy"></p></div>
+          </aside>
+        </div>
+      </section>
+
+      <section id="chapter3-finale-view" class="view c3-finale-view" aria-labelledby="chapter3-finale-title" hidden>
+        <div class="c3-finale-card">
+          <div class="c3-finale-prism" aria-hidden="true"><span></span></div>
+          <p class="eyebrow">CRM-решение принято</p>
+          <h2 id="chapter3-finale-title">Центр компетенций готов развивать систему</h2>
+          <p>Команда связала клиентские данные, продажи, сервис, права и интеграции в наблюдаемый процесс. AI используется как проверяемый помощник, а изменения проходят через понятные критерии приёмки.</p>
+          <div class="finale-stats"><div><strong>9 / 9</strong><span>заданий</span></div><div><strong>600 XP</strong><span>за проект</span></div><div><strong>V–VI</strong><span>уровни</span></div></div>
+          <div class="achievement-card"><img class="c3-finale-scout" src="assets/chapter3-scout-pico.png" alt="Диагностический дрон CRM-команды"><div><p class="eyebrow">Новое достижение</p><h3>Ведущий CRM-аналитик</h3><p>Вы помогли внутренней команде выстроить правила развития данных, процессов, сервиса, интеграций и AI.</p></div></div>
+          <blockquote>Единая картина клиента — не одна большая карточка. Это договорённость команд и систем о том, какие данные они используют и как проверяют результат. <cite>— Лиора Вель</cite></blockquote>
+          <div class="finale-actions"><button id="chapter3-finale-map" class="primary-action" type="button">Вернуться к проекту</button><button id="chapter3-finale-replay" class="secondary-action" type="button">Повторить итоговую приёмку</button><button id="chapter3-finale-second" class="secondary-action" type="button">Перейти к «Медным машинам»</button><button id="chapter3-finale-first" class="secondary-action" type="button">Вернуться в Академию</button></div>
         </div>
       </section>
     </main>
@@ -596,5 +761,7 @@
   <script src="app.js?v=20260721-explicit-conditions"></script>
   <script src="chapter2-missions.js?v=20260721-explicit-conditions"></script>
   <script src="chapter2.js?v=20260721-explicit-conditions"></script>
+  <script src="chapter3-missions.js?v=20260721-orbit-360"></script>
+  <script src="chapter3.js?v=20260721-orbit-360"></script>
 </body>
 </html>

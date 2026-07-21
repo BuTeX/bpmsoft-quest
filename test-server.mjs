@@ -5,6 +5,7 @@ import {
   hashPassword,
   resetMemoryAccountStore,
   sanitizeChapter2ProgressState,
+  sanitizeChapter3ProgressState,
   sanitizeProgressState,
   verifyPassword
 } from "./server.js";
@@ -66,6 +67,28 @@ test("chapter 2 scripts, styles and generated art are public", async () => {
   });
 });
 
+test("chapter 3 scripts, styles and generated art are public", async () => {
+  const files = [
+    "chapter3.css",
+    "chapter3-missions.js",
+    "chapter3.js",
+    "assets/chapter3-world-map.png",
+    "assets/chapter3-mentor-nova.png",
+    "assets/chapter3-scout-pico.png",
+    "assets/mission-contact-genome.png",
+    "assets/mission-lead-spectrum.png",
+    "assets/mission-channel-array.png",
+    "assets/mission-bpmn-navigator.png",
+    "assets/mission-sla-rings.png",
+    "assets/mission-access-prism.png",
+    "assets/mission-integration-dock.png",
+    "assets/mission-ai-core.png",
+    "assets/mission-orbit-360.png"
+  ];
+  const responses = await Promise.all(files.map((file) => fetch(`${baseUrl}/${file}`, { method: "HEAD" })));
+  responses.forEach((response, index) => assert.equal(response.status, 200, `${files[index]} is not served`));
+});
+
 test("server-side source files are not exposed as static assets", async () => {
   for (const file of ["server.js", "account-store.js", "db/schema.sql", ".env"]) {
     const response = await fetch(`${baseUrl}/${file}`);
@@ -106,6 +129,27 @@ test("chapter 2 sanitizer enforces canonical completion order", () => {
   assert.equal(state.missionProgress.unknown, undefined);
 });
 
+test("chapter 3 sanitizer enforces canonical completion order and four energy cells", () => {
+  const state = sanitizeChapter3ProgressState({
+    energy: 99,
+    introSeen: ["contact", "unknown", "contact"],
+    contactComplete: true,
+    leadComplete: false,
+    channelComplete: true,
+    missionProgress: {
+      contact: { phase: 2, answers: { person: "contact" }, locked: {}, optionOrders: {}, lastWrong: [] },
+      unknown: { phase: 99 }
+    }
+  });
+  assert.deepEqual(state.introSeen, ["contact"]);
+  assert.equal(state.energy, 4);
+  assert.equal(state.contactComplete, true);
+  assert.equal(state.leadComplete, false);
+  assert.equal(state.channelComplete, false);
+  assert.equal(state.missionProgress.contact.answers.person, "contact");
+  assert.equal(state.missionProgress.unknown, undefined);
+});
+
 test("password hashes use salted scrypt and constant-time verification", async () => {
   const first = await hashPassword("correct horse battery staple");
   const second = await hashPassword("correct horse battery staple");
@@ -114,7 +158,7 @@ test("password hashes use salted scrypt and constant-time verification", async (
   assert.equal(await verifyPassword("wrong password", first), false);
 });
 
-test("account registration, session and both chapter saves work together", async () => {
+test("account registration, session and all chapter saves work together", async () => {
   const registration = await fetch(`${baseUrl}/api/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -153,11 +197,20 @@ test("account registration, session and both chapter saves work together", async
   assert.equal(chapter2.status, 200);
   assert.equal((await chapter2.json()).progress.score, 1);
 
+  const chapter3 = await fetch(`${baseUrl}/api/account/progress/chapter3`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json", Cookie: cookie },
+    body: JSON.stringify({ state: { contactComplete: true, energy: 4 } })
+  });
+  assert.equal(chapter3.status, 200);
+  assert.equal((await chapter3.json()).progress.score, 1);
+
   const progress = await fetch(`${baseUrl}/api/account/progress`, { headers: { Cookie: cookie } });
   assert.equal(progress.status, 200);
   const saved = (await progress.json()).progress;
   assert.equal(saved.chapter1.state.dataMissionComplete, true);
   assert.equal(saved.chapter2.state.sortingComplete, true);
+  assert.equal(saved.chapter3.state.contactComplete, true);
 
   const profile = await fetch(`${baseUrl}/api/auth/profile`, {
     method: "PUT",
@@ -194,6 +247,7 @@ test("account registration, session and both chapter saves work together", async
   const restored = (await restoredProgress.json()).progress;
   assert.equal(restored.chapter1.score, 2);
   assert.equal(restored.chapter2.score, 1);
+  assert.equal(restored.chapter3.score, 1);
 });
 
 test("admin login stays disabled without a server-side secret", async () => {

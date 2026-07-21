@@ -1,228 +1,166 @@
-# Брендированные промпты для BPMSoft Quest
+# Промпты ассетов BPMSoft Quest
 
-## Общий арт-дирекшен
+Актуально на 2026-07-21. Видимый канон: Академия аналитиков → АО «Медные машины» → группа «Семь дорог».
 
-Все изображения должны выглядеть как единый набор для игровой Академии Гуд программ.
+Имена существующих файлов сохраняются как технический контракт. Они не определяют видимые названия областей и заданий.
 
-Использовать фирменную палитру как цвет света, магии, флагов и архитектурных акцентов:
+## Общие правила
 
-- dark aubergine `#1B0B3B`;
-- electric violet `#7856FF`;
-- vivid orange `#FE5500`;
-- bright cyan `#00C1D4`;
-- warm amber `#FFA51E`;
-- white and pale lavender `#EDE8F5`.
+- premium fantasy corporate training game;
+- sophisticated painterly semi-realism or clean premium 3D according to the map;
+- characters are employees, clients or products of recognizable commercial companies;
+- no heroic combat, military operation, secret laboratory narrative or mystical cause of a business problem;
+- no readable text, letters, numbers, labels, code, UI, logo, watermark or imitation of the Good Program pattern;
+- keep calm lower space for HTML overlays;
+- preserve natural colors for skin, stone, wood, water and vegetation;
+- official logo is never generated inside an illustration.
 
-Кожа, камень, дерево, вода и растительность могут сохранять естественные цвета. Не рисовать логотип, фирменный знак, текст, буквы или имитацию фирменного паттерна.
+Sizes:
 
-## 1. Карта мира
+- maps: `1600 × 1000`, 16:10;
+- mission panoramas: `1600 × 500`, 16:5;
+- portraits: preserve current project dimensions.
 
-**Файл:** `world-map.png`  
-**Размер:** 1600×1000, landscape, 16:10
+## Карта 1. Академия аналитиков
 
-```text
-Top-down premium fantasy strategy game map for a corporate low-code learning academy. A connected island realm with five dominant landmarks in fixed positions: an elegant white scholarly city in the upper-left for Interface Hub; volcanic mountains and a magical forge in the upper-center for Data Forge; a monumental fortified citadel on the right for Access Citadel; a valley of precise brass mechanisms and energy circuits in the center for Process Engine; a grand circular arena in the lower-right for Case Arena. A maritime integration harbor in the lower-left, an observatory tower in the upper-right, and an ancient sealed gate at the far edge. Clear roads and bridges connect every region. Sophisticated painterly semi-realism, readable strategy-game silhouettes, detailed but uncluttered.
+Palette: dark aubergine `#1B0B3B`, electric violet `#7856FF`, vivid orange `#FE5500`, bright cyan `#00C1D4`, warm amber `#FFA51E`, white and pale lavender `#EDE8F5`.
 
-Corporate color direction: dark aubergine #1B0B3B in roofs, shadows and banners; electric violet #7856FF and vivid orange #FE5500 as magical route accents; bright cyan #00C1D4 in water, energy and completed regions; warm amber #FFA51E in active landmarks; white and pale lavender #EDE8F5 in academy architecture. Keep terrain and materials natural. Leave calm negative space around landmarks for HTML markers. No labels, no text, no letters, no UI, no logo, no brand mark, no watermark, no imitated corporate pattern. Exact 16:10 composition.
-```
+### Карта кампуса
 
-## 2. Профессор Гуд Программиус
-
-**Файл:** `mentor-archivist.png`  
-**Размер:** 1024×1024, square
+**Файл:** `world-map.png`
 
 ```text
-Square character portrait for a premium fantasy corporate learning game. Professor Good Programmius, a wise and approachable archivist and systems architect, around 50 years old, intelligent calm expression, short silver beard and subtle round glasses. He wears refined academy robes in dark aubergine #1B0B3B with electric violet #7856FF lining, vivid orange #FE5500 fasteners and small cyan #00C1D4 magical data accents. He holds a brass compass and a bound low-code codex. Sophisticated painterly semi-realism, polished strategy-game character art, centered bust portrait, strong readable silhouette, pale lavender #EDE8F5 and dark aubergine background, warm natural skin tones.
-
-Do not draw any logo, letters, company name, UI, watermark or corporate pattern. Do not place symbols that resemble the Good Program logo. Square composition with the face clearly readable in a small circular crop.
+Top-down premium fantasy strategy map of a commercial systems-analysis academy campus. Nine connected training buildings form a clear learning route: user workplace classroom, data modeling laboratory, access-control workshop, process automation studio, case-management practice hall, integration laboratory, analytics classroom, pre-project assessment office and final project center. White academic architecture, natural water and gardens, readable roads, calm space around landmarks for HTML markers. Corporate palette accents only, no labels or UI.
 ```
 
-## 3. Панорама Interface Hub
+### Куратор курса
 
-**Файл:** `mission-interface-hub.png`  
-**Размер:** 1600×500, panoramic, 16:5
+**Файл:** `mentor-archivist.png`
 
 ```text
-Very wide panoramic fantasy academy city for a premium low-code learning game. Show a clear left-to-right journey through five connected architectural landmarks: a grand white guild hall grouping several gates, a district gate, an orderly archive containing record tablets, a private chamber with one important open record, and a connected side gallery filled with activity scrolls. A precise glowing route connects all five landmarks in sequence.
-
-Sophisticated painterly semi-realism with corporate color direction: dark aubergine #1B0B3B in deep shadows and roofs, electric violet #7856FF in banners and magical interfaces, vivid orange #FE5500 for the active route, bright cyan #00C1D4 for data links, warm amber #FFA51E for knowledge lights, white and pale lavender #EDE8F5 for academy architecture. Keep stone, water and vegetation natural. Bottom third slightly darker and calmer for an HTML text overlay. No labels, no text, no letters, no UI, no logo, no brand mark, no watermark, no imitated corporate pattern. Exact 16:5 composition.
+Square portrait of Irina Lait, experienced systems analyst and graduation-course curator in a fantasy business academy. Calm practical expression, professional academic clothing in aubergine and pale lavender with restrained orange and cyan accents, notebook and brass pointer, approachable senior consultant rather than wizard. Readable in a small circular crop, no text or logo.
 ```
 
-После генерации сохраните изображения под указанными именами в этой папке. Размеры и точки привязки интерфейса уже настроены.
+### Панорамы Академии
 
-## 4. Панорама Integration Harbor
-
-**Файл:** `mission-integration-harbor.png`  
-**Формат интерфейса:** panoramic, 16:5
+Общий шаблон:
 
 ```text
-Very wide panoramic mission banner for BPMSoft Quest. Integration Harbor, a majestic fantasy academy port that explains a secure incoming webhook pipeline through five sequential piers. From left to right: an incoming signal lighthouse receiving a vivid orange beam from a distant external shore; a fortified authentication gate with a violet token crystal; a customs tower separating glowing JSON cargo into cyan data strands; a central brass processing dock that checks an existing cargo seal before creating and routing a new record; a response beacon sending a bright cyan confirmation beam back toward the external shore. Include a subtle bypass loop showing that a repeated signal reuses an existing registered cargo instead of creating a duplicate.
-
-Sophisticated painterly semi-realism, polished premium strategy-game environment art, pale academy stone, brass mechanisms, calm deep water and readable architectural silhouettes. Dark aubergine #1B0B3B in roofs and shadows, electric violet #7856FF in authentication magic, vivid orange #FE5500 for the incoming request, bright cyan #00C1D4 for the response and data mapping, warm amber #FFA51E for port mechanisms, white and pale lavender #EDE8F5 for academy architecture. Keep all five stations visible in one coherent horizontal journey and the main processing dock in the central safe area. Bottom third darker and calmer for an HTML text overlay. No text, letters, numbers, labels, code, UI, logos, brand marks, watermark or imitated corporate pattern.
+Very wide panoramic training environment inside a fantasy corporate academy. Show the required BPMSoft concepts as distinct practical stations in one coherent left-to-right workplace. The scene must read as a business exercise, not a magical emergency. Sophisticated painterly semi-realism, corporate palette, central safe area, calm darker lower third, no labels, text, UI or logo.
 ```
 
+| Файл | Сцена |
+|---|---|
+| `mission-interface-hub.png` | путь менеджера: рабочее место, раздел, реестр, карточка, связанные активности |
+| `mission-data-forge.png` | учебная модель данных: объект, поле, справочник, связь и деталь |
+| `mission-access-citadel.png` | практикум по ролям, операциям, объекту, записи и колонке |
+| `mission-process-engine.png` | процесс обработки входящего письма: запуск, условие, чтение, запись и завершение |
+| `mission-case-arena.png` | стадии учебной заявки и действия на переходах |
+| `mission-integration-harbor.png` | приём заявки с портала, авторизация, сопоставление, дедупликация и ответ |
+| `mission-insight-tower.png` | аналитический класс с показателем, графиком, списком, сводной таблицей и шкалой |
+| `mission-solution-gate.png` | предпроектная комиссия и пять способов реализации требований |
+| `mission-city-nexus.png` | выпускной проект службы обращений: данные, доступ, кейс, процесс и дашборд |
 
-## 5. Панорама Insight Tower
+## Карта 2. АО «Медные машины»
 
-**Файл:** `mission-insight-tower.png`  
-**Размер:** 1600×500, panoramic, 16:5
+Компания производит грузовых и складских големов, приводы, корпуса и комплектующие. Арты показывают работающий коммерческий завод и проект внедрения, а не фантастическую катастрофу.
 
-```text
-Very wide panoramic mission banner for BPMSoft Quest. Insight Tower, a majestic fantasy analytics observatory above an academy city at dusk. Five clearly distinct analytical stations form a coherent left-to-right journey: a glowing counter for open requests, an alert beacon, a central constellation table for workload, a trend instrument and an executive overview made of light. Sophisticated painterly semi-realism, premium strategy-game environment art.
+Palette: vivid orange `#FE5500`, warm amber `#FFA51E`, graphite, matte black iron, dark copper and white technical ceramic. Avoid violet atmospheric light.
 
-Dark aubergine #1B0B3B in roofs and shadows, electric violet #7856FF in analytical magic, vivid orange #FE5500 for alerts, bright cyan #00C1D4 for data streams, warm amber #FFA51E for instruments, white and pale lavender #EDE8F5 for academy architecture. Keep the central telescope and analytics table in the safe middle area. Bottom third darker and calmer for an HTML text overlay. No text, letters, numbers, labels, code, UI, logos, brand marks, watermark or imitated corporate pattern.
-```
-
-## 6. Панорама Boss: коробка или доработка
-
-**Файл:** `mission-solution-gate.png`  
-**Размер:** 1600×500, panoramic, 16:5
-
-```text
-Very wide panoramic mission banner for BPMSoft Quest. An ancient academy decision gate at the edge of a fantasy low-code realm, designed as a final architecture tribunal. Five clearly distinct magical vaults stand across one coherent horizontal hall: a complete pale-stone archive of ready-made instruments; a violet workshop where modular mechanisms can be rearranged; a cyan portal dock connecting to a distant external realm; an orange-lit engineering forge with code-like machinery but no readable symbols; and a misty sealed chamber whose contents remain deliberately unknown. In the center, a monumental balanced gateway judges twelve small blank crystal tablets flowing toward the five vaults. The tablets must contain no marks or text.
-
-Sophisticated painterly semi-realism, premium strategy-game environment art, matching the established BPMSoft Quest panoramas. Dark aubergine #1B0B3B in deep shadows and roofs, electric violet #7856FF for configurable magic, vivid orange #FE5500 for engineering energy, bright cyan #00C1D4 for integration streams, warm amber #FFA51E for the active tribunal, white and pale lavender #EDE8F5 for academy architecture. Keep all five vault silhouettes readable in one horizontal composition and the balanced gate in the central safe area. Bottom third darker and calmer for an HTML text overlay. No text, letters, numbers, labels, code, UI, logos, brand marks, watermark or imitated corporate pattern. Exact 16:5 composition.
-```
-
-## 7. Панорама Boss: собери мини-решение
-
-**Файл:** `mission-city-nexus.png`  
-**Размер:** 1600×500, panoramic, 16:5
-
-```text
-Very wide panoramic mission banner for BPMSoft Quest. City Nexus, the triumphant final academy city where six low-code solution systems visibly work together as one coherent request-management architecture. Across one horizontal cityscape show six clearly distinct but connected landmarks: a pale-stone request hall with an orderly record archive; a crystal category library; a fortified access citadel with guarded gates; a central lifecycle tower connected by glowing stage platforms; a brass process workshop sending an alert beam toward a leadership tower; and an analytics observatory with abstract light instruments. One small blank orange request crystal travels through the connected districts and becomes a cyan completed signal at the end.
-
-Sophisticated painterly semi-realism, premium strategy-game environment art, ceremonial final-chapter atmosphere. Dark aubergine #1B0B3B in roofs and shadows, electric violet #7856FF for configurable magic, vivid orange #FE5500 for the active request and alerts, bright cyan #00C1D4 for completed data paths, warm amber #FFA51E for mechanisms, white and pale lavender #EDE8F5 for academy architecture. Keep the central lifecycle tower in the safe middle area, all six silhouettes readable and the bottom third darker and calmer for an HTML text overlay. No people in foreground, no text, letters, numbers, labels, code, UI, logo, brand mark, watermark or imitated corporate pattern. Exact 16:5 composition.
-```
-
-Built-in image generation produced a `1774 × 887` source. The project asset was center-cropped to `1774 × 554` and resized to the required `1600 × 500` without overwriting any existing mission image.
-
----
-
-# Глава 2. Медный Предел
-
-Эти промпты относятся только ко второй карте и переопределяют фиолетовый арт-дирекшен первой главы.
-
-## Общий арт-дирекшен Медного Предела
-
-```text
-Premium mechanical fantasy environment for a corporate low-code learning game, sophisticated painterly semi-realism, readable strategy-game silhouettes, monumental functional machinery rather than Victorian steampunk. Matte black iron and graphite structures, darkened copper pipes and joints, white ceramic control surfaces, vivid corporate orange #FE5500 as the dominant energy and heat, warm amber #FFA51E for warning lights and sparks, extremely rare cyan #00C1D4 only for cold diagnostic signals. Basalt terrain, ash, dry industrial valleys, massive golems and moving factories built for practical work.
-
-Absolutely no violet, purple, aubergine or lavender light, materials, sky accents or interface glow. No top hats, corsets, Victorian streets, decorative steam gadgets or generic steampunk ornament. No readable text, letters, numbers, labels, code, UI, logos, brand marks, watermark or imitated corporate pattern. Do not draw the Good Program logo. All serial marks and labels will be added as HTML overlays.
-```
-
-При генерации каждого изображения общий блок выше добавляется перед сценическим блоком соответствующего ассета.
-
-## 8. Карта Медного Предела
+### Карта предприятия
 
 **Файл:** `chapter2-world-map.png`
-**Размер:** `1600 × 1000`, landscape, 16:10
 
 ```text
-Top-down oblique strategy-game map of the Copper Frontier inside a vast basalt caldera. Nine readable industrial districts arranged in two concentric production rings and a central core. Outer ring clockwise from lower-left: a sorting furnace with casting bowls and duplicate blank golem shells; a walking factory carrying a fortified portal gate; a relay yard with semaphore towers and rail switches; a multi-level circular process foundry; a package depot with cranes and sealed containers on environment platforms. Inner ring: a black trace furnace printing pale evidence plates; a circular change and release assembly with repair docks and calendar drums; an oracle forge containing a sleeping analytical golem. At the center, a colossal factory golem embedded in a mountain, its chest closed around the dark Contour Heart. Three giant walking factories move along the outer ring. Orange energy channels connect districts but begin interrupted and fragmented.
-
-Keep calm negative space around all nine landmarks for HTML map nodes. The central factory golem must dominate the silhouette while every district remains identifiable. No ocean, lush green islands or white fantasy castles from the first chapter. No labels or interface.
+Top-down oblique strategy-game map of a large commercial golem manufacturing company in a basalt industrial valley. Nine connected business areas: production planning office and intake warehouse, dealer portal center, carrier integration yard, order approval office, configuration and package depot, audit archive, release management hall, sales analytics office and acceptance test stand. Walking cargo golems, component warehouses and assembly lines provide fantasy-industry context. Clear operational roads and calm marker zones, no labels or UI.
 ```
 
-## 9. ГЕФЕСТ-7
+### Представитель заказчика
 
 **Файл:** `chapter2-mentor-hephaestus.png`
-**Размер:** не менее `900 × 1200`, portrait
 
 ```text
-Full portrait of HEPHAESTUS-7, an old industrial inspection golem and systems mentor. Massive matte black iron body, broad practical shoulders, darkened copper repair plates, one vivid orange optical sensor, a calm white ceramic face plate with subtle wear, articulated hands made for inspecting machinery, an old mechanical clipboard with blank plates. Precise, trustworthy, slightly stern personality. Clearly readable silhouette in a narrow mentor panel and in a small bust crop. Neutral warm off-white and graphite studio background with a restrained orange rim light. No weapons, no military insignia, no readable serial number, no logo, no text.
+Portrait of Bran Koval, head of manufacturing systems at a commercial golem factory. Experienced, practical and trustworthy, industrial work coat with copper fasteners and white ceramic safety elements, mechanical clipboard with blank sheets, restrained orange rim light, no serial code, military insignia, text or logo.
 ```
 
-## 10. Болт
+### Ремонтный голем
 
 **Файл:** `chapter2-scout-bolt.png`
-**Размер:** не менее `700 × 900`, portrait
 
 ```text
-Character portrait of Bolt, a small enthusiastic repair automaton scout. Compact round graphite body, slightly mismatched copper panels, two expressive orange optical lenses, folding tool arms, tiny tracked feet combined with magnetic climbing claws, one oversized wrench carried proudly like an important instrument. Cheerful, overconfident and helpful, appealing but not childish, practical industrial design. Strong readable silhouette at icon size. Neutral light ceramic background with a soft orange ground shadow. No readable marks, text, logo or watermark.
+Portrait of a compact friendly repair golem used at a commercial factory. Graphite body, practical copper panels, orange optical sensors, folding tool arms and magnetic feet. Helpful industrial equipment, not a heroic companion or weapon. Neutral ceramic background, no marks, text or logo.
 ```
 
-## 11. Панорама Sorting Furnace
+### Панорамы проекта
 
-**Файл:** `mission-sorting-furnace.png`
-**Размер:** `1600 × 500`, panoramic, 16:5
+Общий шаблон:
 
 ```text
-Very wide mission panorama of the Sorting Furnace. Four sequential physical stations across one industrial hall: an intake platform receiving blank data plates and metal orders; a column-mapping gantry aligning differently shaped channels; a normalization furnace cleaning inconsistent decorative marks from reference tokens; a duplicate-control press comparing external seals before one final casting line. Several visually identical blank golem shells pile up near the wrong bypass line while unique finished shells leave the correct line. Keep all four stations distinct and connected from left to right. Central safe area contains the duplicate-control press. Bottom third darker and calmer for HTML overlays.
+Very wide panorama of a practical department at a commercial fantasy manufacturing company. Show the stated business problem through observable records, routes, gates, packages or test stations. Functional industrial design, matte iron, copper, white ceramic, orange and amber accents, rare cyan diagnostics. Central safe area and calm lower third. No emergency battle, code names, readable labels, UI or logo.
 ```
 
-## 12. Панорама Portal Gate
+| Технический файл | Актуальная сцена |
+|---|---|
+| `mission-sorting-furnace.png` | импорт производственных заказов, нормализация и поиск дублей |
+| `mission-portal-gate.png` | два дилера, раздельные организации, записи и защищённые поля |
+| `mission-signal-yard.png` | передача заказа перевозчику, auth, секрет среды и ответ |
+| `mission-cycle-foundry.png` | журнал согласования, повтор маршрута и две версии процесса |
+| `mission-package-depot.png` | дерево пакетов, зависимости и перенос между средами |
+| `mission-trace-furnace.png` | журнал бизнес-изменений, аудит и общая хронология |
+| `mission-change-assembly.png` | проблема, изменение, работы, состав релиза и приёмка |
+| `mission-oracle-forge.png` | аналитика лидов и переписки, подготовка данных и контроль сотрудником |
+| `mission-contour-heart.png` | приёмочный стенд с тестами прав, REST, повторов и версии процесса |
 
-**Файл:** `mission-portal-gate.png`
-**Размер:** `1600 × 500`, panoramic, 16:5
+## Карта 3. Группа «Семь дорог»
+
+Компания оказывает транспортные и складские услуги и развивает внутренний CRM-центр. Визуально это светлый клиентский офис фэнтезийного мира с сотрудниками разных народов, сервисными стойками и современными рабочими зонами.
+
+Palette: `#1B0B3B`, `#7856FF`, `#FE5500`, `#00C1D4`, `#EDE8F5`, `#FFFFFF`, `#FFA51E`.
+
+### Карта CRM-проекта
+
+**Файл:** `chapter3-world-map.png`
 
 ```text
-Very wide mission panorama of the Portal Gate built into the torso of a giant walking courier factory. Two external guild caravans approach separate mechanical entrances on the left and right. Inside the gate, four layered checkpoints are physically readable: outer portal entrance, organization seal sorter, record-access turnstiles and a white ceramic screen shielding sensitive internal machinery. One disabled blank automaton waits outside a closed side gate. A central internal dispatcher platform overlooks both organizations without mixing their routes. Clear spatial separation, no readable emblems or labels. Bottom third calmer for HTML controls.
+Bright isometric corporate CRM center for a fantasy transport and warehousing group. Nine connected work areas: customer data team, lead qualification, communication channels, process automation, customer service, access management, ERP integration, AI practice and final acceptance room. White ceramic, glass, deep violet structure, cyan connections and sparse orange decision points. Employees work in recognizable business environments. No cosmic laboratory, central mystical object, labels or UI.
 ```
 
-## 13. Панорама Signal Yard
+### Руководитель CRM-центра
 
-**Файл:** `mission-signal-yard.png`
-**Размер:** `1600 × 500`, panoramic, 16:5
+**Файл:** `chapter3-mentor-nova.png`
 
 ```text
-Very wide mission panorama of an outbound signal rail yard. From left to right: an order dispatch platform, a REST routing switch with one clear outgoing track, a fortified authentication chamber containing two blank system-setting cylinders with the secret cylinder physically shielded, a relay tower sending an orange beam through a secure enclosed conduit, and a response station receiving a cold cyan confirmation token. A red mechanical rejection shutter illustrates an unauthorized response and an empty socket suggests a missing environment-specific secret. Functional, readable machinery with the main routing switch in the center safe area. No readable protocol text or status codes.
+Square portrait of Liora Vel, head of an internal CRM center of excellence in a fantasy logistics company. Calm senior manager, professional light clothing with violet, cyan and restrained orange details, glass office background, intelligent and practical expression. Can be an elf, but clearly a business leader rather than hologram or navigator. No text or logo.
 ```
 
-## 14. Панорама Cycle Foundry
+### Диагностический дрон
 
-**Файл:** `mission-cycle-foundry.png`
-**Размер:** `1600 × 500`, panoramic, 16:5
+**Файл:** `chapter3-scout-pico.png`
 
 ```text
-Very wide mission panorama of a multi-level process foundry dominated by a circular conveyor carrying one blank order wagon repeatedly through the same checkpoints. On an upper control balcony hang two different blank process plates, one old active plate glowing orange and one newer inactive plate. A branching switch incorrectly routes the wagon back to the start. A trace recorder misses one critical checkpoint, and a state-storage flywheel keeps a long-running station alive. Show a visible mechanical repetition counter with abstract ticks but no numbers. Central safe area around the branching switch, bottom third calm for HTML timeline overlays.
+Square portrait of a compact diagnostic office drone used by the CRM support team. Rounded white ceramic body, violet glass panel, cyan sensors and small orange status accents, articulated scanner arms. Technical and friendly, no code name written on body, no text or logo.
 ```
 
-## 15. Панорама Package Depot
+### Панорамы CRM-проекта
 
-**Файл:** `mission-package-depot.png`
-**Размер:** `1600 × 500`, panoramic, 16:5
+Общий шаблон:
 
 ```text
-Very wide mission panorama of a package depot spanning several environment platforms. Massive cranes hold five sealed blank containers connected by dependency cables. One impossible circular cable arrangement locks a crane in place. A foundational black container rests safely at the bottom and must not be opened; copper custom containers should be stacked above it in a clear acyclic hierarchy. Nearby platforms represent development, test and production through materials and lighting only, without labels. One protected secret cylinder slot is empty on the destination platform. Central safe area contains the dependency crane and container tree. Bottom third calm for interactive graph overlays.
+Very wide panorama of a real CRM work area inside a premium fantasy logistics company. Express the problem through connected records, customer routes, process stations and acceptance evidence. Bright clean 3D or painterly semi-realism, white ceramic and glass, violet structure, cyan data links, sparse orange decisions, calm lower third. No cosmic rings, mystical prism, readable UI, labels or logo.
 ```
 
-## 16. Панорама Trace Furnace
+| Технический файл | Актуальная сцена |
+|---|---|
+| `mission-contact-genome.png` | несколько версий клиента, отдельные контакт и организация, связанные события |
+| `mission-lead-spectrum.png` | веб-интерес, квалификация, решение менеджера и продажа |
+| `mission-channel-array.png` | веб-форма, email, чат и звонок в общей истории |
+| `mission-bpmn-navigator.png` | события, задачи, шлюзы, таймер и REST-вызов |
+| `mission-sla-rings.png` | обращение, сервис, договор, реакция, разрешение и эскалация |
+| `mission-access-prism.png` | уровни доступа для сотрудника и пользователя портала |
+| `mission-integration-dock.png` | входящий webhook, исходящий REST, auth, timeout и retry |
+| `mission-ai-core.png` | прогнозные и генеративные задачи, данные и проверка сотрудником |
+| `mission-orbit-360.png` | итоговая приёмка клиента, процесса, SLA, прав, интеграции и AI |
 
-**Файл:** `mission-trace-furnace.png`
-**Размер:** `1600 × 500`, panoramic, 16:5
+## Финальные экраны
 
-```text
-Very wide mission panorama of the Trace Furnace, a black industrial archive that prints event history onto pale ceramic plates. Two clearly separate output lines: one follows changes to business objects and fields, the other records authorization, roles, access and system-setting events. A central investigation table receives selected plates from both lines and arranges them into one timeline. Most irrelevant plates remain stacked in shadow to communicate selective logging. An archive chamber stores older audit plates. One hidden bypass pipe passes beneath the change recorder, suggesting an operation outside normal tracking. No readable text or symbols. Bottom third calm for evidence cards.
-```
-
-## 17. Панорама Change Assembly
-
-**Файл:** `mission-change-assembly.png`
-**Размер:** `1600 × 500`, panoramic, 16:5
-
-```text
-Very wide mission panorama of a circular change and release assembly hall. A damaged mechanism at far left leads to a problem analysis cradle, then a controlled change workbench in the center connected to several affected configuration machines, then a large release ring grouping multiple blank change plates. Around the ring, distinct team stations perform development, testing and deployment. A calendar drum and final release gate remain locked until all checks are complete. Emphasize relationships and responsibility through physical cables and work platforms. No fake board text, no labels, no UI. Bottom third calm for HTML release cards.
-```
-
-## 18. Панорама Oracle Forge
-
-**Файл:** `mission-oracle-forge.png`
-**Размер:** `1600 × 500`, panoramic, 16:5
-
-```text
-Very wide mission panorama of the Oracle Forge. A large analytical golem sleeps upright in the center inside a ring of training drums. From left to right: a task-selection fork separating structured prediction tokens from flowing text scroll shapes; a data cleaning station removing duplicate and damaged blank plates; a service and license coupling mechanism; the central training ring; and a process integration line receiving a restrained orange probability glow from the awakened oracle. Fresh data drums wait for future retraining. The oracle must look like an analytical instrument and advisor, not an omnipotent mystical deity. No readable predictions or text. Bottom third calm for lifecycle controls.
-```
-
-## 19. Панорама Contour Heart
-
-**Файл:** `mission-contour-heart.png`
-**Размер:** `1600 × 500`, panoramic, 16:5
-
-```text
-Very wide cinematic final mission panorama inside the chest of a colossal factory golem. The Contour Heart fills the central safe area: a monumental mechanical core split into several out-of-sync rotating rings, each emitting conflicting orange pulses. Around it, four readable system sectors connect to the core: portal access gates with separated routes, an authenticated outbound signal relay, a process loop with version plates and a trace recorder, and a package-and-release loading platform. HEPHAESTUS-7 and tiny Bolt may appear as small scale figures at the lower edge without covering stations. The visual should support three phases: diagnosis in a dark fractured state, repair through converging channels, and final synchronization when all orange pulses align. No villain, weapons, text, labels or logo. Bottom third dark and calm for war-room overlays.
-```
-
-## 20. Экран завершения Медного Предела
-
-Для финального экрана используется `chapter2-world-map.png` с CSS-затемнением и HTML-эффектами. Отдельный растровый фон не нужен: это сохраняет визуальную связь результата с пройденной картой и уменьшает число ассетов.
+Для финалов используются карты соответствующих проектов с CSS-затемнением и HTML-контентом. Отдельные растровые фоны не нужны.
