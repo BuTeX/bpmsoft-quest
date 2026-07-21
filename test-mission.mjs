@@ -117,6 +117,7 @@ const exports = `
     acceptMissionIntro,
     dismissMissionIntro,
     reviewMissionIntro,
+    explicitQuestionText,
     shuffleAnswers,
     checkSolution,
     assignEngineModule,
@@ -147,6 +148,33 @@ Object.values(api.missions).forEach((mission) => {
     (elements.get("mission-intro-copy").innerHTML.match(/<p>/g) || []).length === mission.intro.length,
     `${mission.key}: not all lore paragraphs were rendered`
   );
+
+  const explicitPrompts = [
+    ...(mission.prompts || []),
+    ...(mission.processPrompts || []),
+    ...(mission.questions || []).map((question) => question.prompt),
+    ...(mission.requirements || []).map((requirement) => requirement.prompt),
+    ...(mission.nodes || []).map((node) => node.prompt),
+    ...(mission.tests || []).map((test) => test.prompt)
+  ];
+  if (explicitPrompts.length > 0) {
+    assert(
+      typeof mission.questionInstruction === "string" && mission.questionInstruction.length >= 60,
+      `${mission.key}: concrete question instruction is missing`
+    );
+    explicitPrompts.forEach((prompt, promptIndex) => {
+      const explicitCopy = api.explicitQuestionText(mission, prompt);
+      assert(
+        explicitCopy.startsWith("Дано:") && explicitCopy.includes("Задача:"),
+        `${mission.key}: question ${promptIndex + 1} is not self-contained`
+      );
+    });
+  } else {
+    assert(
+      mission.scenario.startsWith("Дано:") && mission.scenario.includes("Задача:"),
+      `${mission.key}: sequence mission does not state its conditions and task`
+    );
+  }
 
   for (let iteration = 0; iteration < 25; iteration += 1) {
     if (mission.mode === "classification") {
@@ -257,8 +285,8 @@ assert(elements.get("mission-intro").hidden, "Reread lore intro did not close");
 assert(api.getState().introSeen.filter((key) => key === "interface").length === 1, "Rereading duplicated the seen state");
 assert(elements.get("scene-kicker").textContent === "Вопрос миссии", "Interface mission does not label its central question");
 assert(
-  elements.get("scene-copy").textContent.endsWith("?"),
-  "Interface mission does not show an explicit question"
+  elements.get("scene-copy").textContent.startsWith("Дано:") && elements.get("scene-copy").textContent.includes("Задача:"),
+  "Interface mission does not show explicit conditions and task"
 );
 const interfaceToolOrder = api.getState().answerOrders["interface:tools"];
 const interfaceCorrectOrder = interfaceToolOrder.filter((id) => api.missions.interface.correct.includes(id));

@@ -47,7 +47,7 @@ const missions = {
       { x: 69, y: 21 },
       { x: 88, y: 36 }
     ],
-    scenario: "Как выстроить путь менеджера в BPMSoft — от входа в рабочее место до списка клиентов, карточки клиента и связанных активностей?",
+    scenario: "Дано: менеджеру нужно открыть список клиентов, перейти в карточку одного клиента и увидеть связанные активности. Задача: расположите пять терминов BPMSoft в порядке навигации от самого общего контейнера интерфейса до связанных записей. Каждый термин используйте один раз.",
     buildEyebrow: "Термины интерфейса",
     buildTitle: "Соберите цепочку из пяти терминов",
     paletteEyebrow: "Арсенал",
@@ -108,6 +108,7 @@ const missions = {
       { landmark: "Энергетический мост", x: 75, y: 27, focusX: 100, mobileX: 48, mobileY: 27 }
     ],
     scenario: "Архивариусы не могут отличить объект от поля, а деталь от связи. Верните пяти определениям правильные термины.",
+    questionInstruction: "Выберите один точный термин BPMSoft, соответствующий данному определению. Каждый термин используется один раз.",
     buildEyebrow: "Термины модели данных",
     buildTitle: "Подберите термин к каждому определению",
     paletteEyebrow: "Словарь",
@@ -175,6 +176,7 @@ const missions = {
       { landmark: "Кристальная печать", x: 88, y: 25, focusX: 88, mobileX: 50, mobileY: 25 }
     ],
     scenario: "Цитадель откроет ворота только тому, кто различает пользовательские роли и три уровня прав доступа.",
+    questionInstruction: "Выберите один механизм модели доступа BPMSoft, который точно соответствует описанной роли или границе прав.",
     buildEyebrow: "Испытания стражей",
     buildTitle: "Ответьте на пять вопросов о доступе",
     paletteEyebrow: "Варианты ответа",
@@ -273,7 +275,8 @@ const missions = {
       "Как создать в BPMSoft новую запись лида или активности?",
       "Как корректно завершить выполнение экземпляра процесса?"
     ],
-    scenario: "При получении входящего email BPMSoft должен проверить условия, прочитать данные письма и автоматически создать новую запись.",
+    scenario: "Дано: BPMSoft получает входящее письмо и должен обработать только сообщения, удовлетворяющие заданным условиям. Задача: расположите пять модулей процесса в порядке выполнения — от стартового события через проверку и чтение письма до создания записи и завершения. Каждый модуль используйте один раз.",
+    questionInstruction: "Выберите один элемент или настройку BPMSoft для активной станции. Каждый модуль используется один раз, а итоговая цепочка выполняется слева направо.",
     buildEyebrow: "Low-code сценарий",
     buildTitle: "Соберите процесс из пяти шагов",
     paletteEyebrow: "Панель элементов",
@@ -334,6 +337,7 @@ const missions = {
       { landmark: "Кристалл исхода", stage: "Закрыта", x: 77, y: 29, focusX: 86, mobileX: 50, mobileY: 28 }
     ],
     scenario: "Заявка проходит стадии «Новая», «В работе», «На согласовании» и «Закрыта». Подберите механизм BPMSoft для каждого правила жизненного цикла.",
+    questionInstruction: "Для указанной стадии или правила выберите один механизм BPMSoft, который реализует требование. Каждый механизм используется один раз.",
     buildEyebrow: "DCM-кейс",
     buildTitle: "Настройте пять правил жизненного цикла",
     paletteEyebrow: "Арсенал стадий",
@@ -402,6 +406,7 @@ const missions = {
       { landmark: "Ответный маяк", stage: "Ответ", x: 81, y: 48, focusX: 100, mobileX: 58, mobileY: 31 }
     ],
     scenario: "Соберите входящий шлюз: примите POST JSON, проверьте JWT, обработайте внешний идентификатор и верните порталу номер заявки.",
+    questionInstruction: "На этапе сборки выберите настройку для указанной части контракта; на этапе проверки выберите единственный ожидаемый результат запроса.",
     buildEyebrow: "Архитектура интеграции",
     buildTitle: "Оснастите пять причалов шлюза",
     paletteEyebrow: "Интеграционный арсенал",
@@ -505,6 +510,7 @@ const missions = {
     sceneInteraction: "dialog",
     dialogFocus: [24, 68, 5, 50, 88],
     scenario: "Соберите панель итогов: покажите объём открытых обращений, динамику поступления, список просрочек, загрузку операторов и выполнение SLA.",
+    questionInstruction: "Выберите один вид дашборда, который непосредственно отвечает на управленческий вопрос. Каждый вид используется один раз.",
     buildEyebrow: "Диалог с проводником",
     buildTitle: "Ответьте на пять вопросов руководителя",
     paletteEyebrow: "Ваш ответ",
@@ -597,6 +603,7 @@ const missions = {
     sceneAlt: "Фэнтезийный зал архитектурного выбора с пятью вратами и двенадцатью кристаллами требований",
     sceneKicker: "Архитектурный трибунал",
     scenario: "Разложите 12 требований по пяти повторно используемым категориям. Не отправляйте задачу в разработку, пока её решает платформа, и выбирайте TBD, когда данных действительно недостаточно.",
+    questionInstruction: "Выберите минимально достаточный путь реализации: базовый функционал, low-code настройка, no-code интеграция, разработка или TBD. Категории можно использовать повторно.",
     buildEyebrow: "12 требований",
     buildTitle: "Классифицируйте каждое решение",
     paletteEyebrow: "Пять корзин",
@@ -728,6 +735,7 @@ const missions = {
     sceneAlt: "Фэнтезийный город City Nexus с шестью связанными системами обработки обращений",
     sceneKicker: "Финальная архитектура города",
     scenario: "Свяжите интерфейс, справочник, доступ, жизненный цикл, уведомление и аналитику в одно минимальное решение. После сборки докажите, что город выдерживает регистрацию, проверку доступа и эскалацию.",
+    questionInstruction: "При сборке выберите минимально достаточный модуль для узла и используйте каждый модуль один раз; при приёмке выберите ожидаемое поведение уже собранной системы.",
     buildEyebrow: "Шесть узлов решения",
     buildTitle: "Соберите архитектурный blueprint",
     paletteEyebrow: "Модули BPMSoft",
@@ -1603,6 +1611,13 @@ function getMission() {
   return missions[state.activeMission];
 }
 
+function explicitQuestionText(mission, prompt) {
+  if (!mission.questionInstruction) return prompt;
+  const normalizedPrompt = prompt.trim();
+  const separator = /[.!?…]$/.test(normalizedPrompt) ? "" : ".";
+  return `Дано: ${normalizedPrompt}${separator} Задача: ${mission.questionInstruction}`;
+}
+
 function getTool(id, mission = getMission()) {
   return mission.tools.find((tool) => tool.id === id);
 }
@@ -2009,7 +2024,7 @@ function renderForgeScene(mission = getMission()) {
     navButton.className = `forge-nav-button${active ? " is-active" : ""}${selectedTool ? " is-filled" : ""}${locked ? " is-locked" : ""}`;
     navButton.disabled = locked;
     navButton.innerHTML = `<span>${locked ? "✓" : index + 1}</span>`;
-    navButton.setAttribute("aria-label", `${station.landmark}: ${mission.prompts[index]}${selectedTool ? `. Назначено: ${selectedTool.name}` : ""}`);
+    navButton.setAttribute("aria-label", `${station.landmark}: ${explicitQuestionText(mission, mission.prompts[index])}${selectedTool ? `. Назначено: ${selectedTool.name}` : ""}`);
     navButton.addEventListener("click", () => selectForgeStation(index));
     navigation.append(navButton);
 
@@ -2029,7 +2044,7 @@ function renderForgeScene(mission = getMission()) {
       ${selectedTool ? `<em class="forge-marker-answer">${locked ? "Закреплено" : "Выбрано"}: ${selectedTool.name}</em>` : ""}
     `;
     marker.setAttribute("aria-pressed", String(active));
-    marker.setAttribute("aria-label", `${station.landmark}: ${mission.prompts[index]}${selectedTool ? `. Назначено: ${selectedTool.name}` : ""}`);
+    marker.setAttribute("aria-label", `${station.landmark}: ${explicitQuestionText(mission, mission.prompts[index])}${selectedTool ? `. Назначено: ${selectedTool.name}` : ""}`);
     marker.addEventListener("click", () => selectForgeStation(index));
     marker.addEventListener("dragover", (event) => {
       if (locked) return;
@@ -2052,6 +2067,7 @@ function renderForgeScene(mission = getMission()) {
 function renderForgeBuilder(mission) {
   renderForgeScene(mission);
   const activeIndex = Math.min(state.activeSlot, mission.correct.length - 1);
+  elements.missionHint.textContent = explicitQuestionText(mission, mission.prompts[activeIndex]);
   elements.paletteEyebrow.textContent = "Клейма кузницы";
   elements.paletteTitle.textContent = "Назовите активную конструкцию";
   elements.clearBuild.hidden = false;
@@ -2110,7 +2126,7 @@ function renderAccessScene(mission = getMission()) {
     marker.setAttribute("role", "group");
     marker.setAttribute(
       "aria-label",
-      `${station.landmark}. ${complete ? `Открыто печатью ${selectedTool.name}` : active ? question.prompt : "Рубеж закрыт"}`
+      `${station.landmark}. ${complete ? `Открыто печатью ${selectedTool.name}` : active ? explicitQuestionText(mission, question.prompt) : "Рубеж закрыт"}`
     );
     marker.innerHTML = `
       <span class="access-marker-seal">${complete ? "✓" : index + 1}</span>
@@ -2156,6 +2172,7 @@ function renderAccessBuilder(mission) {
   const currentIndex = Math.min(state.activeSlot, mission.questions.length - 1);
   const currentQuestion = mission.questions[currentIndex];
   const station = mission.accessStations[currentIndex];
+  elements.missionHint.textContent = explicitQuestionText(mission, currentQuestion.prompt);
 
   elements.paletteEyebrow.textContent = "Печати доступа";
   elements.paletteTitle.textContent = `Испытание ${currentIndex + 1} из ${mission.questions.length} · ${station.landmark}`;
@@ -2231,7 +2248,7 @@ function renderEngineScene(mission = getMission()) {
     marker.setAttribute("aria-pressed", String(active));
     marker.setAttribute(
       "aria-label",
-      `${station.landmark}: ${mission.processPrompts[index]}${selectedTool ? `. Установлено: ${selectedTool.name}` : ""}`
+      `${station.landmark}: ${explicitQuestionText(mission, mission.processPrompts[index])}${selectedTool ? `. Установлено: ${selectedTool.name}` : ""}`
     );
     marker.innerHTML = `
       <span class="engine-marker-seal">${locked ? "✓" : index + 1}</span>
@@ -2280,6 +2297,7 @@ function renderEngineBuilder(mission) {
   renderEngineScene(mission);
   const activeIndex = Math.min(state.activeSlot, mission.processStations.length - 1);
   const activeStation = mission.processStations[activeIndex];
+  elements.missionHint.textContent = explicitQuestionText(mission, mission.processPrompts[activeIndex]);
   elements.paletteEyebrow.textContent = "Модули процесса";
   elements.paletteTitle.textContent = `Станция ${activeIndex + 1} из 5 · ${activeStation.landmark}`;
   elements.clearBuild.hidden = false;
@@ -2367,7 +2385,7 @@ function renderNodeScene(mission = getMission(), kind) {
     marker.setAttribute("aria-pressed", String(active));
     marker.setAttribute(
       "aria-label",
-      `${station.landmark}: ${mission.prompts[index]}${selectedTool ? `. Назначено: ${selectedTool.name}` : ""}`
+      `${station.landmark}: ${explicitQuestionText(mission, mission.prompts[index])}${selectedTool ? `. Назначено: ${selectedTool.name}` : ""}`
     );
     marker.innerHTML = `
       <span class="node-marker-seal">${locked ? "✓" : index + 1}</span>
@@ -2427,6 +2445,7 @@ function renderNodeBuilder(mission, kind) {
   const activeIndex = Math.min(state.activeSlot, stations.length - 1);
   const activeStation = stations[activeIndex];
   const lockedStations = state[`${kind}Locked`];
+  elements.missionHint.textContent = explicitQuestionText(mission, mission.prompts[activeIndex]);
   elements.buildArea.hidden = true;
   elements.paletteEyebrow.textContent = kind === "arena" ? "Арсенал стадий" : "Оснастка причалов";
   elements.paletteTitle.textContent = `${kind === "arena" ? "Узел" : "Причал"} ${activeIndex + 1} из 5 · ${activeStation.stage}`;
@@ -2504,6 +2523,7 @@ function renderInsightDialogBuilder(mission) {
   renderInsightDialogScene(mission);
   const currentIndex = Math.min(state.activeSlot, mission.questions.length - 1);
   const currentQuestion = mission.questions[currentIndex];
+  elements.missionHint.textContent = explicitQuestionText(mission, currentQuestion.prompt);
   const glyphs = {
     indicator: "#",
     chart: "↗",
@@ -2565,11 +2585,11 @@ function renderClassificationBuilder(mission) {
     card.setAttribute("aria-pressed", String(active));
     card.setAttribute(
       "aria-label",
-      `Требование ${index + 1}: ${requirement.prompt}${category ? `. Категория: ${category.name}` : ". Категория не назначена"}`
+      `Требование ${index + 1}: ${explicitQuestionText(mission, requirement.prompt)}${category ? `. Категория: ${category.name}` : ". Категория не назначена"}`
     );
     card.innerHTML = `
       <span class="classification-number">${locked ? "✓" : String(index + 1).padStart(2, "0")}</span>
-      <strong>${requirement.prompt}</strong>
+      <strong>${explicitQuestionText(mission, requirement.prompt)}</strong>
       <small>${locked ? "Подтверждено" : category ? category.name : "Выберите категорию"}</small>
     `;
     card.addEventListener("click", () => selectClassificationRequirement(index));
@@ -2662,10 +2682,10 @@ function renderBlueprintBuilder(mission) {
     slot.disabled = locked;
     slot.draggable = Boolean(module) && !locked;
     slot.setAttribute("aria-pressed", String(active));
-    slot.setAttribute("aria-label", `${node.title}. ${node.prompt}${module ? `. Модуль: ${module.name}` : ". Модуль не назначен"}`);
+    slot.setAttribute("aria-label", `${node.title}. ${explicitQuestionText(mission, node.prompt)}${module ? `. Модуль: ${module.name}` : ". Модуль не назначен"}`);
     slot.innerHTML = `
       <span class="blueprint-index">${locked ? "✓" : String(index + 1).padStart(2, "0")}</span>
-      <span class="blueprint-node-copy"><strong>${node.title}</strong><small>${node.prompt}</small></span>
+      <span class="blueprint-node-copy"><strong>${node.title}</strong><small>${explicitQuestionText(mission, node.prompt)}</small></span>
       <span class="blueprint-module">${module ? module.name : "Назначьте модуль"}</span>
     `;
     slot.addEventListener("click", () => selectBlueprintNode(index));
@@ -2715,7 +2735,7 @@ function renderBlueprintBuilder(mission) {
 
   elements.missionHint.textContent = activeModuleId
     ? `Узел «${mission.nodes[activeIndex].title}» оснащён модулем «${getTool(activeModuleId, mission).name}». До запуска выбор можно изменить.`
-    : `Узел ${activeIndex + 1}: ${mission.nodes[activeIndex].prompt}`;
+    : `Узел ${activeIndex + 1}: ${explicitQuestionText(mission, mission.nodes[activeIndex].prompt)}`;
 }
 
 function renderBlueprintTests(mission) {
@@ -2740,7 +2760,7 @@ function renderBlueprintTests(mission) {
   questionCard.innerHTML = `
     <span>${complete ? "Приёмка завершена" : `Испытание ${currentIndex + 1} из ${mission.tests.length}`}</span>
     <strong>${complete ? "Все системы города работают согласованно" : currentTest.title}</strong>
-    <p>${complete ? "Регистрация, модель доступа и эскалация подтверждены." : currentTest.prompt}</p>
+    <p>${complete ? "Регистрация, модель доступа и эскалация подтверждены." : explicitQuestionText(mission, currentTest.prompt)}</p>
   `;
 
   elements.buildArea.hidden = false;
@@ -2882,10 +2902,10 @@ function renderBuilder() {
       slot.type = "button";
       slot.className = `solution-slot matching-slot${state.activeSlot === index ? " is-active-slot" : ""}${selectedTool ? " has-value" : ""}`;
       slot.setAttribute("aria-pressed", String(state.activeSlot === index));
-      slot.setAttribute("aria-label", `Определение ${index + 1}: ${mission.prompts[index]}`);
+      slot.setAttribute("aria-label", `Определение ${index + 1}: ${explicitQuestionText(mission, mission.prompts[index])}`);
       slot.innerHTML = `
         <span class="slot-number">${index + 1}</span>
-        <span class="slot-prompt">${mission.prompts[index]}</span>
+        <span class="slot-prompt">${explicitQuestionText(mission, mission.prompts[index])}</span>
         <strong>${selectedTool ? selectedTool.name : gateway ? "Оснастите причал" : "Выберите термин"}</strong>
         <small>${selectedTool ? gateway ? "Настройка назначена" : "Термин назначен" : gateway ? "Нажмите, затем выберите настройку" : "Нажмите, затем выберите термин"}</small>
       `;
@@ -2946,7 +2966,7 @@ function renderGatewayTests(mission) {
     <span>Контрольный сигнал ${currentIndex + 1} из ${mission.tests.length}</span>
     <strong>${currentTest.title}</strong>
     <code>${currentTest.request}</code>
-    <p>${currentTest.prompt}</p>
+    <p>${explicitQuestionText(mission, currentTest.prompt)}</p>
   `;
 
   elements.solutionSlots.append(progress, questionCard);
@@ -2991,7 +3011,7 @@ function renderQuizBuilder(mission) {
   questionCard.className = "quiz-question";
   questionCard.innerHTML = `
     <span>Страж ${currentIndex + 1} из ${mission.questions.length}</span>
-    <strong>${currentQuestion.prompt}</strong>
+    <strong>${explicitQuestionText(mission, currentQuestion.prompt)}</strong>
   `;
 
   elements.solutionSlots.append(progress, questionCard);
@@ -3745,13 +3765,13 @@ function showFeedback({ success, score, title, copy, action, actionType }) {
   elements.feedbackPath.innerHTML = mission.correct
     .map((id, index) => {
       const description = ["matching", "gateway"].includes(mission.mode)
-        ? `<span>${mission.prompts[index]}</span>`
+        ? `<span>${explicitQuestionText(mission, mission.prompts[index])}</span>`
         : mission.mode === "blueprint"
-          ? `<span>${mission.nodes[index].prompt}</span>`
+          ? `<span>${explicitQuestionText(mission, mission.nodes[index].prompt)}</span>`
         : mission.mode === "classification"
-          ? `<span>${mission.requirements[index].prompt}</span>`
+          ? `<span>${explicitQuestionText(mission, mission.requirements[index].prompt)}</span>`
         : mission.mode === "quiz"
-          ? `<span>${mission.questions[index].prompt}</span>`
+          ? `<span>${explicitQuestionText(mission, mission.questions[index].prompt)}</span>`
           : "";
       return `<li><strong>${getTool(id, mission).name}</strong>${description}</li>`;
     })

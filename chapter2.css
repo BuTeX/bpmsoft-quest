@@ -925,13 +925,44 @@
   text-transform: uppercase;
 }
 
-.c2-slot-prompt {
-  min-height: 40px;
+.c2-slot-condition,
+.c2-slot-task {
+  display: grid;
+  gap: 4px;
+  padding: 9px 10px;
+  border-left: 3px solid rgba(254, 85, 0, 0.6);
+  background: rgba(254, 85, 0, 0.045);
+  color: #625b55;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.c2-slot-condition strong,
+.c2-slot-task strong,
+.c2-slot-question > strong {
+  color: #8f3a12;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.c2-slot-question {
+  display: grid;
+  gap: 5px;
+}
+
+.c2-slot-question p {
+  min-height: 34px;
   margin: 0;
   color: #000000;
   font-size: 12px;
   font-weight: 700;
   line-height: 1.45;
+}
+
+.c2-slot-task {
+  border-left-color: #41372f;
+  background: rgba(65, 55, 47, 0.045);
 }
 
 .c2-options {

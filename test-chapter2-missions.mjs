@@ -116,6 +116,17 @@ const assert = (condition, message) => {
 };
 
 assert(Object.keys(api.missions).length === 9, "Missions 10–18 are not all implemented");
+Object.values(api.missions).forEach((mission) => {
+  mission.phases.forEach((phase) => {
+    assert(
+      typeof phase.condition === "string" && phase.condition.length >= 120,
+      `${mission.key}/${phase.id}: concrete phase condition is missing`
+    );
+    phase.slots.forEach((slot) => {
+      assert(typeof slot.prompt === "string" && slot.prompt.length > 0, `${mission.key}/${phase.id}/${slot.id}: prompt is missing`);
+    });
+  });
+});
 assert(!api.beginMission("portal"), "Portal Gate opened before Sorting Furnace");
 
 const completeMission = (key) => {

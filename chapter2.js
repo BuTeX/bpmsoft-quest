@@ -626,7 +626,12 @@ function renderChapter2Board(mission, progress) {
     const wrong = progress.lastWrong.includes(slot.id);
     const slotElement = document.createElement("article");
     slotElement.className = `c2-slot${selected ? " is-answered" : ""}${locked ? " is-locked" : ""}${wrong ? " is-wrong" : ""}`;
-    slotElement.innerHTML = `<span class="c2-slot-label">${slot.label}</span><p class="c2-slot-prompt">${slot.prompt}</p>`;
+    slotElement.innerHTML = `
+      <span class="c2-slot-label">${slot.label}</span>
+      <div class="c2-slot-condition"><strong>Дано</strong><span>${phase.condition}</span></div>
+      <div class="c2-slot-question"><strong>Конкретный вопрос или ситуация</strong><p>${slot.prompt}</p></div>
+      <div class="c2-slot-task"><strong>Задача</strong><span>${phase.instruction} Выберите один вариант ответа.</span></div>
+    `;
     const optionsElement = document.createElement("div");
     optionsElement.className = "c2-options";
 
