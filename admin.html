@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1B0B3B">
+  <title>Аналитика | BPMSoft Quest</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+  <link rel="stylesheet" href="admin.css?v=20260721-analytics-1">
+</head>
+<body>
+  <div id="admin-auth" class="auth-overlay" hidden>
+    <form id="admin-auth-form" class="auth-card" aria-labelledby="auth-title">
+      <div class="auth-mark" aria-hidden="true">BQ</div>
+      <p class="eyebrow">Закрытый раздел</p>
+      <h1 id="auth-title">Аналитика Академии</h1>
+      <p>Введите пароль администратора, чтобы открыть данные пользователей и квестов.</p>
+      <label for="admin-password">Пароль</label>
+      <input id="admin-password" type="password" autocomplete="current-password" required>
+      <p id="auth-error" class="form-error" role="alert" hidden></p>
+      <button id="auth-submit" class="primary-button" type="submit">Открыть аналитику</button>
+      <a href="index.html">← Вернуться в Академию</a>
+    </form>
+  </div>
+
+  <div class="admin-shell">
+    <aside id="admin-sidebar" class="admin-sidebar">
+      <div class="sidebar-brand">
+        <img src="assets/good-program-logo-color.png" alt="Гуд Программ">
+        <div>
+          <span>Академия</span>
+          <strong>BPMSoft Quest</strong>
+        </div>
+      </div>
+
+      <div class="sidebar-title">
+        <span>Центр управления</span>
+        <strong>Аналитика</strong>
+      </div>
+
+      <nav class="dashboard-tabs" aria-label="Разделы аналитики" role="tablist">
+        <button class="dashboard-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="tab-overview" data-tab="overview">
+          <span class="tab-icon" aria-hidden="true">⌁</span>
+          <span><strong>Сводка</strong><small>6 дашбордов</small></span>
+        </button>
+        <button class="dashboard-tab" type="button" role="tab" aria-selected="false" aria-controls="tab-users" data-tab="users">
+          <span class="tab-icon" aria-hidden="true">◎</span>
+          <span><strong>Пользователи</strong><small>6 дашбордов</small></span>
+        </button>
+        <button class="dashboard-tab" type="button" role="tab" aria-selected="false" aria-controls="tab-quests" data-tab="quests">
+          <span class="tab-icon" aria-hidden="true">◇</span>
+          <span><strong>Квесты</strong><small>6 дашбордов</small></span>
+        </button>
+        <button class="dashboard-tab" type="button" role="tab" aria-selected="false" aria-controls="tab-quality" data-tab="quality">
+          <span class="tab-icon" aria-hidden="true">✦</span>
+          <span><strong>Качество</strong><small>6 дашбордов</small></span>
+        </button>
+        <button class="dashboard-tab" type="button" role="tab" aria-selected="false" aria-controls="tab-engagement" data-tab="engagement">
+          <span class="tab-icon" aria-hidden="true">↗</span>
+          <span><strong>Вовлечённость</strong><small>6 дашбордов</small></span>
+        </button>
+      </nav>
+
+      <div class="sidebar-note">
+        <span class="live-dot"></span>
+        <div><strong>30 дашбордов</strong><small>Обновляются из прогресса игроков</small></div>
+      </div>
+
+      <div class="sidebar-actions">
+        <a href="index.html">← В Академию</a>
+        <button id="admin-logout" type="button">Выйти</button>
+      </div>
+    </aside>
+
+    <main class="admin-main">
+      <header class="admin-topbar">
+        <button id="menu-toggle" class="menu-toggle" type="button" aria-label="Открыть меню" aria-expanded="false">☰</button>
+        <div>
+          <p class="eyebrow">Академия Гуд программ</p>
+          <h1 id="page-title">Сводка Академии</h1>
+        </div>
+        <div class="topbar-status">
+          <span id="data-source" class="source-badge">Живые данные</span>
+          <span id="last-updated">Обновлено сейчас</span>
+          <button id="refresh-data" type="button" aria-label="Обновить данные">↻</button>
+        </div>
+      </header>
+
+      <section class="filterbar" aria-label="Фильтры аналитики">
+        <label>
+          <span>Период</span>
+          <select id="period-filter">
+            <option value="7">7 дней</option>
+            <option value="30" selected>30 дней</option>
+            <option value="90">90 дней</option>
+          </select>
+        </label>
+        <label>
+          <span>Карта</span>
+          <select id="chapter-filter">
+            <option value="all">Все 4 карты</option>
+            <option value="chapter1">Академия</option>
+            <option value="chapter2">Медные машины</option>
+            <option value="chapter3">Семь дорог</option>
+            <option value="chapter4">Золотая полка</option>
+            <option value="chapter5">Гуд Авиа</option>
+          </select>
+        </label>
+        <label>
+          <span>Режим</span>
+          <select id="mode-filter">
+            <option value="all">Все режимы</option>
+            <option value="progression">Прохождение</option>
+            <option value="study">Изучение</option>
+          </select>
+        </label>
+        <label class="search-filter">
+          <span>Поиск пользователя</span>
+          <input id="user-search" type="search" placeholder="Имя или email">
+        </label>
+      </section>
+
+      <div id="demo-banner" class="demo-banner" hidden>
+        <div><strong>Показаны демонстрационные данные</strong><span>В текущем хранилище пока нет аккаунтов. Все элементы интерфейса доступны для оценки.</span></div>
+        <button id="show-empty-data" type="button">Показать пустое состояние</button>
+      </div>
+
+      <div id="dashboard-loading" class="dashboard-loading" aria-live="polite" hidden>
+        <span></span><p>Собираем аналитику…</p>
+      </div>
+
+      <div id="dashboard-error" class="dashboard-error" role="alert" hidden>
+        <strong>Не удалось загрузить данные</strong>
+        <span>Проверьте соединение и попробуйте ещё раз.</span>
+        <button id="retry-data" type="button">Повторить</button>
+      </div>
+
+      <section id="tab-overview" class="tab-panel is-active" role="tabpanel" data-panel="overview">
+        <div class="section-heading">
+          <div><span>01 · Общая картина</span><h2>Что происходит в Академии сейчас</h2></div>
+          <p>Ключевые показатели аудитории, прогресса и зон внимания.</p>
+        </div>
+        <div class="dashboard-grid">
+          <article class="dashboard-card dashboard-wide pulse-card" data-widget="1">
+            <header><div><span>Дашборд 01</span><h3>Пульс Академии</h3></div><small id="pulse-caption">За 30 дней</small></header>
+            <div id="summary-kpis" class="kpi-grid"></div>
+          </article>
+          <article class="dashboard-card dashboard-wide" data-widget="2">
+            <header><div><span>Дашборд 02</span><h3>Динамика аудитории</h3></div><div class="chart-legend"><i class="legend-purple"></i>Активность <i class="legend-orange"></i>Регистрации</div></header>
+            <div id="activity-chart" class="line-chart"></div>
+          </article>
+          <article class="dashboard-card" data-widget="3">
+            <header><div><span>Дашборд 03</span><h3>Воронка обучения</h3></div></header>
+            <div id="learning-funnel" class="funnel-list"></div>
+          </article>
+          <article class="dashboard-card" data-widget="4">
+            <header><div><span>Дашборд 04</span><h3>Режимы доступа</h3></div></header>
+            <div id="mode-distribution" class="donut-layout"></div>
+          </article>
+          <article class="dashboard-card" data-widget="5">
+            <header><div><span>Дашборд 05</span><h3>Статусы игроков</h3></div></header>
+            <div id="status-segments" class="segment-list"></div>
+          </article>
+          <article class="dashboard-card" data-widget="6">
+            <header><div><span>Дашборд 06</span><h3>Требуют внимания</h3></div><small>Приоритет</small></header>
+            <div id="attention-list" class="person-list"></div>
+          </article>
+        </div>
+      </section>
+
+      <section id="tab-users" class="tab-panel" role="tabpanel" data-panel="users" hidden>
+        <div class="section-heading">
+          <div><span>02 · Аудитория</span><h2>Пользователи и сегменты</h2></div>
+          <p>Регистрации, удержание, лидеры и карточки игроков.</p>
+        </div>
+        <div class="dashboard-grid">
+          <article class="dashboard-card dashboard-wide" data-widget="7"><header><div><span>Дашборд 07</span><h3>Новые регистрации</h3></div></header><div id="registration-chart" class="bar-chart"></div></article>
+          <article class="dashboard-card" data-widget="8"><header><div><span>Дашборд 08</span><h3>Давность активности</h3></div></header><div id="recency-chart" class="horizontal-bars"></div></article>
+          <article class="dashboard-card dashboard-wide" data-widget="9"><header><div><span>Дашборд 09</span><h3>Недельные когорты</h3></div><small>Возврат после регистрации</small></header><div id="cohort-table" class="table-scroll"></div></article>
+          <article class="dashboard-card" data-widget="10"><header><div><span>Дашборд 10</span><h3>Режим × прогресс</h3></div></header><div id="mode-progress" class="comparison-list"></div></article>
+          <article class="dashboard-card" data-widget="11"><header><div><span>Дашборд 11</span><h3>Лидеры Академии</h3></div><small>Топ-10</small></header><div id="leaderboard" class="leaderboard"></div></article>
+          <article class="dashboard-card dashboard-full" data-widget="12"><header><div><span>Дашборд 12</span><h3>Реестр пользователей</h3></div><small id="directory-count">0 записей</small></header><div id="user-directory" class="table-scroll directory-table"></div></article>
+        </div>
+      </section>
+
+      <section id="tab-quests" class="tab-panel" role="tabpanel" data-panel="quests" hidden>
+        <div class="section-heading">
+          <div><span>03 · Учебный контент</span><h2>Прохождение 45 квестов</h2></div>
+          <p>Конверсия каждого задания и переходы между картами.</p>
+        </div>
+        <div class="dashboard-grid">
+          <article class="dashboard-card dashboard-full" data-widget="13"><header><div><span>Дашборд 13</span><h3>Матрица прохождения квестов</h3></div><small>45 заданий</small></header><div id="quest-matrix" class="quest-matrix"></div></article>
+          <article class="dashboard-card dashboard-wide" data-widget="14"><header><div><span>Дашборд 14</span><h3>Старт → завершение</h3></div></header><div id="quest-conversion" class="ranked-bars"></div></article>
+          <article class="dashboard-card" data-widget="15"><header><div><span>Дашборд 15</span><h3>Результат по картам</h3></div></header><div id="chapter-completion" class="chapter-rings"></div></article>
+          <article class="dashboard-card" data-widget="16"><header><div><span>Дашборд 16</span><h3>Точки оттока</h3></div><small>Топ-6</small></header><div id="dropoff-list" class="ranked-list"></div></article>
+          <article class="dashboard-card" data-widget="17"><header><div><span>Дашборд 17</span><h3>Самые сложные квесты</h3></div><small>Ошибки</small></header><div id="hardest-quests" class="ranked-list"></div></article>
+          <article class="dashboard-card dashboard-full" data-widget="18"><header><div><span>Дашборд 18</span><h3>Паспорт всех квестов</h3></div><small>Детальная конверсия</small></header><div id="quest-table" class="table-scroll"></div></article>
+        </div>
+      </section>
+
+      <section id="tab-quality" class="tab-panel" role="tabpanel" data-panel="quality" hidden>
+        <div class="section-heading">
+          <div><span>04 · Качество обучения</span><h2>Сложность и учебные сигналы</h2></div>
+          <p>Попытки, ошибки, остаток энергии и полнота телеметрии.</p>
+        </div>
+        <div class="dashboard-grid">
+          <article class="dashboard-card" data-widget="19"><header><div><span>Дашборд 19</span><h3>Нагрузка попыток</h3></div></header><div id="attempts-chart" class="chapter-metrics"></div></article>
+          <article class="dashboard-card dashboard-wide" data-widget="20"><header><div><span>Дашборд 20</span><h3>Тепловая карта ошибок</h3></div><small>По 45 квестам</small></header><div id="error-heatmap" class="error-heatmap"></div></article>
+          <article class="dashboard-card" data-widget="21"><header><div><span>Дашборд 21</span><h3>Запас попыток</h3></div></header><div id="energy-chart" class="energy-list"></div></article>
+          <article class="dashboard-card" data-widget="22"><header><div><span>Дашборд 22</span><h3>Зоны фрикции</h3></div><small>Индекс сложности</small></header><div id="friction-list" class="ranked-list"></div></article>
+          <article class="dashboard-card" data-widget="23"><header><div><span>Дашборд 23</span><h3>Объём решений</h3></div></header><div id="answer-volume" class="big-metric-list"></div></article>
+          <article class="dashboard-card" data-widget="24"><header><div><span>Дашборд 24</span><h3>Полнота телеметрии</h3></div></header><div id="telemetry-coverage" class="coverage-list"></div></article>
+        </div>
+      </section>
+
+      <section id="tab-engagement" class="tab-panel" role="tabpanel" data-panel="engagement" hidden>
+        <div class="section-heading">
+          <div><span>05 · Вовлечённость</span><h2>Темп и глубина обучения</h2></div>
+          <p>Стадии пути, распределение прогресса и риск оттока.</p>
+        </div>
+        <div class="dashboard-grid">
+          <article class="dashboard-card dashboard-wide" data-widget="25"><header><div><span>Дашборд 25</span><h3>Стадии учебного пути</h3></div></header><div id="journey-stages" class="journey-chart"></div></article>
+          <article class="dashboard-card" data-widget="26"><header><div><span>Дашборд 26</span><h3>Распределение прогресса</h3></div><small>Квестов завершено</small></header><div id="score-distribution" class="vertical-bars"></div></article>
+          <article class="dashboard-card" data-widget="27"><header><div><span>Дашборд 27</span><h3>Конверсия в выпускника</h3></div></header><div id="completion-segments" class="donut-layout"></div></article>
+          <article class="dashboard-card" data-widget="28"><header><div><span>Дашборд 28</span><h3>Риск потери игроков</h3></div></header><div id="risk-summary" class="risk-panel"></div></article>
+          <article class="dashboard-card dashboard-wide" data-widget="29"><header><div><span>Дашборд 29</span><h3>Последние события</h3></div><small>Живая лента</small></header><div id="recent-activity" class="activity-feed"></div></article>
+          <article class="dashboard-card" data-widget="30"><header><div><span>Дашборд 30</span><h3>Глубина по режимам</h3></div></header><div id="engagement-mode-depth" class="mode-depth"></div></article>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="admin.js?v=20260721-analytics-1"></script>
+</body>
+</html>

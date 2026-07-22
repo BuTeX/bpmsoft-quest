@@ -134,6 +134,7 @@ function hydrateChapter3State(nextState, updatedAt) {
 }
 
 let chapter3State = loadChapter3State();
+let chapter3RunComplete = false;
 
 if (typeof window !== "undefined") {
   window.BPMQuestChapter3 = {
@@ -211,13 +212,15 @@ function setChapter3SwitcherState(activeChapter) {
   const second = document.getElementById("show-second-chapter");
   const third = document.getElementById("show-third-chapter");
   const fourth = document.getElementById("show-fourth-chapter");
-  if (!switcher || !first || !second || !third || !fourth) return;
+  const fifth = document.getElementById("show-fifth-chapter");
+  if (!switcher || !first || !second || !third || !fourth || !fifth) return;
   const firstUnlocked = isChapter3StudyMode() || window.BPMQuestFirstChapter?.getState?.().solutionMissionComplete === true;
   switcher.hidden = !firstUnlocked;
   third.disabled = !isChapter3Unlocked();
   fourth.disabled = !(isChapter3StudyMode() || chapter3State.orbitComplete === true);
-  [first, second, third, fourth].forEach((button, index) => {
-    const key = ["chapter1", "chapter2", "chapter3", "chapter4"][index];
+  fifth.disabled = !(isChapter3StudyMode() || window.BPMQuestChapter4?.getState?.().transformationComplete === true);
+  [first, second, third, fourth, fifth].forEach((button, index) => {
+    const key = ["chapter1", "chapter2", "chapter3", "chapter4", "chapter5"][index];
     const active = activeChapter === key;
     button.classList.toggle("is-active", active);
     button.setAttribute("aria-pressed", String(active));
@@ -289,7 +292,7 @@ function activateChapter3Map({ reviewPrologue = false } = {}) {
     view.classList.remove("is-active");
     view.hidden = true;
   });
-  document.body?.classList.remove("theme-copper", "theme-market");
+  document.body?.classList.remove("theme-copper", "theme-market", "theme-sky");
   document.body?.classList.add("theme-orbit");
   const view = document.getElementById("chapter3-map-view");
   view.hidden = false;
@@ -305,13 +308,13 @@ function activateChapter3Map({ reviewPrologue = false } = {}) {
 
 function activateChapter2FromChapter3() {
   hideChapter3Overlays();
-  document.body?.classList.remove("theme-orbit", "theme-market");
+  document.body?.classList.remove("theme-orbit", "theme-market", "theme-sky");
   window.BPMQuestChapter2?.activateMap?.();
 }
 
 function activateFirstFromChapter3() {
   hideChapter3Overlays();
-  document.body?.classList.remove("theme-orbit", "theme-copper", "theme-market");
+  document.body?.classList.remove("theme-orbit", "theme-copper", "theme-market", "theme-sky");
   window.BPMQuestChapter2?.activateFirstChapter?.();
 }
 
@@ -461,7 +464,7 @@ function showChapter3View(id) {
     view.classList.toggle("is-active", active);
     view.hidden = !active;
   });
-  document.body?.classList.remove("theme-copper", "theme-market");
+  document.body?.classList.remove("theme-copper", "theme-market", "theme-sky");
   document.body?.classList.add("theme-orbit");
   setChapter3SwitcherState("chapter3");
   renderChapter3Stats();
@@ -520,7 +523,7 @@ function renderChapter3Board(mission, progress) {
       const button = document.createElement("button");
       button.type = "button";
       button.className = `c3-answer${selected === option.id ? " is-selected" : ""}${isChapter3AdminActive() && option.id === slot.correct ? " is-admin-correct" : ""}`;
-      button.disabled = locked;
+      button.disabled = locked || chapter3RunComplete;
       button.dataset.option = option.id;
       button.innerHTML = `<strong>${option.name}</strong><small>${option.note}</small>`;
       button.setAttribute("aria-pressed", String(selected === option.id));
@@ -530,6 +533,8 @@ function renderChapter3Board(mission, progress) {
     article.append(options);
     grid.append(article);
   });
+  const checkButton = document.getElementById("chapter3-check-phase");
+  if (checkButton) checkButton.disabled = chapter3RunComplete;
   saveChapter3State();
 }
 
@@ -565,6 +570,7 @@ function refreshChapter3AdminHighlights() {
 }
 
 function assignChapter3Answer(slotId, optionId) {
+  if (chapter3RunComplete) return false;
   const mission = chapter3Missions[chapter3State.activeMission];
   const progress = getChapter3MissionProgress(mission.key);
   if (progress.locked[slotId]) return;
@@ -572,6 +578,7 @@ function assignChapter3Answer(slotId, optionId) {
   progress.lastWrong = progress.lastWrong.filter((id) => id !== slotId);
   saveChapter3State();
   renderChapter3Board(mission, progress);
+  return true;
 }
 
 function hideChapter3Feedback() {
@@ -609,6 +616,7 @@ function completeChapter3Mission(mission) {
 }
 
 function checkChapter3Phase() {
+  if (chapter3RunComplete) return false;
   const mission = chapter3Missions[chapter3State.activeMission];
   if (!mission) return false;
   const progress = getChapter3MissionProgress(mission.key);
@@ -655,6 +663,8 @@ function checkChapter3Phase() {
     showChapter3Feedback({ kicker: "Этап принят", title: phase.successTitle, copy: phase.successCopy, action: "continue", actionLabel: "Перейти к следующему этапу" });
     return true;
   }
+  chapter3RunComplete = true;
+  renderChapter3Board(mission, progress);
   const study = isChapter3StudyMode();
   const awarded = completeChapter3Mission(mission);
   const index = CHAPTER3_MISSION_KEYS.indexOf(mission.key);
@@ -690,6 +700,7 @@ function beginChapter3Mission(key) {
   const index = CHAPTER3_MISSION_KEYS.indexOf(key);
   const rank = getChapter3ProgressRank(chapter3State);
   if (!isChapter3StudyMode() && index > rank) return false;
+  chapter3RunComplete = false;
   chapter3State.activeMission = key;
   chapter3State.energy = 4;
   chapter3State.attempts = 1;

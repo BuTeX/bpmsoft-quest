@@ -391,6 +391,26 @@ body.is-study-mode .player-profile-action {
   color: #ffffff;
 }
 
+.admin-analytics-link {
+  min-height: 30px;
+  padding: 6px 11px;
+  border-radius: 5px;
+  background: #1b0b3b;
+  color: #ffffff;
+  font-size: 9px;
+  text-decoration: none;
+  white-space: nowrap;
+  transform: translateY(7px);
+}
+
+.admin-analytics-link:hover {
+  background: #7856ff;
+}
+
+.admin-analytics-link[hidden] {
+  display: none;
+}
+
 .admin-modal {
   position: fixed;
   z-index: 1000;

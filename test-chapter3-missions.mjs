@@ -131,7 +131,16 @@ studyMode = false;
 
 completeMission("contact");
 assert(api.getState().chapterXp === 60, "Contact Genome did not award 60 XP");
+const contactFinalPhase = api.missions.contact.phases.at(-1);
+const chapter3EnergyAfterCompletion = api.getState().energy;
+const chapter3AttemptsAfterCompletion = api.getState().attempts;
+assert(api.assignAnswer(contactFinalPhase.slots[0].id, contactFinalPhase.slots[0].options.find((option) => option.id !== contactFinalPhase.slots[0].correct).id) === false, "Completed Chapter 3 mission accepted another answer");
+assert(api.checkPhase() === false, "Completed Chapter 3 mission ran another check");
+assert(api.getState().energy === chapter3EnergyAfterCompletion, "Completed Chapter 3 mission consumed energy");
+assert(api.getState().attempts === chapter3AttemptsAfterCompletion, "Completed Chapter 3 mission counted another error");
+assert(elements.get("chapter3-check-phase").disabled, "Completed Chapter 3 mission left its check action enabled");
 assert(api.beginMission("lead"), "Lead Spectrum did not unlock");
+assert(!elements.get("chapter3-check-phase").disabled, "Chapter 3 replay lock leaked into the next mission");
 const leadPhase = api.missions.lead.phases[0];
 adminActive = true;
 api.refreshAdminHighlights();

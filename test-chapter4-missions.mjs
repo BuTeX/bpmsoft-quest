@@ -156,6 +156,14 @@ assert(api.assignCard("cause", firstStage.solution.cause), "Correct cause card c
 assert(api.checkChain(), "Repaired first migration chain was rejected");
 completeStage(migration, migration.stages[1]);
 assert(api.getState().chapterXp === 70, "Migration mission did not award 70 XP");
+const migrationFinalStage = migration.stages.at(-1);
+const chapter4EnergyAfterCompletion = api.getState().energy;
+const chapter4AttemptsAfterCompletion = api.getState().attempts;
+assert(api.assignCard("cause", migrationFinalStage.solution.cause) === false, "Completed Chapter 4 mission accepted another card");
+assert(api.checkChain() === false, "Completed Chapter 4 mission ran another check");
+assert(api.getState().energy === chapter4EnergyAfterCompletion, "Completed Chapter 4 mission consumed energy");
+assert(api.getState().attempts === chapter4AttemptsAfterCompletion, "Completed Chapter 4 mission counted another error");
+assert(elements.get("chapter4-check-chain").disabled, "Completed Chapter 4 mission left its check action enabled");
 
 for (const key of ["consent", "campaign", "franchise", "order", "stock", "returns", "insight", "transformation"]) completeMission(key);
 assert(api.getState().chapterXp === 700, `Expected final 700 XP, got ${api.getState().chapterXp}`);

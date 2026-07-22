@@ -32,6 +32,24 @@
 | Клиентская и серверная разработка | `development/klientskie-skhemy.md`, `development/servernye-skhemy.md`, `development/veb-servisy-i-api.md` |
 | AI, ML и LLM | `ai/iskusstvennyy-intellekt-v-bpmsoft.md`, `ai/nastroyka-ai-instrumentov.md`, `ai/nastroyka-ml-modeley.md`, `ai/podklyuchenie-k-servisu-mashinnogo-obucheniya.md` |
 
+## Профильные источники заданий 37–45
+
+| Область | Официальный источник BPMSoft | Использование в пятой карте |
+|---|---|---|
+| Объекты и связи | [Кастомизация No-code](https://edu.bpmsoft.ru/baza-znaniy/kastomizatsiya-no-code-1.0/?version=1.9) | основа проектной модели рейса, сегмента и связанных номеров |
+| SLA и календари | [Время реакции и разрешения](https://edu.bpmsoft.ru/baza-znaniy/obrabotka-obrashcheniy/opredelenie-srokov-reaktsii-i-razresheniya/?version=1.9) | правила по сервису, договору, приоритету и календарю |
+| Входящие события | [Настройка интеграции вебхуков](https://edu.bpmsoft.ru/baza-znaniy/veb-servisy/nastroyka-integratsii-vebkhukov/?version=1.9) | приём внешнего события и запуск процесса/действия |
+| Кейсы | [Настройка кейса](https://edu.bpmsoft.ru/baza-znaniy/lenta-stadiy-v-razdelakh/nastroyka-keysa/?version=1.9) | стадии и шаги вариативной пассажирской ситуации |
+| Процессы | [Бизнес-процессы](https://edu.bpmsoft.ru/baza-znaniy/biznes-protsessy/?version=1.9) | автоматические действия, ветвления и пользовательские задачи |
+| Права | [Виды прав доступа](https://edu.bpmsoft.ru/baza-znaniy/polzovateli-i-prava-dostupa/vidy-prav-dostupa/?version=1.9) | операции, записи и колонки |
+| Портал | [Права доступа на портале](https://edu.bpmsoft.ru/baza-znaniy/administrirovanie-portala/prava-dostupa-na-portale/?version=1.9) | минимальные привилегии и изоляция партнёров |
+| Делегирование | [Передача прав доступа](https://edu.bpmsoft.ru/baza-znaniy/polzovateli-i-prava-dostupa/delegirovanie/?version=1.8) | период действия и актуализация ролей |
+| Исходящие интеграции | [Интеграции No-code](https://edu.bpmsoft.ru/baza-znaniy/veb-servisy/?version=1.9) | вызов REST/SOAP-сервисов и аутентификация |
+| Наблюдаемость процессов | [Журнал процессов](https://edu.bpmsoft.ru/baza-znaniy/soprovozhdenie-protsessov/razdel-zhurnal-protsessov/?version=1.9) | статус, время, ошибки и связанные объекты экземпляра процесса |
+| ML | [Модели машинного обучения](https://edu.bpmsoft.ru/baza-znaniy/nastroyka-ml-modeley/nastroennye-modeli-mashinnogo-obucheniya/?version=1.9) | прогноз на исторических и текущих данных |
+| Обучение ML | [Обучение модели](https://edu.bpmsoft.ru/baza-znaniy/nastroyka-ml-modeley/nastroyka-i-obuchenie/?version=1.9) | экземпляр/версия модели после обучения |
+| ML в процессе | [Бизнес-процесс с ML-моделью](https://edu.bpmsoft.ru/baza-znaniy/nastroyka-ml-modeley/nastroyka-biznes-protsessa/?version=1.9) | прогноз как вход в управляемый процесс |
+
 ## Иерархия доверия
 
 1. Локальная документация BPMSoft нужной версии.
@@ -94,3 +112,14 @@
 - заказ и его позиции должны оставаться структурированными бизнес-записями: [BPMSoft — раздел «Заказы»](https://edu.bpmsoft.ru/baza-znaniy/korotkie-prodazhi/razdel-zakazy/);
 - сведения о продукте и остатках не заменяют проектную модель резерва и версий интеграционных событий: [BPMSoft — раздел «Продукты»](https://edu.bpmsoft.ru/baza-znaniy/katalog-produktov/razdel-produkty/?version=1.9);
 - ключ идемпотентности компенсации, составная модель согласий и доступный остаток описываются как проектные решения, а не как неподтверждённые коробочные функции.
+
+## Критичные границы заданий 37–45
+
+- BPMSoft предоставляет средства моделирования объектов, но состав идентификатора рейса/сегмента и правила версий являются проектным контрактом «Гуд Авиа»;
+- абсолютный момент времени, локальная подпись и рабочий календарь нельзя смешивать; штатный SLA BPMSoft учитывает правило и календарь;
+- webhook принимает внешнее событие, но внешний `eventId`, последовательность и идемпотентность задаются интеграционным контрактом;
+- кейс управляет вариативным жизненным циклом, а процесс автоматизирует исполняемые шаги; один не является универсальной заменой другого;
+- видимый фильтр портала не заменяет права по записи и колонке, а временное делегирование требует проверки окончания периода и актуализации ролей;
+- таймаут означает неизвестный исход, пока внешний результат не подтверждён; correlation ID, operation key и политика повторов являются проектными решениями;
+- ML-прогноз помогает ранжировать или рекомендовать, но высоковлияющее действие остаётся частью контролируемого бизнес-процесса;
+- успешный финальный статус не засчитывается, если по пути возник дубль, лишний доступ, потеря корреляции или преждевременная коммуникация.

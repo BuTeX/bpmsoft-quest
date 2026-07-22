@@ -168,8 +168,17 @@ studyMode = false;
 completeMission("sorting");
 assert(api.getState().sortingComplete, "Sorting Furnace did not complete");
 assert(api.getState().chapterXp === 50, `Expected 50 XP, got ${api.getState().chapterXp}`);
+const sortingFinalPhase = api.missions.sorting.phases.at(-1);
+const chapter2EnergyAfterCompletion = api.getState().energy;
+const chapter2AttemptsAfterCompletion = api.getState().attempts;
+assert(api.assignAnswer(sortingFinalPhase.slots[0].id, sortingFinalPhase.slots[0].options.find((option) => option.id !== sortingFinalPhase.slots[0].correct).id) === false, "Completed Chapter 2 mission accepted another answer");
+assert(api.checkPhase() === false, "Completed Chapter 2 mission ran another check");
+assert(api.getState().energy === chapter2EnergyAfterCompletion, "Completed Chapter 2 mission consumed energy");
+assert(api.getState().attempts === chapter2AttemptsAfterCompletion, "Completed Chapter 2 mission counted another error");
+assert(elements.get("chapter2-check-phase").disabled, "Completed Chapter 2 mission left its check action enabled");
 
 assert(api.beginMission("portal"), "Portal Gate did not unlock");
+assert(!elements.get("chapter2-check-phase").disabled, "Chapter 2 replay lock leaked into the next mission");
 const portal = api.missions.portal;
 const portalPhase = portal.phases[0];
 

@@ -7,6 +7,7 @@ import {
   sanitizeChapter2ProgressState,
   sanitizeChapter3ProgressState,
   sanitizeChapter4ProgressState,
+  sanitizeChapter5ProgressState,
   sanitizeProgressState,
   verifyPassword
 } from "./server.js";
@@ -41,6 +42,12 @@ test("static application is served with security headers", async () => {
   assert.match(response.headers.get("content-type"), /text\/html/);
   assert.match(response.headers.get("content-security-policy"), /default-src 'self'/);
   assert.match(html, /BPMSoft Quest/);
+});
+
+test("admin analytics page and its assets are public", async () => {
+  const files = ["admin.html", "admin.css", "admin.js"];
+  const responses = await Promise.all(files.map((file) => fetch(`${baseUrl}/${file}`, { method: "HEAD" })));
+  responses.forEach((response, index) => assert.equal(response.status, 200, `${files[index]} is not served`));
 });
 
 test("chapter 2 scripts, styles and generated art are public", async () => {
@@ -107,6 +114,30 @@ test("chapter 4 scripts, styles and generated art are public", async () => {
     "assets/mission-returns-center.png",
     "assets/mission-insight-ledger.png",
     "assets/mission-transformation-room.png"
+  ];
+  const responses = await Promise.all(files.map((file) => fetch(`${baseUrl}/${file}`, { method: "HEAD" })));
+  responses.forEach((response, index) => assert.equal(response.status, 200, `${files[index]} is not served`));
+});
+
+test("chapter 5 UX prototype and simulation modules are public", async () => {
+  const files = [
+    "chapter5-prototype.html",
+    "chapter5-prototype.css",
+    "chapter5-prototype-data.js",
+    "chapter5-prototype.js",
+    "chapter5-simulation.js"
+  ];
+  const responses = await Promise.all(files.map((file) => fetch(`${baseUrl}/${file}`, { method: "HEAD" })));
+  responses.forEach((response, index) => assert.equal(response.status, 200, `${files[index]} is not served`));
+});
+
+test("chapter 5 production map, missions and selected world art are public", async () => {
+  const files = [
+    "chapter5.css",
+    "chapter5-missions.js",
+    "chapter5.js",
+    "chapter5-simulation.js",
+    "assets/concepts/chapter5-good-avia-infinity-megahub.png"
   ];
   const responses = await Promise.all(files.map((file) => fetch(`${baseUrl}/${file}`, { method: "HEAD" })));
   responses.forEach((response, index) => assert.equal(response.status, 200, `${files[index]} is not served`));
@@ -202,6 +233,24 @@ test("chapter 4 sanitizer keeps only valid audit evidence and chain cards", () =
   assert.equal(state.missionProgress.unknown, undefined);
 });
 
+test("chapter 5 sanitizer keeps operational-twin progress canonical", () => {
+  const state = sanitizeChapter5ProgressState({
+    energy: 99,
+    introSeen: ["schedule", "unknown"],
+    scheduleComplete: true,
+    connectionsComplete: false,
+    baggageComplete: true,
+    missionProgress: { schedule: { round: 9, completedRounds: ["37A", "bad"], lastWrong: ["checkpoint"] } }
+  });
+  assert.equal(state.energy, 4);
+  assert.deepEqual(state.introSeen, ["schedule"]);
+  assert.equal(state.scheduleComplete, true);
+  assert.equal(state.connectionsComplete, false);
+  assert.equal(state.baggageComplete, false);
+  assert.equal(state.missionProgress.schedule.round, 1);
+  assert.deepEqual(state.missionProgress.schedule.completedRounds, ["37A"]);
+});
+
 test("password hashes use salted scrypt and constant-time verification", async () => {
   const first = await hashPassword("correct horse battery staple");
   const second = await hashPassword("correct horse battery staple");
@@ -265,6 +314,14 @@ test("account registration, session and all chapter saves work together", async 
   assert.equal(chapter4.status, 200);
   assert.equal((await chapter4.json()).progress.score, 1);
 
+  const chapter5 = await fetch(`${baseUrl}/api/account/progress/chapter5`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json", Cookie: cookie },
+    body: JSON.stringify({ state: { scheduleComplete: true, energy: 4 } })
+  });
+  assert.equal(chapter5.status, 200);
+  assert.equal((await chapter5.json()).progress.score, 1);
+
   const progress = await fetch(`${baseUrl}/api/account/progress`, { headers: { Cookie: cookie } });
   assert.equal(progress.status, 200);
   const saved = (await progress.json()).progress;
@@ -272,6 +329,7 @@ test("account registration, session and all chapter saves work together", async 
   assert.equal(saved.chapter2.state.sortingComplete, true);
   assert.equal(saved.chapter3.state.contactComplete, true);
   assert.equal(saved.chapter4.state.migrationComplete, true);
+  assert.equal(saved.chapter5.state.scheduleComplete, true);
 
   const profile = await fetch(`${baseUrl}/api/auth/profile`, {
     method: "PUT",
@@ -310,6 +368,7 @@ test("account registration, session and all chapter saves work together", async 
   assert.equal(restored.chapter2.score, 1);
   assert.equal(restored.chapter3.score, 1);
   assert.equal(restored.chapter4.score, 1);
+  assert.equal(restored.chapter5.score, 1);
 });
 
 test("admin login stays disabled without a server-side secret", async () => {
@@ -319,4 +378,36 @@ test("admin login stays disabled without a server-side secret", async () => {
     body: JSON.stringify({ password: "admin" })
   });
   assert.equal(response.status, 503);
+});
+
+test("admin session protects analytics and returns all 45 quest metrics", async () => {
+  const unauthenticated = await fetch(`${baseUrl}/api/admin/analytics`);
+  assert.equal(unauthenticated.status, 401);
+
+  process.env.ADMIN_PASSWORD = "test-admin-secret";
+  try {
+    const login = await fetch(`${baseUrl}/api/admin/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password: "test-admin-secret" })
+    });
+    assert.equal(login.status, 200);
+    const cookie = login.headers.get("set-cookie").split(";", 1)[0];
+    const analytics = await fetch(`${baseUrl}/api/admin/analytics?period=7&mode=all&chapter=all`, {
+      headers: { Cookie: cookie }
+    });
+    assert.equal(analytics.status, 200);
+    const payload = await analytics.json();
+    assert.equal(payload.meta.widgets, 30);
+    assert.equal(payload.meta.periodDays, 7);
+    assert.equal(payload.quests.length, 45);
+    assert.equal(payload.chapters.length, 5);
+
+    const logout = await fetch(`${baseUrl}/api/admin/logout`, { method: "POST", headers: { Cookie: cookie } });
+    assert.equal(logout.status, 200);
+    const expired = await fetch(`${baseUrl}/api/admin/analytics`, { headers: { Cookie: cookie } });
+    assert.equal(expired.status, 401);
+  } finally {
+    delete process.env.ADMIN_PASSWORD;
+  }
 });

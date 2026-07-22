@@ -346,6 +346,12 @@ for (const question of api.missions.access.questions.slice(1)) api.answerQuiz(qu
 assert(api.getState().accessMissionComplete, "Access Citadel did not complete");
 assert(api.getState().xp === 150, `Expected 150 XP after Access Citadel, got ${api.getState().xp}`);
 assert(api.getState().accessComplete, "Access Citadel scene did not activate after completion");
+const accessEnergyAfterCompletion = api.getState().energy;
+const accessAttemptsAfterCompletion = api.getState().attempts;
+api.answerQuiz("funcRole");
+assert(api.getState().energy === accessEnergyAfterCompletion, "Completed Access Citadel accepted another wrong answer");
+assert(api.getState().attempts === accessAttemptsAfterCompletion, "Completed Access Citadel counted another error");
+assert(elements.get("tool-area").hidden, "Completed Access Citadel left answer options visible");
 
 api.beginMission("process");
 const activeEngineMarker = elements.get("engine-layer").children[1];

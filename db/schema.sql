@@ -43,6 +43,8 @@ CREATE TABLE IF NOT EXISTS account_progress (
   chapter3_score SMALLINT NOT NULL DEFAULT 0,
   chapter4_state JSONB,
   chapter4_score SMALLINT NOT NULL DEFAULT 0,
+  chapter5_state JSONB,
+  chapter5_score SMALLINT NOT NULL DEFAULT 0,
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -57,6 +59,12 @@ ALTER TABLE account_progress
 
 ALTER TABLE account_progress
   ADD COLUMN IF NOT EXISTS chapter4_score SMALLINT NOT NULL DEFAULT 0;
+
+ALTER TABLE account_progress
+  ADD COLUMN IF NOT EXISTS chapter5_state JSONB;
+
+ALTER TABLE account_progress
+  ADD COLUMN IF NOT EXISTS chapter5_score SMALLINT NOT NULL DEFAULT 0;
 
 CREATE INDEX IF NOT EXISTS account_progress_updated_at_idx
   ON account_progress (updated_at DESC);

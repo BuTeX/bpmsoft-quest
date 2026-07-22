@@ -16,7 +16,7 @@ function accountFromRow(row) {
 }
 
 function progressFromRow(row) {
-  if (!row) return { chapter1: null, chapter2: null, chapter3: null, chapter4: null };
+  if (!row) return { chapter1: null, chapter2: null, chapter3: null, chapter4: null, chapter5: null };
   return {
     chapter1: row.chapter1_state
       ? { state: row.chapter1_state, score: Number(row.chapter1_score) || 0, updatedAt: row.updated_at }
@@ -29,6 +29,9 @@ function progressFromRow(row) {
       : null,
     chapter4: row.chapter4_state
       ? { state: row.chapter4_state, score: Number(row.chapter4_score) || 0, updatedAt: row.updated_at }
+      : null,
+    chapter5: row.chapter5_state
+      ? { state: row.chapter5_state, score: Number(row.chapter5_score) || 0, updatedAt: row.updated_at }
       : null
   };
 }
@@ -37,7 +40,8 @@ const progressColumns = {
   chapter1: ["chapter1_state", "chapter1_score"],
   chapter2: ["chapter2_state", "chapter2_score"],
   chapter3: ["chapter3_state", "chapter3_score"],
-  chapter4: ["chapter4_state", "chapter4_score"]
+  chapter4: ["chapter4_state", "chapter4_score"],
+  chapter5: ["chapter5_state", "chapter5_score"]
 };
 
 export class PostgresAccountStore {
@@ -105,7 +109,8 @@ export class PostgresAccountStore {
   async getProgress(accountId) {
     const result = await this.database.query(
       `SELECT chapter1_state, chapter1_score, chapter2_state, chapter2_score,
-              chapter3_state, chapter3_score, chapter4_state, chapter4_score, updated_at
+              chapter3_state, chapter3_score, chapter4_state, chapter4_score,
+              chapter5_state, chapter5_score, updated_at
        FROM account_progress WHERE account_id = $1`,
       [accountId]
     );
@@ -125,7 +130,8 @@ export class PostgresAccountStore {
            ${scoreColumn} = GREATEST(account_progress.${scoreColumn}, EXCLUDED.${scoreColumn}),
            updated_at = NOW()
        RETURNING chapter1_state, chapter1_score, chapter2_state, chapter2_score,
-                 chapter3_state, chapter3_score, chapter4_state, chapter4_score, updated_at`,
+                 chapter3_state, chapter3_score, chapter4_state, chapter4_score,
+                 chapter5_state, chapter5_score, updated_at`,
       [accountId, JSON.stringify(state), score]
     );
     return progressFromRow(result.rows[0])[chapter];
@@ -139,10 +145,27 @@ export class PostgresAccountStore {
        ON CONFLICT (account_id) DO UPDATE
        SET ${stateColumn} = NULL, ${scoreColumn} = 0, updated_at = NOW()
        RETURNING chapter1_state, chapter1_score, chapter2_state, chapter2_score,
-                 chapter3_state, chapter3_score, chapter4_state, chapter4_score, updated_at`,
+                 chapter3_state, chapter3_score, chapter4_state, chapter4_score,
+                 chapter5_state, chapter5_score, updated_at`,
       [accountId]
     );
     return progressFromRow(result.rows[0])[chapter];
+  }
+
+  async getAnalyticsRecords() {
+    const result = await this.database.query(
+      `SELECT a.id, a.email, a.display_name, a.access_mode, a.created_at, a.last_login_at,
+              p.chapter1_state, p.chapter1_score, p.chapter2_state, p.chapter2_score,
+              p.chapter3_state, p.chapter3_score, p.chapter4_state, p.chapter4_score,
+              p.chapter5_state, p.chapter5_score, p.updated_at
+       FROM user_accounts a
+       LEFT JOIN account_progress p ON p.account_id = a.id
+       ORDER BY a.created_at DESC`
+    );
+    return result.rows.map((row) => ({
+      account: accountFromRow(row),
+      progress: progressFromRow(row)
+    }));
   }
 }
 
@@ -203,11 +226,11 @@ export class MemoryAccountStore {
   }
 
   async getProgress(accountId) {
-    return clone(this.progress.get(accountId) || { chapter1: null, chapter2: null, chapter3: null, chapter4: null });
+    return clone(this.progress.get(accountId) || { chapter1: null, chapter2: null, chapter3: null, chapter4: null, chapter5: null });
   }
 
   async saveProgress(accountId, chapter, state, score) {
-    const saved = this.progress.get(accountId) || { chapter1: null, chapter2: null, chapter3: null, chapter4: null };
+    const saved = this.progress.get(accountId) || { chapter1: null, chapter2: null, chapter3: null, chapter4: null, chapter5: null };
     const current = saved[chapter];
     if (!current || score >= current.score) {
       saved[chapter] = { state: clone(state), score, updatedAt: new Date().toISOString() };
@@ -217,9 +240,24 @@ export class MemoryAccountStore {
   }
 
   async resetProgress(accountId, chapter) {
-    const saved = this.progress.get(accountId) || { chapter1: null, chapter2: null, chapter3: null, chapter4: null };
+    const saved = this.progress.get(accountId) || { chapter1: null, chapter2: null, chapter3: null, chapter4: null, chapter5: null };
     saved[chapter] = null;
     this.progress.set(accountId, saved);
     return null;
+  }
+
+  async getAnalyticsRecords() {
+    return [...this.accounts.values()]
+      .sort((left, right) => new Date(right.createdAt) - new Date(left.createdAt))
+      .map((account) => ({
+        account: clone(account),
+        progress: clone(this.progress.get(account.id) || {
+          chapter1: null,
+          chapter2: null,
+          chapter3: null,
+          chapter4: null,
+          chapter5: null
+        })
+      }));
   }
 }

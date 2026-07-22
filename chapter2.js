@@ -170,6 +170,7 @@ function hydrateChapter2State(nextState, updatedAt) {
 }
 
 let chapter2State = loadChapter2State();
+let chapter2RunComplete = false;
 
 if (typeof window !== "undefined") {
   window.BPMQuestChapter2 = {
@@ -308,12 +309,14 @@ function setChapterSwitcherState(activeChapter) {
   const secondButton = document.getElementById("show-second-chapter");
   const thirdButton = document.getElementById("show-third-chapter");
   const fourthButton = document.getElementById("show-fourth-chapter");
+  const fifthButton = document.getElementById("show-fifth-chapter");
   if (!switcher || !firstButton || !secondButton) return;
   switcher.hidden = !isChapter2Unlocked();
   const firstActive = activeChapter === "chapter1";
   const secondActive = activeChapter === "chapter2";
   const thirdActive = activeChapter === "chapter3";
   const fourthActive = activeChapter === "chapter4";
+  const fifthActive = activeChapter === "chapter5";
   firstButton.classList.toggle("is-active", firstActive);
   secondButton.classList.toggle("is-active", secondActive);
   firstButton.setAttribute("aria-pressed", String(firstActive));
@@ -329,6 +332,12 @@ function setChapterSwitcherState(activeChapter) {
     fourthButton.disabled = !fourthUnlocked;
     fourthButton.classList.toggle("is-active", fourthActive);
     fourthButton.setAttribute("aria-pressed", String(fourthActive));
+  }
+  if (fifthButton) {
+    const fifthUnlocked = isChapter2StudyMode() || window.BPMQuestChapter4?.getState?.().transformationComplete === true;
+    fifthButton.disabled = !fifthUnlocked;
+    fifthButton.classList.toggle("is-active", fifthActive);
+    fifthButton.setAttribute("aria-pressed", String(fifthActive));
   }
 }
 
@@ -401,7 +410,7 @@ function activateChapter2Map({ reviewPrologue = false } = {}) {
     view.classList.remove("is-active");
     view.hidden = true;
   });
-  document.body?.classList.remove("theme-orbit", "theme-market");
+  document.body?.classList.remove("theme-orbit", "theme-market", "theme-sky");
   document.body?.classList.add("theme-copper");
   const mapView = document.getElementById("chapter2-map-view");
   mapView.hidden = false;
@@ -418,7 +427,7 @@ function activateChapter2Map({ reviewPrologue = false } = {}) {
 function activateFirstChapter() {
   hideChapter2Prologue();
   window.BPMQuestChapter3?.closeOverlays?.();
-  document.body?.classList.remove("theme-copper", "theme-orbit", "theme-market");
+  document.body?.classList.remove("theme-copper", "theme-orbit", "theme-market", "theme-sky");
   const mapView = document.getElementById("chapter2-map-view");
   if (mapView) {
     mapView.classList.remove("is-active");
@@ -609,7 +618,7 @@ function showChapter2View(id) {
     view.classList.toggle("is-active", active);
     view.hidden = !active;
   });
-  document.body?.classList.remove("theme-orbit", "theme-market");
+  document.body?.classList.remove("theme-orbit", "theme-market", "theme-sky");
   document.body?.classList.add("theme-copper");
   setChapterSwitcherState("chapter2");
   renderChapter2Stats();
@@ -678,7 +687,7 @@ function renderChapter2Board(mission, progress) {
       const button = document.createElement("button");
       button.type = "button";
       button.className = `c2-answer${selected === option.id ? " is-selected" : ""}${isChapter2AdminActive() && option.id === slot.correct ? " is-admin-correct" : ""}`;
-      button.disabled = locked;
+      button.disabled = locked || chapter2RunComplete;
       button.dataset.option = option.id;
       button.innerHTML = `<strong>${option.name}</strong><small>${option.note}</small>`;
       button.setAttribute("aria-pressed", String(selected === option.id));
@@ -689,6 +698,8 @@ function renderChapter2Board(mission, progress) {
     slotElement.append(optionsElement);
     grid.append(slotElement);
   });
+  const checkButton = document.getElementById("chapter2-check-phase");
+  if (checkButton) checkButton.disabled = chapter2RunComplete;
   saveChapter2State();
 }
 
@@ -726,6 +737,7 @@ function refreshChapter2AdminHighlights() {
 }
 
 function assignChapter2Answer(slotId, optionId) {
+  if (chapter2RunComplete) return false;
   const mission = chapter2Missions[chapter2State.activeMission];
   const progress = getChapter2MissionProgress(mission.key);
   if (progress.locked[slotId]) return;
@@ -733,6 +745,7 @@ function assignChapter2Answer(slotId, optionId) {
   progress.lastWrong = progress.lastWrong.filter((id) => id !== slotId);
   saveChapter2State();
   renderChapter2Board(mission, progress);
+  return true;
 }
 
 function hideChapter2Feedback() {
@@ -771,6 +784,7 @@ function completeChapter2Mission(mission) {
 }
 
 function checkChapter2Phase() {
+  if (chapter2RunComplete) return false;
   const mission = chapter2Missions[chapter2State.activeMission];
   if (!mission) return false;
   const progress = getChapter2MissionProgress(mission.key);
@@ -828,6 +842,8 @@ function checkChapter2Phase() {
     return true;
   }
 
+  chapter2RunComplete = true;
+  renderChapter2Board(mission, progress);
   const studyMode = isChapter2StudyMode();
   const awarded = completeChapter2Mission(mission);
   const currentIndex = CHAPTER2_MISSION_KEYS.indexOf(mission.key);
@@ -867,6 +883,7 @@ function beginChapter2Mission(key) {
   const index = CHAPTER2_MISSION_KEYS.indexOf(key);
   const rank = getChapter2ProgressRank(chapter2State);
   if (!isChapter2StudyMode() && index > rank) return false;
+  chapter2RunComplete = false;
   chapter2State.activeMission = key;
   chapter2State.energy = 3;
   chapter2State.attempts = 1;

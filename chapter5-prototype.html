@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <title>Гуд Авиа · Прототип operational twin</title>
+    <link rel="stylesheet" href="chapter5-prototype.css" />
+  </head>
+  <body>
+    <main class="prototype-shell">
+      <header class="prototype-header">
+        <a class="brand" href="index.html" aria-label="Вернуться в BPMSoft Quest">
+          <span class="brand-mark" aria-hidden="true">∞</span>
+          <span>
+            <small>BPMSoft Quest · карта 5</small>
+            <strong>Гуд Авиа</strong>
+          </span>
+        </a>
+        <div class="prototype-badge">
+          <span>Вертикальный прототип</span>
+          <strong>37A</strong>
+        </div>
+      </header>
+
+      <section class="mission-heading" aria-labelledby="mission-title">
+        <div>
+          <p class="eyebrow">Центр расписания · Миссия 37</p>
+          <h1 id="mission-title">Первое расхождение</h1>
+          <p id="mission-briefing" class="mission-briefing"></p>
+        </div>
+        <div class="mission-meta" aria-label="Состояние задания">
+          <span id="phase-chip" class="phase-chip">Готово к запуску</span>
+          <span>Устойчивость <strong id="attempts-value">4</strong>/4</span>
+        </div>
+      </section>
+
+      <ol class="learning-loop" aria-label="Этапы операционного двойника">
+        <li data-phase="observe" class="is-active"><span>1</span>Наблюдать</li>
+        <li data-phase="diagnose"><span>2</span>Найти момент</li>
+        <li data-phase="configure"><span>3</span>Изменить правила</li>
+        <li data-phase="verify"><span>4</span>Повторить</li>
+      </ol>
+
+      <section class="workspace" aria-label="Операционная симуляция">
+        <div class="scene-column">
+          <article id="twin-scene" class="twin-scene" data-status="normal" data-tick="idle">
+            <div class="cloud cloud-one" aria-hidden="true"></div>
+            <div class="cloud cloud-two" aria-hidden="true"></div>
+            <div class="sky-grid" aria-hidden="true"></div>
+            <div class="route-loop route-loop-a" aria-hidden="true"></div>
+            <div class="route-loop route-loop-b" aria-hidden="true"></div>
+
+            <div class="actor-node source-node">
+              <span class="node-kicker">Источник</span>
+              <strong>Расписание</strong>
+              <small id="source-state">Версия 3</small>
+            </div>
+
+            <div class="actor-node partner-node">
+              <span class="node-kicker">Партнёр</span>
+              <strong>Шлюз событий</strong>
+              <small id="partner-state">Ожидает</small>
+            </div>
+
+            <div class="hub-node" aria-label="Текущее состояние сегмента">
+              <span class="hub-orbit" aria-hidden="true"></span>
+              <span class="node-kicker">GA-417 · SIP→GRD</span>
+              <strong id="departure-value">09:55</strong>
+              <small>версия <b id="version-value">3</b></small>
+              <span id="state-badge" class="state-badge">Актуальная запись</span>
+            </div>
+
+            <div id="event-token" class="event-token" aria-hidden="true">
+              <span id="event-version">v3</span>
+            </div>
+
+            <div id="notification-card" class="notification-card" hidden>
+              <span>Сообщение пассажиру</span>
+              <strong id="notification-value">—</strong>
+            </div>
+
+            <div class="scene-caption">
+              <span id="scene-time">—</span>
+              <strong id="scene-title">Запустите исходный сценарий</strong>
+            </div>
+          </article>
+
+          <nav class="transport" aria-label="Управление временем">
+            <button id="start-button" class="button button-primary" type="button">Запустить сценарий</button>
+            <button id="pause-button" class="button button-ghost" type="button" disabled>Пауза</button>
+            <button id="back-button" class="icon-button" type="button" aria-label="Предыдущий такт" disabled>←</button>
+            <button id="next-button" class="icon-button" type="button" aria-label="Следующий такт" disabled>→</button>
+            <button id="replay-button" class="button button-ghost" type="button" disabled>Сначала</button>
+          </nav>
+
+          <div class="timeline-panel">
+            <div class="timeline-heading">
+              <span>Временная шкала</span>
+              <output id="checkpoint-output">Первый сбой ещё не отмечен</output>
+            </div>
+            <div id="timeline" class="timeline" role="group" aria-label="Такты сценария"></div>
+            <button id="checkpoint-button" class="button button-marker" type="button" disabled>
+              Отметить текущий такт как первый сбой
+            </button>
+          </div>
+        </div>
+
+        <aside class="journal-panel" aria-labelledby="journal-title">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Линк · журнал событий</p>
+              <h2 id="journal-title">Что уже подтверждено</h2>
+            </div>
+            <span id="run-kind" class="run-kind">Исходный прогон</span>
+          </div>
+          <ol id="journal-list" class="journal-list" aria-live="polite"></ol>
+          <div class="journal-empty" id="journal-empty">
+            Здесь появятся факты из систем. Яркий симптом может возникнуть позже первого неверного решения.
+          </div>
+        </aside>
+      </section>
+
+      <section class="configuration-panel" aria-labelledby="configuration-title">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Ограниченная зона изменений</p>
+            <h2 id="configuration-title">Правила обработки</h2>
+          </div>
+          <p>Входные события останутся теми же.</p>
+        </div>
+        <div id="controls-grid" class="controls-grid"></div>
+        <button id="verify-button" class="button button-verify" type="button" disabled>
+          Запустить контрольный прогон
+        </button>
+      </section>
+
+      <section id="feedback-panel" class="feedback-panel" aria-live="polite" hidden>
+        <div>
+          <p id="feedback-kicker" class="eyebrow">Результат проверки</p>
+          <h2 id="feedback-title">—</h2>
+          <p id="feedback-copy"></p>
+        </div>
+        <button id="retry-button" class="button button-primary" type="button" hidden>Вернуться к настройке</button>
+      </section>
+
+      <section id="ux-panel" class="ux-panel" aria-labelledby="ux-title" hidden>
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Локальный UX-протокол</p>
+            <h2 id="ux-title">Как прошло задание</h2>
+          </div>
+          <p>Метрики считаются только в этой вкладке и никуда не отправляются.</p>
+        </div>
+
+        <dl class="ux-metrics" aria-label="Метрики прохождения">
+          <div><dt>Исходный прогон</dt><dd id="ux-baseline-time">—</dd></div>
+          <div><dt>Общее время</dt><dd id="ux-total-time">—</dd></div>
+          <div><dt>Паузы / перемотки</dt><dd id="ux-navigation-count">0 / 0</dd></div>
+          <div><dt>Проверки / ошибки</dt><dd id="ux-verification-count">0 / 0</dd></div>
+        </dl>
+
+        <div class="ux-questions">
+          <label>
+            Насколько понятно управление?
+            <select id="ux-clarity">
+              <option value="">Не выбрано</option>
+              <option value="5">5 — сразу понятно</option>
+              <option value="4">4 — почти без вопросов</option>
+              <option value="3">3 — пришлось разбираться</option>
+              <option value="2">2 — заметно мешало</option>
+              <option value="1">1 — непонятно</option>
+            </select>
+          </label>
+          <label>
+            Понятна связь «момент + правило + повтор»?
+            <select id="ux-loop-understanding">
+              <option value="">Не выбрано</option>
+              <option value="yes">Да</option>
+              <option value="partly">Частично</option>
+              <option value="no">Нет</option>
+            </select>
+          </label>
+          <label class="ux-comment-field">
+            Что вызвало сомнение или замедлило?
+            <textarea id="ux-comment" maxlength="500" rows="3" placeholder="Коротко, своими словами"></textarea>
+          </label>
+        </div>
+
+        <pre id="ux-report" class="ux-report" tabindex="0"></pre>
+        <div class="ux-actions">
+          <button id="ux-copy-button" class="button button-primary" type="button">Скопировать протокол</button>
+          <span id="ux-copy-status" role="status"></span>
+        </div>
+      </section>
+
+      <p class="prototype-note">
+        Это изолированный UX-стенд: прогресс основной игры и серверное сохранение не изменяются.
+      </p>
+    </main>
+
+    <div id="announcer" class="visually-hidden" aria-live="polite"></div>
+    <script type="module" src="chapter5-prototype.js"></script>
+  </body>
+</html>

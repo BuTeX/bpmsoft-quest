@@ -135,6 +135,7 @@ function hydrateChapter4State(nextState, updatedAt) {
 }
 
 let chapter4State = loadChapter4State();
+let chapter4RunComplete = false;
 
 if (typeof window !== "undefined") {
   window.BPMQuestChapter4 = {
@@ -214,15 +215,17 @@ function setChapter4SwitcherState(activeChapter) {
     document.getElementById("show-first-chapter"),
     document.getElementById("show-second-chapter"),
     document.getElementById("show-third-chapter"),
-    document.getElementById("show-fourth-chapter")
+    document.getElementById("show-fourth-chapter"),
+    document.getElementById("show-fifth-chapter")
   ];
   if (!switcher || buttons.some((button) => !button)) return;
   const firstUnlocked = isChapter4StudyMode() || window.BPMQuestFirstChapter?.getState?.().solutionMissionComplete === true;
   switcher.hidden = !firstUnlocked;
   buttons[2].disabled = !(isChapter4StudyMode() || window.BPMQuestChapter3?.getState?.().orbitComplete === true || isChapter4Unlocked());
   buttons[3].disabled = !isChapter4Unlocked();
+  buttons[4].disabled = !(isChapter4StudyMode() || chapter4State.transformationComplete === true);
   buttons.forEach((button, index) => {
-    const active = activeChapter === ["chapter1", "chapter2", "chapter3", "chapter4"][index];
+    const active = activeChapter === ["chapter1", "chapter2", "chapter3", "chapter4", "chapter5"][index];
     button.classList.toggle("is-active", active);
     button.setAttribute("aria-pressed", String(active));
   });
@@ -295,7 +298,7 @@ function showChapter4View(id) {
   if (!view) return;
   view.hidden = false;
   view.classList.add("is-active");
-  document.body?.classList.remove("theme-copper", "theme-orbit");
+  document.body?.classList.remove("theme-copper", "theme-orbit", "theme-sky");
   document.body?.classList.add("theme-market");
   setChapter4SwitcherState("chapter4");
   renderChapter4Stats();
@@ -314,19 +317,19 @@ function activateChapter4Map({ reviewPrologue = false } = {}) {
 
 function activateChapter3FromChapter4() {
   hideChapter4Overlays();
-  document.body?.classList.remove("theme-market");
+  document.body?.classList.remove("theme-market", "theme-sky");
   window.BPMQuestChapter3?.activateMap?.();
 }
 
 function activateChapter2FromChapter4() {
   hideChapter4Overlays();
-  document.body?.classList.remove("theme-market", "theme-orbit");
+  document.body?.classList.remove("theme-market", "theme-orbit", "theme-sky");
   window.BPMQuestChapter2?.activateMap?.();
 }
 
 function activateFirstFromChapter4() {
   hideChapter4Overlays();
-  document.body?.classList.remove("theme-market", "theme-orbit", "theme-copper");
+  document.body?.classList.remove("theme-market", "theme-orbit", "theme-copper", "theme-sky");
   window.BPMQuestChapter2?.activateFirstChapter?.();
 }
 
@@ -416,12 +419,14 @@ function getChapter4Placement(stage, progress, role) {
 }
 
 function setChapter4Placement(stage, progress, role, cardId) {
+  if (chapter4RunComplete) return false;
   const key = chapter4PlacementKey(stage, role);
   if (!cardId || progress.placements[key] === cardId) delete progress.placements[key];
   else progress.placements[key] = cardId;
   progress.lastWrong = progress.lastWrong.filter((item) => item !== role);
   saveChapter4State();
   renderChapter4Decision(stage, progress);
+  return true;
 }
 
 function renderChapter4MissionIntro(mission, mode = "first-visit") {
@@ -505,6 +510,7 @@ function renderChapter4Audit(stage, progress) {
     button.dataset.c4Hotspot = spot.id;
     button.setAttribute("aria-label", `${found ? "Найденный факт" : "Осмотреть"}: ${spot.label}`);
     button.innerHTML = `<span>${found ? "✓" : index + 1}</span><strong>${spot.label}</strong>`;
+    button.disabled = chapter4RunComplete;
     button.addEventListener("click", () => inspectChapter4Hotspot(spot.id));
     layer.append(button);
 
@@ -522,6 +528,7 @@ function renderChapter4Audit(stage, progress) {
 }
 
 function inspectChapter4Hotspot(spotId) {
+  if (chapter4RunComplete) return false;
   const mission = chapter4Missions[chapter4State.activeMission];
   const progress = getChapter4MissionProgress(mission.key);
   const stage = mission.stages[progress.stage];
@@ -532,6 +539,7 @@ function inspectChapter4Hotspot(spotId) {
   saveChapter4State();
   renderChapter4Audit(stage, progress);
   renderChapter4Decision(stage, progress);
+  return true;
 }
 
 function renderChapter4Decision(stage, progress) {
@@ -549,7 +557,7 @@ function renderChapter4Decision(stage, progress) {
     slot.type = "button";
     slot.className = `c4-chain-slot${selected ? " is-filled" : ""}${progress.lastWrong.includes(role) ? " is-wrong" : ""}`;
     slot.dataset.c4Slot = role;
-    slot.disabled = !auditComplete;
+    slot.disabled = !auditComplete || chapter4RunComplete;
     slot.innerHTML = selected
       ? `<span>${label}</span><strong>${selected.name}</strong><small>${selected.note}</small>`
       : `<span>${label}</span><strong>Перетащите или выберите карточку</strong><small>${hint}</small>`;
@@ -557,9 +565,10 @@ function renderChapter4Decision(stage, progress) {
       if (selected) setChapter4Placement(stage, progress, role, "");
     });
     slot.addEventListener("dragover", (event) => {
-      if (auditComplete) event.preventDefault();
+      if (auditComplete && !chapter4RunComplete) event.preventDefault();
     });
     slot.addEventListener("drop", (event) => {
+      if (chapter4RunComplete) return;
       event.preventDefault();
       const cardId = event.dataTransfer?.getData("text/plain") || "";
       const card = stage.cards.find((item) => item.id === cardId);
@@ -573,8 +582,8 @@ function renderChapter4Decision(stage, progress) {
     const button = document.createElement("button");
     button.type = "button";
     button.className = `c4-decision-card${selected ? " is-used" : ""}${window.BPMQuestFirstChapter?.isAdminActive?.() && card.correct ? " is-admin-correct" : ""}`;
-    button.disabled = !auditComplete;
-    button.draggable = auditComplete;
+    button.disabled = !auditComplete || chapter4RunComplete;
+    button.draggable = auditComplete && !chapter4RunComplete;
     button.dataset.c4Card = card.id;
     button.innerHTML = `<span>${CHAPTER4_SLOT_LABELS[card.role][0]}</span><strong>${card.name}</strong><small>${card.note}</small>`;
     button.addEventListener("click", () => setChapter4Placement(stage, progress, card.role, card.id));
@@ -587,7 +596,7 @@ function renderChapter4Decision(stage, progress) {
 
   const placements = Object.keys(CHAPTER4_SLOT_LABELS).filter((role) => getChapter4Placement(stage, progress, role)).length;
   const check = document.getElementById("chapter4-check-chain");
-  check.disabled = !auditComplete || placements < 3;
+  check.disabled = chapter4RunComplete || !auditComplete || placements < 3;
   document.getElementById("chapter4-decision-lock").hidden = auditComplete;
   renderChapter4TaskGuide(stage, progress);
 }
@@ -687,6 +696,7 @@ function completeChapter4Mission(mission) {
 }
 
 function checkChapter4Chain() {
+  if (chapter4RunComplete) return false;
   const mission = chapter4Missions[chapter4State.activeMission];
   const progress = getChapter4MissionProgress(mission.key);
   const stage = mission.stages[progress.stage];
@@ -737,6 +747,9 @@ function checkChapter4Chain() {
     return true;
   }
 
+  chapter4RunComplete = true;
+  renderChapter4Audit(stage, progress);
+  renderChapter4Decision(stage, progress);
   const awarded = completeChapter4Mission(mission);
   const index = CHAPTER4_MISSION_KEYS.indexOf(mission.key);
   const nextKey = CHAPTER4_MISSION_KEYS[index + 1];
@@ -771,6 +784,7 @@ function beginChapter4Mission(key) {
   if (!mission || !isChapter4Unlocked()) return false;
   const index = CHAPTER4_MISSION_KEYS.indexOf(key);
   if (!isChapter4StudyMode() && index > getChapter4ProgressRank(chapter4State)) return false;
+  chapter4RunComplete = false;
   chapter4State.activeMission = key;
   chapter4State.energy = 4;
   chapter4State.attempts = 1;
@@ -860,8 +874,7 @@ function initializeChapter4() {
     const stage = mission.stages[progress.stage];
     const card = stage.cards.find((item) => item.id === cardId && item.role === role);
     if (!card) return false;
-    setChapter4Placement(stage, progress, role, card.id);
-    return true;
+    return setChapter4Placement(stage, progress, role, card.id);
   };
   window.BPMQuestChapter4.checkChain = checkChapter4Chain;
   window.BPMQuestChapter4.getMissionProgress = getChapter4MissionProgress;
