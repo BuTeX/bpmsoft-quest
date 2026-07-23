@@ -669,14 +669,29 @@ test("email verification, email change and password recovery use one-time links"
   }
 });
 
-test("production configuration fails closed", () => {
+test("production configuration supports a closed pilot and fails closed for public readiness", () => {
   assert.throws(
     () => validateProductionConfiguration({ NODE_ENV: "production" }),
     /Unsafe production configuration/
   );
   assert.equal(validateProductionConfiguration({
     NODE_ENV: "production",
+    DATABASE_URL: "postgresql://postgres@postgres.railway.internal/bpmsoft",
+    PGSSLMODE: "disable"
+  }), true);
+  assert.throws(
+    () => validateProductionConfiguration({
+      NODE_ENV: "production",
+      DATABASE_URL: "postgresql://postgres@postgres.railway.internal/bpmsoft",
+      PGSSLMODE: "disable",
+      REQUIRE_PRODUCTION_READINESS: "true"
+    }),
+    /Unsafe production configuration/
+  );
+  assert.equal(validateProductionConfiguration({
+    NODE_ENV: "production",
     DATABASE_URL: "postgresql://example.invalid/bpmsoft",
+    REQUIRE_PRODUCTION_READINESS: "true",
     REQUIRE_DATABASE: "true",
     ADMIN_PASSWORD: "a-very-long-admin-password",
     REQUIRE_EMAIL_VERIFICATION: "true",

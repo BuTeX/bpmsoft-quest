@@ -1,9 +1,22 @@
 import { existsSync, readFileSync } from "node:fs";
 
+function isRailwayPrivateDatabase(environment) {
+  try {
+    return new URL(environment.DATABASE_URL).hostname.endsWith(".railway.internal");
+  } catch {
+    return false;
+  }
+}
+
 export function buildPostgresSslConfig(environment = process.env) {
-  const mode = String(environment.PGSSLMODE || "require").toLowerCase();
+  const railwayPrivateDatabase = isRailwayPrivateDatabase(environment);
+  const mode = String(environment.PGSSLMODE || (railwayPrivateDatabase ? "disable" : "require")).toLowerCase();
   if (mode === "disable") {
-    if (environment.NODE_ENV === "production" && environment.ALLOW_INSECURE_DATABASE !== "true") {
+    if (
+      environment.NODE_ENV === "production"
+      && !railwayPrivateDatabase
+      && environment.ALLOW_INSECURE_DATABASE !== "true"
+    ) {
       throw new Error("PGSSLMODE=disable is forbidden in production");
     }
     return false;
@@ -14,7 +27,12 @@ export function buildPostgresSslConfig(environment = process.env) {
     ? readFileSync(rootCertificatePath, "utf8")
     : undefined;
   const rejectUnauthorized = environment.PGSSLREJECTUNAUTHORIZED !== "false";
-  if (!rejectUnauthorized && environment.NODE_ENV === "production" && environment.ALLOW_INSECURE_DATABASE_TLS !== "true") {
+  if (
+    !rejectUnauthorized
+    && environment.NODE_ENV === "production"
+    && !railwayPrivateDatabase
+    && environment.ALLOW_INSECURE_DATABASE_TLS !== "true"
+  ) {
     throw new Error("Unverified PostgreSQL TLS is forbidden in production");
   }
 

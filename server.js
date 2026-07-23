@@ -256,6 +256,10 @@ function renderPrometheusMetrics() {
 
 function handleMetrics(request, response) {
   const expectedToken = process.env.METRICS_TOKEN;
+  if (!expectedToken && process.env.NODE_ENV === "production") {
+    json(response, 404, { error: "Not found" });
+    return;
+  }
   if (expectedToken) {
     const candidate = String(request.headers.authorization || "").replace(/^Bearer\s+/i, "");
     if (!securePasswordMatches(candidate, expectedToken)) {
@@ -726,35 +730,51 @@ export async function closeDatabase() {
 export function validateProductionConfiguration(environment = process.env) {
   if (environment.NODE_ENV !== "production") return true;
   const errors = [];
+  const strictReadiness = environment.REQUIRE_PRODUCTION_READINESS === "true";
   if (!environment.DATABASE_URL) errors.push("DATABASE_URL is required");
-  if (environment.REQUIRE_DATABASE !== "true") errors.push("REQUIRE_DATABASE must be true");
-  if (!environment.ADMIN_PASSWORD || environment.ADMIN_PASSWORD.length < 16) {
+  if (environment.ADMIN_PASSWORD && environment.ADMIN_PASSWORD.length < 16) {
     errors.push("ADMIN_PASSWORD must contain at least 16 characters");
   }
-  if (environment.REQUIRE_EMAIL_VERIFICATION !== "true") {
-    errors.push("REQUIRE_EMAIL_VERIFICATION must be true");
-  }
-  if (environment.REQUIRE_EMAIL_DELIVERY !== "true") {
-    errors.push("REQUIRE_EMAIL_DELIVERY must be true");
-  }
-  if (!environment.MAIL_WEBHOOK_URL) errors.push("MAIL_WEBHOOK_URL is required");
-  if (!environment.MAIL_WEBHOOK_TOKEN) errors.push("MAIL_WEBHOOK_TOKEN is required");
-  if (environment.TRUST_PROXY !== "true") errors.push("TRUST_PROXY must be true");
-  if (!environment.METRICS_TOKEN || environment.METRICS_TOKEN.length < 16) {
+  if (environment.METRICS_TOKEN && environment.METRICS_TOKEN.length < 16) {
     errors.push("METRICS_TOKEN must contain at least 16 characters");
   }
-  if (!environment.LEGAL_ENTITY_NAME) errors.push("LEGAL_ENTITY_NAME is required");
-  if (!environment.PRIVACY_CONTACT_EMAIL || !normalizeEmail(environment.PRIVACY_CONTACT_EMAIL)) {
+  if (environment.PRIVACY_CONTACT_EMAIL && !normalizeEmail(environment.PRIVACY_CONTACT_EMAIL)) {
     errors.push("PRIVACY_CONTACT_EMAIL must be a valid email");
   }
-  if (!environment.LEGAL_JURISDICTION) errors.push("LEGAL_JURISDICTION is required");
-  if (!environment.POLICY_VERSION) errors.push("POLICY_VERSION is required");
-  try {
-    if (!environment.APP_BASE_URL || new URL(environment.APP_BASE_URL).protocol !== "https:") {
-      errors.push("APP_BASE_URL must use HTTPS");
+  if (environment.APP_BASE_URL) {
+    try {
+      if (new URL(environment.APP_BASE_URL).protocol !== "https:") {
+        errors.push("APP_BASE_URL must use HTTPS");
+      }
+    } catch {
+      errors.push("APP_BASE_URL must be a valid HTTPS URL");
     }
-  } catch {
-    errors.push("APP_BASE_URL must be a valid HTTPS URL");
+  }
+
+  if (strictReadiness) {
+    if (environment.REQUIRE_DATABASE !== "true") errors.push("REQUIRE_DATABASE must be true");
+    if (!environment.ADMIN_PASSWORD || environment.ADMIN_PASSWORD.length < 16) {
+      errors.push("ADMIN_PASSWORD must contain at least 16 characters");
+    }
+    if (environment.REQUIRE_EMAIL_VERIFICATION !== "true") {
+      errors.push("REQUIRE_EMAIL_VERIFICATION must be true");
+    }
+    if (environment.REQUIRE_EMAIL_DELIVERY !== "true") {
+      errors.push("REQUIRE_EMAIL_DELIVERY must be true");
+    }
+    if (!environment.MAIL_WEBHOOK_URL) errors.push("MAIL_WEBHOOK_URL is required");
+    if (!environment.MAIL_WEBHOOK_TOKEN) errors.push("MAIL_WEBHOOK_TOKEN is required");
+    if (environment.TRUST_PROXY !== "true") errors.push("TRUST_PROXY must be true");
+    if (!environment.METRICS_TOKEN || environment.METRICS_TOKEN.length < 16) {
+      errors.push("METRICS_TOKEN must contain at least 16 characters");
+    }
+    if (!environment.LEGAL_ENTITY_NAME) errors.push("LEGAL_ENTITY_NAME is required");
+    if (!environment.PRIVACY_CONTACT_EMAIL || !normalizeEmail(environment.PRIVACY_CONTACT_EMAIL)) {
+      errors.push("PRIVACY_CONTACT_EMAIL must be a valid email");
+    }
+    if (!environment.LEGAL_JURISDICTION) errors.push("LEGAL_JURISDICTION is required");
+    if (!environment.POLICY_VERSION) errors.push("POLICY_VERSION is required");
+    if (!environment.APP_BASE_URL) errors.push("APP_BASE_URL must use HTTPS");
   }
   if (errors.length) throw new Error(`Unsafe production configuration: ${errors.join("; ")}`);
   buildPostgresPoolConfig(environment.DATABASE_URL, environment);

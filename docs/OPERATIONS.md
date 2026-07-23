@@ -8,6 +8,8 @@
 4. Выполнить restore drill в отдельной одноразовой БД через `RESTORE_DATABASE_URL=... BACKUP_FILE=... ./scripts/restore-drill.sh`.
 5. Проверить `/ready` и авторизованный `/metrics` после выкладки.
 
+Закрытый pilot-preview запускается с `REQUIRE_PRODUCTION_READINESS=false`. Перед публичным запуском заполните все mail/legal/metrics-переменные из `.env.example`, включите `REQUIRE_PRODUCTION_READINESS=true` и повторите readiness-проверку.
+
 Миграции в проекте только additive: они добавляют таблицы, столбцы и индексы, но не удаляют данные. Сервер применяет их до открытия HTTP-порта и фиксирует в `schema_migrations`.
 
 ## Наблюдаемость

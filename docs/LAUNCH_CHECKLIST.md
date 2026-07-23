@@ -7,7 +7,7 @@
 - [x] Конфликт ревизий не позволяет старой вкладке затереть прогресс.
 - [x] Миграции идемпотентны; PostgreSQL-тест запускается в CI.
 - [x] Есть email verification, reset, смена email/пароля, export и delete.
-- [x] Production без БД, TLS, mail webhook, legal-реквизитов и секретов не стартует.
+- [x] Production без БД не стартует; `REQUIRE_PRODUCTION_READINESS=true` дополнительно блокирует публичный запуск без TLS, mail webhook, legal-реквизитов и секретов.
 - [x] Стартовый shell не превышает 1,6 МБ.
 - [x] 11 модальных диалогов имеют focus trap, inert-фон, Escape и возврат фокуса.
 - [x] Есть CI, critical E2E, readiness, метрики, backup/restore drill и rollback runbook.
@@ -23,5 +23,6 @@
 - [ ] Выполнен и зафиксирован restore drill production-подобной БД.
 - [ ] Настроены алерты из `docs/OPERATIONS.md` и назначен дежурный.
 - [ ] Утверждены домен, почтовый отправитель, политика DMARC/SPF/DKIM и канал поддержки.
+- [ ] После заполнения всех production-реквизитов включён `REQUIRE_PRODUCTION_READINESS=true`.
 
 Пока любой пункт этого раздела не закрыт ответственным лицом, статус проекта — «готов к закрытому пилоту», но не «готов к публичному запуску».
