@@ -353,7 +353,8 @@ export function sanitizeChapter4ProgressState(input) {
       cardOrders: sanitizeStringRecord(progress.cardOrders, { arrayValues: true }),
       lastWrong: Array.isArray(progress.lastWrong)
         ? [...new Set(progress.lastWrong.filter((value) => ["cause", "mechanism", "test"].includes(value)))].slice(0, 3)
-        : []
+        : [],
+      tutorialGraceUsed: progress.tutorialGraceUsed === true
     };
   });
   return state;

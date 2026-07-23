@@ -207,7 +207,7 @@
             <h2 id="chapter4-prologue-title">Три сети должны стать одной компанией</h2>
             <div id="chapter4-prologue-copy" class="c4-overlay-copy">
               <p>После трёх поглощений «Золотая полка» объединяет магазины, франчайзи, интернет-витрину, склады и контактный центр. У подразделений разные клиентские базы, правила коммуникации, статусы заказов и определения результата.</p>
-              <p>Ты входишь в проект как ведущий аналитик трансформации. Здесь недостаточно выбрать знакомый инструмент: сначала нужно найти факты на рабочей панораме, а затем собрать доказуемую цепочку «причина → механизм → проверка».</p>
+              <p>Ты входишь в проект как ведущий аналитик трансформации. Здесь недостаточно выбрать знакомый инструмент: сначала нужно найти факты на рабочей панораме, а затем собрать доказуемую цепочку «причина → решение → проверка».</p>
             </div>
           </div>
           <div class="c4-overlay-actions">
@@ -233,12 +233,11 @@
               <strong>Как выполнить задание</strong>
               <ol>
                 <li><span>1</span>Найдите 3 факта на изображении</li>
-                <li><span>2</span>Выберите карточку «Причина»</li>
-                <li><span>3</span>Выберите карточку «Механизм»</li>
-                <li><span>4</span>Выберите карточку «Проверка»</li>
-                <li><span>5</span>Проверьте цепочку</li>
+                <li><span>2</span>Выберите одну из двух причин</li>
+                <li><span>3</span>Выберите одно из двух решений</li>
+                <li><span>4</span>Выберите проверку и подтвердите цепочку</li>
               </ol>
-              <small>Нажатая карточка сама встанет в нужное звено. Чтобы заменить выбор, нажмите другую карточку того же типа.</small>
+              <small>В первом задании Рута проведёт по шагам, а первая ошибка не расходует попытку. Чтобы изменить ответ, нажмите его в собранной цепочке.</small>
             </section>
           </div>
           <div class="c4-overlay-actions">
@@ -939,11 +938,10 @@
               <ol id="chapter4-task-steps">
                 <li data-c4-task-step="audit"><span>1</span><strong>Факты</strong></li>
                 <li data-c4-task-step="cause"><span>2</span><strong>Причина</strong></li>
-                <li data-c4-task-step="mechanism"><span>3</span><strong>Механизм</strong></li>
+                <li data-c4-task-step="mechanism"><span>3</span><strong>Решение</strong></li>
                 <li data-c4-task-step="test"><span>4</span><strong>Проверка</strong></li>
-                <li data-c4-task-step="submit"><span>5</span><strong>Подтвердить</strong></li>
               </ol>
-              <p id="chapter4-next-action">Шаг 1 из 5. Нажмите три пронумерованные метки на изображении.</p>
+              <p id="chapter4-next-action">Шаг 1 из 4. Нажмите три пронумерованные метки на изображении.</p>
             </nav>
 
             <section id="chapter4-audit-panel" class="c4-audit-panel" aria-labelledby="chapter4-stage-title">
@@ -962,15 +960,15 @@
             <section class="c4-decision-panel" aria-labelledby="chapter4-decision-title">
               <div class="c4-stage-heading">
                 <div><p class="eyebrow">Стол решения</p><h3 id="chapter4-decision-title">Соберите доказуемую цепочку</h3></div>
-                <span>Причина → механизм → проверка</span>
+                <span>Причина → решение → проверка</span>
               </div>
-              <p id="chapter4-decision-lock" class="c4-decision-lock">Сначала завершите шаг 1: нажмите все три метки на изображении. После этого откроются карточки.</p>
+              <p id="chapter4-decision-lock" class="c4-decision-lock">Сначала завершите шаг 1: нажмите все три метки на изображении. После этого появится первый выбор.</p>
               <div id="chapter4-chain-slots" class="c4-chain-slots"></div>
-              <p class="c4-deck-label"><strong>Выбирайте слева направо:</strong> сначала «Причина», затем «Механизм», потом «Проверка». Нажатая карточка сама попадёт в нужное звено.</p>
+              <div id="chapter4-choice-guide" class="c4-choice-guide" hidden></div>
               <div id="chapter4-card-deck" class="c4-card-deck"></div>
               <div class="c4-mission-actions">
                 <p id="chapter4-chain-hint">Сначала найдите все факты на панораме.</p>
-                <button id="chapter4-check-chain" class="primary-action" type="button" disabled>Шаг 5 · Проверить цепочку</button>
+                <button id="chapter4-check-chain" class="primary-action" type="button" disabled>Проверить решение</button>
               </div>
               <section id="chapter4-feedback" class="c4-feedback" aria-live="polite" hidden>
                 <div><p id="chapter4-feedback-kicker" class="eyebrow">Результат проверки</p><h3 id="chapter4-feedback-title"></h3><p id="chapter4-feedback-copy"></p></div>
@@ -981,10 +979,15 @@
           </section>
 
           <aside class="c4-codex-panel">
-            <p class="eyebrow">Справка аналитика</p>
-            <h2 id="chapter4-codex-title">Термины задания</h2>
-            <dl id="chapter4-codex-list"></dl>
-            <div class="source-note"><span>Источник знания</span><p id="chapter4-source-copy"></p></div>
+            <details class="c4-codex-details">
+              <summary><span>Нужна подсказка?</span><strong>Открыть справку аналитика</strong></summary>
+              <div class="c4-codex-content">
+                <p class="eyebrow">Справка аналитика</p>
+                <h2 id="chapter4-codex-title">Термины задания</h2>
+                <dl id="chapter4-codex-list"></dl>
+                <div class="source-note"><span>Источник знания</span><p id="chapter4-source-copy"></p></div>
+              </div>
+            </details>
           </aside>
         </div>
       </section>

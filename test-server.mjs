@@ -217,7 +217,8 @@ test("chapter 4 sanitizer keeps only valid audit evidence and chain cards", () =
         seen: { match: ["legacy", "legacy", 42] },
         placements: { "match:cause": "cause-collision", invalid: 42 },
         cardOrders: { match: ["cause-collision", 42] },
-        lastWrong: ["cause", "unknown", "cause"]
+        lastWrong: ["cause", "unknown", "cause"],
+        tutorialGraceUsed: true
       },
       unknown: { stage: 99 }
     }
@@ -230,6 +231,7 @@ test("chapter 4 sanitizer keeps only valid audit evidence and chain cards", () =
   assert.deepEqual(state.missionProgress.migration.seen.match, ["legacy"]);
   assert.equal(state.missionProgress.migration.placements["match:cause"], "cause-collision");
   assert.deepEqual(state.missionProgress.migration.lastWrong, ["cause"]);
+  assert.equal(state.missionProgress.migration.tutorialGraceUsed, true);
   assert.equal(state.missionProgress.unknown, undefined);
 });
 

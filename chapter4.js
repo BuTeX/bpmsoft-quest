@@ -16,14 +16,24 @@ const CHAPTER4_MISSION_IMAGES = {
   transformation: "assets/mission-transformation-room.png"
 };
 const CHAPTER4_SLOT_LABELS = {
-  cause: ["Шаг 2 · Причина", "Какой факт объясняет проблему"],
-  mechanism: ["Шаг 3 · Механизм", "Что изменить в BPMSoft или интеграции"],
+  cause: ["Шаг 2 · Причина", "Что объясняет найденные факты"],
+  mechanism: ["Шаг 3 · Решение", "Что изменить в BPMSoft или интеграции"],
   test: ["Шаг 4 · Проверка", "Как доказать результат"]
 };
 const CHAPTER4_ROLE_NAMES = {
   cause: "Причина",
-  mechanism: "Механизм",
+  mechanism: "Решение",
   test: "Проверка"
+};
+const CHAPTER4_ROLE_ORDER = ["cause", "mechanism", "test"];
+const CHAPTER4_TUTORIAL_COPY = {
+  cause: "Рута подсказывает: причина должна объяснять сразу несколько найденных фактов, а не только звучать правдоподобно.",
+  mechanism: "Рута подсказывает: решение должно устранять выбранную причину системно, без ручного обхода.",
+  test: "Рута подсказывает: проверка должна воспроизвести риск и дать наблюдаемый результат."
+};
+const CHAPTER4_TUTORIAL_FACTS = {
+  sources: { cause: "import", mechanism: "legacy", test: "import" },
+  merge: { cause: "profile", mechanism: "relations", test: "relations" }
 };
 
 const chapter4InitialState = {
@@ -376,7 +386,7 @@ function getChapter4MissionProgress(key, { reset = false } = {}) {
   if (!mission) return null;
   const existing = chapter4State.missionProgress[key];
   if (reset || !existing || typeof existing !== "object") {
-    chapter4State.missionProgress[key] = { stage: 0, seen: {}, placements: {}, cardOrders: {}, lastWrong: [] };
+    chapter4State.missionProgress[key] = { stage: 0, seen: {}, placements: {}, cardOrders: {}, lastWrong: [], tutorialGraceUsed: false };
   }
   const progress = chapter4State.missionProgress[key];
   progress.stage = Math.max(0, Math.min(Number(progress.stage) || 0, mission.stages.length - 1));
@@ -384,6 +394,7 @@ function getChapter4MissionProgress(key, { reset = false } = {}) {
   progress.placements = progress.placements && typeof progress.placements === "object" && !Array.isArray(progress.placements) ? progress.placements : {};
   progress.cardOrders = progress.cardOrders && typeof progress.cardOrders === "object" && !Array.isArray(progress.cardOrders) ? progress.cardOrders : {};
   progress.lastWrong = Array.isArray(progress.lastWrong) ? progress.lastWrong : [];
+  progress.tutorialGraceUsed = progress.tutorialGraceUsed === true;
   return progress;
 }
 
@@ -416,6 +427,10 @@ function chapter4PlacementKey(stage, role) {
 
 function getChapter4Placement(stage, progress, role) {
   return progress.placements[chapter4PlacementKey(stage, role)] || "";
+}
+
+function getChapter4ActiveRole(stage, progress) {
+  return CHAPTER4_ROLE_ORDER.find((role) => !getChapter4Placement(stage, progress, role)) || "test";
 }
 
 function setChapter4Placement(stage, progress, role, cardId) {
@@ -545,8 +560,10 @@ function inspectChapter4Hotspot(spotId) {
 function renderChapter4Decision(stage, progress) {
   const seen = getChapter4Seen(stage, progress);
   const auditComplete = seen.length === stage.hotspots.length;
+  const activeRole = getChapter4ActiveRole(stage, progress);
   const slots = document.getElementById("chapter4-chain-slots");
   const deck = document.getElementById("chapter4-card-deck");
+  const choiceGuide = document.getElementById("chapter4-choice-guide");
   slots.replaceChildren();
   deck.replaceChildren();
 
@@ -555,49 +572,43 @@ function renderChapter4Decision(stage, progress) {
     const selected = stage.cards.find((card) => card.id === selectedId);
     const slot = document.createElement("button");
     slot.type = "button";
-    slot.className = `c4-chain-slot${selected ? " is-filled" : ""}${progress.lastWrong.includes(role) ? " is-wrong" : ""}`;
+    slot.className = `c4-chain-slot${selected ? " is-filled" : ""}${progress.lastWrong.includes(role) ? " is-wrong" : ""}${auditComplete && activeRole === role ? " is-active" : ""}`;
     slot.dataset.c4Slot = role;
-    slot.disabled = !auditComplete || chapter4RunComplete;
+    slot.disabled = !auditComplete || chapter4RunComplete || !selected;
     slot.innerHTML = selected
-      ? `<span>${label}</span><strong>${selected.name}</strong><small>${selected.note}</small>`
-      : `<span>${label}</span><strong>Перетащите или выберите карточку</strong><small>${hint}</small>`;
+      ? `<span>${label}</span><strong>${selected.name}</strong><small>${selected.note} · Нажмите, чтобы изменить</small>`
+      : `<span>${label}</span><strong>${activeRole === role && auditComplete ? "Сделайте выбор ниже" : "Следующий шаг"}</strong><small>${hint}</small>`;
     slot.addEventListener("click", () => {
       if (selected) setChapter4Placement(stage, progress, role, "");
-    });
-    slot.addEventListener("dragover", (event) => {
-      if (auditComplete && !chapter4RunComplete) event.preventDefault();
-    });
-    slot.addEventListener("drop", (event) => {
-      if (chapter4RunComplete) return;
-      event.preventDefault();
-      const cardId = event.dataTransfer?.getData("text/plain") || "";
-      const card = stage.cards.find((item) => item.id === cardId);
-      if (card?.role === role) setChapter4Placement(stage, progress, role, card.id);
     });
     slots.append(slot);
   });
 
-  getChapter4CardOrder(stage, progress).forEach((card) => {
+  const roleCards = auditComplete
+    ? getChapter4CardOrder(stage, progress).filter((card) => card.role === activeRole)
+    : [];
+  roleCards.forEach((card, index) => {
     const selected = getChapter4Placement(stage, progress, card.role) === card.id;
     const button = document.createElement("button");
     button.type = "button";
     button.className = `c4-decision-card${selected ? " is-used" : ""}${window.BPMQuestFirstChapter?.isAdminActive?.() && card.correct ? " is-admin-correct" : ""}`;
-    button.disabled = !auditComplete || chapter4RunComplete;
-    button.draggable = auditComplete && !chapter4RunComplete;
+    button.disabled = chapter4RunComplete;
     button.dataset.c4Card = card.id;
-    button.innerHTML = `<span>${CHAPTER4_SLOT_LABELS[card.role][0]}</span><strong>${card.name}</strong><small>${card.note}</small>`;
+    button.innerHTML = `<span>Вариант ${index + 1}</span><strong>${card.name}</strong><small>${card.note}</small>`;
     button.addEventListener("click", () => setChapter4Placement(stage, progress, card.role, card.id));
-    button.addEventListener("dragstart", (event) => {
-      event.dataTransfer?.setData("text/plain", card.id);
-      event.dataTransfer?.setDragImage?.(button, 16, 16);
-    });
     deck.append(button);
   });
 
-  const placements = Object.keys(CHAPTER4_SLOT_LABELS).filter((role) => getChapter4Placement(stage, progress, role)).length;
+  const placements = CHAPTER4_ROLE_ORDER.filter((role) => getChapter4Placement(stage, progress, role)).length;
   const check = document.getElementById("chapter4-check-chain");
   check.disabled = chapter4RunComplete || !auditComplete || placements < 3;
   document.getElementById("chapter4-decision-lock").hidden = auditComplete;
+  choiceGuide.hidden = !auditComplete;
+  if (auditComplete) {
+    const [label, hint] = CHAPTER4_SLOT_LABELS[activeRole];
+    const tutorial = chapter4State.activeMission === "migration" ? `<small>${CHAPTER4_TUTORIAL_COPY[activeRole]}</small>` : "";
+    choiceGuide.innerHTML = `<span>${label}</span><strong>${hint}. Выберите один из двух вариантов.</strong>${tutorial}`;
+  }
   renderChapter4TaskGuide(stage, progress);
 }
 
@@ -609,16 +620,8 @@ function renderChapter4TaskGuide(stage, progress) {
     mechanism: Boolean(getChapter4Placement(stage, progress, "mechanism")),
     test: Boolean(getChapter4Placement(stage, progress, "test"))
   };
-  const currentStep = !auditComplete
-    ? "audit"
-    : !selected.cause
-      ? "cause"
-      : !selected.mechanism
-        ? "mechanism"
-        : !selected.test
-          ? "test"
-          : "submit";
-  const stepOrder = ["audit", "cause", "mechanism", "test", "submit"];
+  const currentStep = !auditComplete ? "audit" : getChapter4ActiveRole(stage, progress);
+  const stepOrder = ["audit", "cause", "mechanism", "test"];
   const currentIndex = stepOrder.indexOf(currentStep);
   document.querySelectorAll("[data-c4-task-step]").forEach((item) => {
     const index = stepOrder.indexOf(item.dataset.c4TaskStep);
@@ -630,16 +633,26 @@ function renderChapter4TaskGuide(stage, progress) {
   });
 
   const copy = currentStep === "audit"
-    ? `Шаг 1 из 5. Нажмите оставшиеся метки на изображении: ${seen.length} из ${stage.hotspots.length} найдено.`
+    ? `Шаг 1 из 4. Нажмите оставшиеся метки на изображении: ${seen.length} из ${stage.hotspots.length} найдено.`
     : currentStep === "cause"
-      ? "Шаг 2 из 5. В колоде выберите карточку с меткой «Причина»: она должна объяснять найденные факты."
+      ? "Шаг 2 из 4. Выберите одну из двух причин: она должна объяснять найденные факты."
       : currentStep === "mechanism"
-        ? "Шаг 3 из 5. Теперь выберите «Механизм»: конкретное изменение в BPMSoft или интеграции."
-        : currentStep === "test"
-          ? "Шаг 4 из 5. Выберите «Проверку»: сценарий, который докажет, что механизм устранил причину."
-          : "Шаг 5 из 5. Прочитайте цепочку слева направо и нажмите «Проверить цепочку».";
+        ? "Шаг 3 из 4. Выберите одно из двух решений: конкретное изменение в BPMSoft или интеграции."
+        : selected.test
+          ? "Шаг 4 из 4. Цепочка готова: прочитайте её слева направо и проверьте решение."
+          : "Шаг 4 из 4. Выберите проверку: сценарий, который докажет, что решение устранило причину.";
   document.getElementById("chapter4-next-action").textContent = copy;
   document.getElementById("chapter4-chain-hint").textContent = copy;
+}
+
+function getChapter4TutorialCorrection(stage, wrong) {
+  const factMap = CHAPTER4_TUTORIAL_FACTS[stage.id] || {};
+  return wrong.map((role) => {
+    const spotId = factMap[role];
+    const index = stage.hotspots.findIndex((spot) => spot.id === spotId);
+    const spot = stage.hotspots[index];
+    return spot ? `Для звена «${CHAPTER4_ROLE_NAMES[role].toLowerCase()}» ещё раз сопоставьте факт ${index + 1}: «${spot.fact}»` : "";
+  }).filter(Boolean).join(" ");
 }
 
 function renderChapter4Mission() {
@@ -713,21 +726,29 @@ function checkChapter4Chain() {
   }
   const wrong = roles.filter((role) => getChapter4Placement(stage, progress, role) !== stage.solution[role]);
   if (wrong.length) {
-    chapter4State.energy = Math.max(0, chapter4State.energy - 1);
-    chapter4State.attempts += 1;
+    const tutorialGrace = mission.key === "migration" && !progress.tutorialGraceUsed;
+    if (tutorialGrace) progress.tutorialGraceUsed = true;
+    else {
+      chapter4State.energy = Math.max(0, chapter4State.energy - 1);
+      chapter4State.attempts += 1;
+    }
     progress.lastWrong = wrong;
+    wrong.forEach((role) => delete progress.placements[chapter4PlacementKey(stage, role)]);
     saveChapter4State();
     renderChapter4Stats();
     renderChapter4Mission();
-    const exhausted = chapter4State.energy === 0;
+    const exhausted = !tutorialGrace && chapter4State.energy === 0;
+    const tutorialCopy = tutorialGrace ? getChapter4TutorialCorrection(stage, wrong) : "";
     showChapter4Feedback({
-      kicker: exhausted ? "Аудит приостановлен" : "Цепочка не подтверждена",
-      title: exhausted ? "Запас попыток исчерпан" : `Слабых звеньев: ${wrong.length}`,
-      copy: exhausted
-        ? "Факты уже собраны. Перезапустите стол решения и заново сопоставьте причину, механизм и проверку."
+      kicker: tutorialGrace ? "Учебная подсказка" : exhausted ? "Аудит приостановлен" : "Цепочка не подтверждена",
+      title: tutorialGrace ? "Первая ошибка не расходует попытку" : exhausted ? "Запас попыток исчерпан" : `Нужно пересмотреть: ${wrong.length}`,
+      copy: tutorialGrace
+        ? `${tutorialCopy} Верные звенья сохранены, а вопрос с ошибкой открыт снова.`
+        : exhausted
+        ? "Факты уже собраны. Перезапустите стол и заново сопоставьте причину, решение и проверку."
         : `Пересмотрите звенья «${wrong.map((role) => CHAPTER4_ROLE_NAMES[role].toLowerCase()).join("», «") }». Верные звенья можно оставить на месте.`,
       action: exhausted ? "retry" : "dismiss",
-      actionLabel: exhausted ? "Перезапустить стол" : "Исправить цепочку"
+      actionLabel: exhausted ? "Перезапустить стол" : tutorialGrace ? "Продолжить с подсказкой" : "Исправить решение"
     });
     return false;
   }
