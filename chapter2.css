@@ -27,6 +27,11 @@
   color: #ffffff;
 }
 
+.chapter-switcher button:disabled {
+  opacity: 0.48;
+  cursor: not-allowed;
+}
+
 .copper-action {
   background: #fe5500;
   color: #000000;

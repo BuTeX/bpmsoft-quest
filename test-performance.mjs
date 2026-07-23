@@ -32,7 +32,7 @@ imageTags
 const scripts = [...html.matchAll(/<script\b[^>]*src="([^"]+)"/g)].map((match) => match[1]);
 assert.deepEqual(scripts, [
   "progress-core.js?v=20260723-launch-1",
-  "app.js?v=20260723-level-hints"
+  "app.js?v=20260723-city-navigation-1"
 ]);
 
 const eagerFiles = [

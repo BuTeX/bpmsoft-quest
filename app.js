@@ -895,12 +895,12 @@ function loadAdvancedChapters() {
   if (advancedChaptersPromise) return advancedChaptersPromise;
   advancedChaptersPromise = (async () => {
     await loadApplicationScript("chapter2-missions.js?v=20260721-knowledge-links");
-    await loadApplicationScript("chapter2.js?v=20260723-level-hints");
+    await loadApplicationScript("chapter2.js?v=20260723-city-navigation-1");
     await loadApplicationScript("chapter3-missions.js?v=20260721-knowledge-links");
-    await loadApplicationScript("chapter3.js?v=20260723-level-hints");
+    await loadApplicationScript("chapter3.js?v=20260723-city-navigation-1");
     await loadApplicationScript("chapter4-missions.js?v=20260721-golden-shelf-2");
-    await loadApplicationScript("chapter4.js?v=20260723-level-hints");
-    await loadApplicationScript("chapter5.js?v=20260723-c5-ux-1", true);
+    await loadApplicationScript("chapter4.js?v=20260723-city-navigation-1");
+    await loadApplicationScript("chapter5.js?v=20260723-city-navigation-1", true);
   })().catch((error) => {
     advancedChaptersPromise = null;
     throw error;
@@ -1228,6 +1228,47 @@ function loadPlayerProfile() {
 
 function isStudyMode() {
   return playerProfile?.mode === "study";
+}
+
+function setChapterNavigation(activeChapter = "chapter1") {
+  const switcher = document.getElementById("chapter-switcher");
+  const chapterIds = [
+    "show-first-chapter",
+    "show-second-chapter",
+    "show-third-chapter",
+    "show-fourth-chapter",
+    "show-fifth-chapter"
+  ];
+  const chapterNames = ["Академия", "Медные машины", "Семь дорог", "Золотая полка", "Гуд Авиа"];
+  const buttons = chapterIds.map((id) => document.getElementById(id));
+  if (!switcher || buttons.some((button) => !button)) return;
+
+  const studyMode = isStudyMode();
+  const available = [
+    true,
+    studyMode || state.solutionMissionComplete === true,
+    studyMode || window.BPMQuestChapter2?.getState?.().contourComplete === true,
+    studyMode || window.BPMQuestChapter3?.getState?.().orbitComplete === true,
+    studyMode || window.BPMQuestChapter4?.getState?.().transformationComplete === true
+  ];
+
+  switcher.hidden = !playerProfile;
+  switcher.setAttribute(
+    "aria-label",
+    studyMode ? "Переход между городами, все города открыты" : "Переход между городами"
+  );
+  buttons.forEach((button, index) => {
+    const chapter = `chapter${index + 1}`;
+    const active = chapter === activeChapter;
+    button.disabled = !available[index];
+    button.classList.toggle("is-active", active);
+    button.setAttribute("aria-pressed", String(active));
+    button.title = active
+      ? `Текущий город: ${chapterNames[index]}`
+      : available[index]
+        ? `Перейти в город «${chapterNames[index]}»`
+        : `Город «${chapterNames[index]}» откроется после завершения предыдущей карты`;
+  });
 }
 
 function renderPlayerProfile() {
@@ -4930,6 +4971,7 @@ function resetProgress() {
 
 function renderAll() {
   renderPlayerProfile();
+  setChapterNavigation("chapter1");
   renderAdminState();
   renderStats();
   renderMapState();
@@ -5040,6 +5082,7 @@ if (typeof window !== "undefined") {
     getState: () => state,
     getPlayerProfile: () => playerProfile,
     isStudyMode,
+    setChapterNavigation,
     scheduleChapter2ProgressSync,
     scheduleChapter3ProgressSync,
     scheduleChapter4ProgressSync,

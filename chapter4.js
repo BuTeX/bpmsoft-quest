@@ -223,25 +223,7 @@ function renderChapter4Stats() {
 }
 
 function setChapter4SwitcherState(activeChapter) {
-  const switcher = document.getElementById("chapter-switcher");
-  const buttons = [
-    document.getElementById("show-first-chapter"),
-    document.getElementById("show-second-chapter"),
-    document.getElementById("show-third-chapter"),
-    document.getElementById("show-fourth-chapter"),
-    document.getElementById("show-fifth-chapter")
-  ];
-  if (!switcher || buttons.some((button) => !button)) return;
-  const firstUnlocked = isChapter4StudyMode() || window.BPMQuestFirstChapter?.getState?.().solutionMissionComplete === true;
-  switcher.hidden = !firstUnlocked;
-  buttons[2].disabled = !(isChapter4StudyMode() || window.BPMQuestChapter3?.getState?.().orbitComplete === true || isChapter4Unlocked());
-  buttons[3].disabled = !isChapter4Unlocked();
-  buttons[4].disabled = !(isChapter4StudyMode() || chapter4State.transformationComplete === true);
-  buttons.forEach((button, index) => {
-    const active = activeChapter === ["chapter1", "chapter2", "chapter3", "chapter4", "chapter5"][index];
-    button.classList.toggle("is-active", active);
-    button.setAttribute("aria-pressed", String(active));
-  });
+  window.BPMQuestFirstChapter?.setChapterNavigation?.(activeChapter);
 }
 
 function renderChapter4Brief(key) {

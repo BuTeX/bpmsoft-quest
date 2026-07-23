@@ -306,41 +306,7 @@ function renderChapter2Stats() {
 }
 
 function setChapterSwitcherState(activeChapter) {
-  const switcher = document.getElementById("chapter-switcher");
-  const firstButton = document.getElementById("show-first-chapter");
-  const secondButton = document.getElementById("show-second-chapter");
-  const thirdButton = document.getElementById("show-third-chapter");
-  const fourthButton = document.getElementById("show-fourth-chapter");
-  const fifthButton = document.getElementById("show-fifth-chapter");
-  if (!switcher || !firstButton || !secondButton) return;
-  switcher.hidden = !isChapter2Unlocked();
-  const firstActive = activeChapter === "chapter1";
-  const secondActive = activeChapter === "chapter2";
-  const thirdActive = activeChapter === "chapter3";
-  const fourthActive = activeChapter === "chapter4";
-  const fifthActive = activeChapter === "chapter5";
-  firstButton.classList.toggle("is-active", firstActive);
-  secondButton.classList.toggle("is-active", secondActive);
-  firstButton.setAttribute("aria-pressed", String(firstActive));
-  secondButton.setAttribute("aria-pressed", String(secondActive));
-  if (thirdButton) {
-    const thirdUnlocked = isChapter2StudyMode() || chapter2State.contourComplete === true;
-    thirdButton.disabled = !thirdUnlocked;
-    thirdButton.classList.toggle("is-active", thirdActive);
-    thirdButton.setAttribute("aria-pressed", String(thirdActive));
-  }
-  if (fourthButton) {
-    const fourthUnlocked = isChapter2StudyMode() || window.BPMQuestChapter3?.getState?.().orbitComplete === true;
-    fourthButton.disabled = !fourthUnlocked;
-    fourthButton.classList.toggle("is-active", fourthActive);
-    fourthButton.setAttribute("aria-pressed", String(fourthActive));
-  }
-  if (fifthButton) {
-    const fifthUnlocked = isChapter2StudyMode() || window.BPMQuestChapter4?.getState?.().transformationComplete === true;
-    fifthButton.disabled = !fifthUnlocked;
-    fifthButton.classList.toggle("is-active", fifthActive);
-    fifthButton.setAttribute("aria-pressed", String(fifthActive));
-  }
+  window.BPMQuestFirstChapter?.setChapterNavigation?.(activeChapter);
 }
 
 function renderChapter2Brief(key) {
@@ -485,9 +451,6 @@ function applyChapter2AccessMode(previousMode = null) {
 function initializeChapter2Map() {
   const mapView = document.getElementById("chapter2-map-view");
   if (!mapView) return;
-  const unlocked = isChapter2Unlocked();
-  const switcher = document.getElementById("chapter-switcher");
-  if (switcher) switcher.hidden = !unlocked;
   setChapterSwitcherState("chapter1");
 
   document.getElementById("finale-chapter2-action")?.addEventListener("click", () => activateChapter2Map());

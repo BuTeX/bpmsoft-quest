@@ -209,18 +209,7 @@ function showView(id) {
 }
 
 function setSwitcher(activeChapter) {
-  const switcher = document.getElementById("chapter-switcher");
-  const buttons = [1, 2, 3, 4, 5].map((number) => document.getElementById([
-    "show-first-chapter", "show-second-chapter", "show-third-chapter", "show-fourth-chapter", "show-fifth-chapter"
-  ][number - 1]));
-  if (!switcher || buttons.some((button) => !button)) return;
-  switcher.hidden = !(isStudyMode() || window.BPMQuestFirstChapter?.getState?.().solutionMissionComplete === true);
-  buttons[4].disabled = !isUnlocked();
-  buttons.forEach((button, index) => {
-    const active = activeChapter === `chapter${index + 1}`;
-    button.classList.toggle("is-active", active);
-    button.setAttribute("aria-pressed", String(active));
-  });
+  window.BPMQuestFirstChapter?.setChapterNavigation?.(activeChapter);
 }
 
 function renderStats() {

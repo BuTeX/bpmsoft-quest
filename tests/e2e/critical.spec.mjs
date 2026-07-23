@@ -43,6 +43,9 @@ test("critical player journey loads all maps and protects modal focus", async ({
 
   await expect(page.locator("#player-profile")).toBeVisible({ timeout: 30_000 });
   await expect(page.locator("#map-title")).toHaveText("Базовый курс");
+  await expect(page.locator("#chapter-switcher")).toBeVisible();
+  await expect(page.locator("#show-first-chapter")).toBeEnabled();
+  await expect(page.locator("#show-second-chapter")).toBeDisabled();
   await expect(page.locator("script[src^='chapter4.js']")).toHaveCount(1);
   await expect(page.locator("script[src^='chapter5.js']")).toHaveCount(1);
 
@@ -55,8 +58,19 @@ test("critical player journey loads all maps and protects modal focus", async ({
   await page.locator("#player-profile").click();
   await expect(page.locator("#player-access-modal")).toBeVisible();
   await expect(page.locator("main")).toHaveAttribute("inert", "");
-  await page.locator("#player-access-cancel").click();
+  await page.getByText("Изучение и осмотр", { exact: true }).click();
+  await expect(page.locator("#player-mode-study")).toBeChecked();
+  await page.locator("#player-access-submit").click();
   await expect(page.locator("#player-access-modal")).toBeHidden();
+  for (const id of ["show-first-chapter", "show-second-chapter", "show-third-chapter", "show-fourth-chapter", "show-fifth-chapter"]) {
+    await expect(page.locator(`#${id}`)).toBeEnabled();
+  }
+  await page.locator("#show-fifth-chapter").click();
+  await expect(page.locator("#chapter5-prologue")).toBeVisible();
+  await page.locator("#chapter5-prologue-start").click();
+  await expect(page.locator("#show-fifth-chapter")).toHaveClass(/is-active/);
+  await page.locator("#show-first-chapter").click();
+  await expect(page.locator("#map-title")).toHaveText("Все задания Академии");
 
   await page.goto("/update");
   await expect(page.locator("html")).toHaveClass(/visual-update/);

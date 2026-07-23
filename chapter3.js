@@ -209,24 +209,7 @@ function renderChapter3Stats() {
 }
 
 function setChapter3SwitcherState(activeChapter) {
-  const switcher = document.getElementById("chapter-switcher");
-  const first = document.getElementById("show-first-chapter");
-  const second = document.getElementById("show-second-chapter");
-  const third = document.getElementById("show-third-chapter");
-  const fourth = document.getElementById("show-fourth-chapter");
-  const fifth = document.getElementById("show-fifth-chapter");
-  if (!switcher || !first || !second || !third || !fourth || !fifth) return;
-  const firstUnlocked = isChapter3StudyMode() || window.BPMQuestFirstChapter?.getState?.().solutionMissionComplete === true;
-  switcher.hidden = !firstUnlocked;
-  third.disabled = !isChapter3Unlocked();
-  fourth.disabled = !(isChapter3StudyMode() || chapter3State.orbitComplete === true);
-  fifth.disabled = !(isChapter3StudyMode() || window.BPMQuestChapter4?.getState?.().transformationComplete === true);
-  [first, second, third, fourth, fifth].forEach((button, index) => {
-    const key = ["chapter1", "chapter2", "chapter3", "chapter4", "chapter5"][index];
-    const active = activeChapter === key;
-    button.classList.toggle("is-active", active);
-    button.setAttribute("aria-pressed", String(active));
-  });
+  window.BPMQuestFirstChapter?.setChapterNavigation?.(activeChapter);
 }
 
 function renderChapter3Brief(key) {

@@ -27,6 +27,7 @@ const assert = (condition, message) => {
 
 assert(source.includes("beginChapter2Mission(button.dataset.c2Zone);"), "Chapter 2 map clicks do not open missions directly");
 assert(source.includes('button.addEventListener("focus", previewMission);'), "Chapter 2 map cards do not refresh the mission preview on keyboard focus");
+assert(source.includes("setChapterNavigation?.(activeChapter)"), "Chapter 2 does not use the shared city navigation");
 assert(api.storageKey === "bpmsoft-quest-chapter2-v1", "Chapter 2 uses an unexpected storage key");
 assert(api.missionKeys.length === 9, "Chapter 2 does not define nine missions");
 assert(api.completionFlags.length === 9, "Chapter 2 does not define nine completion flags");

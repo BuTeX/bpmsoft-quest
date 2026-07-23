@@ -12,6 +12,7 @@ assert.match(source, /diagnosisSelectionPending/, "Chapter 5 still auto-selects 
 assert.match(source, /confirmedControlIds/, "Chapter 5 does not preserve confirmed rule choices");
 assert.match(source, /buildFeedbackDetails/, "Chapter 5 causal feedback is missing");
 assert.match(source, /showNextContextHint/, "Chapter 5 contextual hint ladder is missing");
+assert.match(source, /setChapterNavigation\?\.\(activeChapter\)/, "Chapter 5 does not use the shared city navigation");
 assert.equal(
   source.match(/button\.addEventListener\("click", \(\) => beginMission\(key\)\);/g)?.length,
   2,

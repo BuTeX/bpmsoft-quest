@@ -112,6 +112,7 @@ const exports = `
     setState: (nextState) => { state = nextState; },
     getPlayerProfile: () => playerProfile,
     setPlayerProfile: (nextProfile) => { playerProfile = normalizePlayerProfile(nextProfile); },
+    setChapterNavigation,
     loadState,
     saveState,
     renderAll,
@@ -144,6 +145,22 @@ const api = context.__missionTest;
 const assert = (condition, message) => {
   if (!condition) throw new Error(message);
 };
+
+api.setPlayerProfile({ id: "navigation-test", displayName: "Навигатор", mode: "progression" });
+api.setState({ ...api.initialState });
+api.setChapterNavigation("chapter1");
+assert(elements.get("chapter-switcher").hidden === false, "City navigation is hidden for an authenticated progression account");
+assert(elements.get("show-first-chapter").disabled === false, "The current city is disabled");
+assert(elements.get("show-second-chapter").disabled === true, "A future progression city is available too early");
+
+api.setPlayerProfile({ id: "navigation-test", displayName: "Навигатор", mode: "study" });
+api.setChapterNavigation("chapter4");
+["show-first-chapter", "show-second-chapter", "show-third-chapter", "show-fourth-chapter", "show-fifth-chapter"].forEach((id) => {
+  assert(elements.get(id).disabled === false, `${id}: study-mode city transition is disabled`);
+});
+assert(elements.get("show-fourth-chapter").classList.values.has("is-active"), "Active city is not reflected in navigation");
+api.setPlayerProfile(null);
+api.setState({ ...api.initialState });
 
 assert(api.getFirstChapterHintContext() === "c1:interface:answer:0", "The first sequence hint targets the wrong answer");
 api.getState().selected.push("workspace");
