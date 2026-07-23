@@ -3,6 +3,8 @@ const ADMIN_SESSION_KEY = "bpmsoft-quest-admin";
 const PLAYER_PROFILE_KEY = "bpmsoft-quest-player-profile-v1";
 const ACCOUNT_CACHE_ID_KEY = "bpmsoft-quest-account-cache-v1";
 const STORAGE_UPDATED_AT_KEY = "bpmsoft-quest-updated-at";
+const LEARNING_EVENT_QUEUE_KEY = "bpmsoft-quest-learning-events-v1";
+const LEARNING_SESSION_ID_KEY = "bpmsoft-quest-learning-session-v1";
 const MISSION_KEYS = ["interface", "data", "access", "process", "case", "integration", "insight", "classification", "solution"];
 const COMPLETION_FLAGS = [
   "missionComplete",
@@ -21,6 +23,18 @@ let remoteChapter2SyncTimer = null;
 let remoteChapter3SyncTimer = null;
 let remoteChapter4SyncTimer = null;
 let remoteChapter5SyncTimer = null;
+let learningEventSyncTimer = null;
+let learningEventQueue = loadLearningEventQueue();
+const missionStartedAt = new Map();
+let sessionStartTracked = false;
+let advancedChaptersPromise = null;
+const progressRevisions = {
+  chapter1: 0,
+  chapter2: 0,
+  chapter3: 0,
+  chapter4: 0,
+  chapter5: 0
+};
 
 const missions = {
   interface: {
@@ -40,7 +54,7 @@ const missions = {
       "Куратор выпускного курса передал тебе первый запрос с учебного стенда. Менеджерам отдела продаж нужно открывать список клиентов, переходить в карточку выбранного клиента и сразу видеть связанные активности.",
       "Определи правильную последовательность элементов интерфейса BPMSoft. Комиссия оценивает не скорость ответа, а понимание того, какую задачу решает каждый уровень навигации."
     ],
-    scene: "assets/mission-interface-hub.png",
+    scene: "assets/optimized/mission-interface-hub.jpg",
     sceneAlt: "Учебный стенд с разделами, карточками и связанными данными",
     sceneKicker: "Запрос учебного заказчика",
     sceneSteps: [
@@ -100,7 +114,7 @@ const missions = {
       "Аналитики учебного проекта обсуждают новую карточку клиента, но по-разному используют слова «объект», «поле», «справочник», «деталь» и «связь». Из-за этого требования нельзя передать команде настройки.",
       "Сопоставь каждый термин с точным определением и не смешивай элементы интерфейса с конструкциями данных. Результат станет словарём проекта и основой для следующих заданий."
     ],
-    scene: "assets/mission-data-forge.png",
+    scene: "assets/optimized/mission-data-forge.jpg",
     sceneAlt: "Учебная лаборатория модели данных BPMSoft",
     sceneKicker: "Рабочая модель данных",
     sceneInteraction: "forge",
@@ -169,7 +183,7 @@ const missions = {
       "Администратор учебной среды готовит доступ для отдела продаж. В требованиях смешаны подразделения, должностные обязанности и ограничения на операции, отдельные записи и поля.",
       "Разбери пять требований и назови механизм BPMSoft, который действительно отвечает за каждую границу. Настройка интерфейса сама по себе не считается ограничением доступа."
     ],
-    scene: "assets/mission-access-citadel.png",
+    scene: "assets/optimized/mission-access-citadel.jpg",
     sceneAlt: "Учебный стенд настройки ролей и прав доступа",
     sceneKicker: "Пять требований к доступу",
     sceneInteraction: "citadel",
@@ -263,7 +277,7 @@ const missions = {
       "CRM-координатор учебного заказчика хочет сократить ручную обработку почты. Когда приходит подходящее письмо, BPMSoft должна проверить условия, прочитать данные сообщения и создать лид или активность.",
       "Собери исполняемую последовательность от стартового события до завершения процесса. Не добавляй в схему элементы, которые относятся к интерфейсу, аналитике или DCM-кейсам."
     ],
-    scene: "assets/mission-process-engine.png",
+    scene: "assets/optimized/mission-process-engine.jpg",
     sceneAlt: "Учебная схема обработки входящей почты",
     sceneKicker: "Последовательность процесса",
     sceneInteraction: "engine",
@@ -332,7 +346,7 @@ const missions = {
       "Владелец учебного процесса описал жизненный цикл заявки: «Новая», «В работе», «На согласовании» и «Закрыта». На каждой стадии должны выполняться понятные действия, а переходы не должны зависеть только от памяти сотрудника.",
       "Назначь механизм BPMSoft каждому правилу: проверке комплектности, согласованию, уведомлению, автоматическому переходу и положительному завершению."
     ],
-    scene: "assets/mission-case-arena.png",
+    scene: "assets/optimized/mission-case-arena.jpg",
     sceneAlt: "Учебная схема жизненного цикла заявки",
     sceneKicker: "Маршрут обработки заявки",
     sceneInteraction: "arena",
@@ -402,7 +416,7 @@ const missions = {
       "Интеграционный специалист учебного заказчика предоставил контракт: внешний портал отправляет заявки в BPMSoft методом POST в формате JSON и ожидает регистрационный номер в том же вызове.",
       "Повтор после сетевой ошибки не должен создавать вторую заявку, а запрос без JWT необходимо отклонить до изменения данных. Настрой пять частей интеграции и проверь три контрольных запроса."
     ],
-    scene: "assets/mission-integration-harbor.png",
+    scene: "assets/optimized/mission-integration-harbor.jpg",
     sceneAlt: "Учебный стенд входящей интеграции с внешним порталом",
     sceneKicker: "Пять частей контракта",
     sceneInteraction: "harbor",
@@ -513,7 +527,7 @@ const missions = {
       "Руководителю учебной службы поддержки нужна оперативная панель. На одном экране он хочет видеть количество открытых обращений, недельную динамику, конкретные просрочки, загрузку операторов и выполнение SLA.",
       "Подбери вид дашборда под каждый управленческий вопрос. Важно не просто показать данные, а выбрать форму, по которой руководитель сможет принять решение."
     ],
-    scene: "assets/mission-insight-tower.png",
+    scene: "assets/optimized/mission-insight-tower.jpg",
     sceneAlt: "Учебная панель аналитики клиентского сервиса",
     sceneKicker: "Вопрос руководителя",
     sceneInteraction: "dialog",
@@ -609,7 +623,7 @@ const missions = {
       "Руководитель предпроектной группы прислал двенадцать требований потенциального заказчика. Часть уже покрывается продуктом, часть требует настройки или интеграции, а по нескольким пунктам пока не хватает лицензий и технического контракта.",
       "Классифицируй требования до оценки сроков. Не отправляй задачу в разработку, если её решает стандартный механизм, и оставляй TBD там, где решение нельзя подтвердить исходными данными."
     ],
-    scene: "assets/mission-solution-gate.png",
+    scene: "assets/optimized/mission-solution-gate.jpg",
     sceneAlt: "Рабочая сессия по оценке двенадцати требований",
     sceneKicker: "Предпроектная классификация",
     scenario: "Разложите 12 требований по пяти повторно используемым категориям. Не отправляйте задачу в разработку, пока её решает платформа, и выбирайте TBD, когда данных действительно недостаточно.",
@@ -742,7 +756,7 @@ const missions = {
       "Выпускная комиссия подготовила итоговый кейс: службе поддержки нужна система регистрации и обработки обращений. В решении должны быть карточка, справочник категорий, разграничение доступа, управляемые стадии, эскалация и оперативная аналитика.",
       "Собери минимально достаточную конфигурацию и проведи три приёмочных проверки: регистрацию обращения, доступ сотрудника другого подразделения и автоматическую эскалацию."
     ],
-    scene: "assets/mission-city-nexus.png",
+    scene: "assets/optimized/mission-city-nexus.jpg",
     sceneAlt: "Схема выпускного решения для обработки обращений",
     sceneKicker: "Архитектура выпускного проекта",
     scenario: "Выпускная комиссия просит связать интерфейс, справочник, доступ, жизненный цикл, уведомление и аналитику в одно минимальное решение. После сборки проверьте регистрацию, доступ и эскалацию.",
@@ -866,6 +880,156 @@ const missions = {
   }
 };
 
+function loadApplicationScript(source, module = false) {
+  return new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = source;
+    if (module) script.type = "module";
+    script.addEventListener("load", resolve, { once: true });
+    script.addEventListener("error", () => reject(new Error(`Failed to load ${source}`)), { once: true });
+    document.head.append(script);
+  });
+}
+
+function loadAdvancedChapters() {
+  if (advancedChaptersPromise) return advancedChaptersPromise;
+  advancedChaptersPromise = (async () => {
+    await loadApplicationScript("chapter2-missions.js?v=20260721-knowledge-links");
+    await loadApplicationScript("chapter2.js?v=20260723-level-hints");
+    await loadApplicationScript("chapter3-missions.js?v=20260721-knowledge-links");
+    await loadApplicationScript("chapter3.js?v=20260723-level-hints");
+    await loadApplicationScript("chapter4-missions.js?v=20260721-golden-shelf-2");
+    await loadApplicationScript("chapter4.js?v=20260723-level-hints");
+    await loadApplicationScript("chapter5.js?v=20260723-c5-ux-1", true);
+  })().catch((error) => {
+    advancedChaptersPromise = null;
+    throw error;
+  });
+  return advancedChaptersPromise;
+}
+
+function initializeDialogManager() {
+  if (typeof MutationObserver !== "function" || !document.body) return;
+  const focusableSelector = [
+    "a[href]",
+    "button:not([disabled])",
+    "input:not([disabled])",
+    "select:not([disabled])",
+    "textarea:not([disabled])",
+    "[tabindex]:not([tabindex='-1'])"
+  ].join(",");
+  let activeDialog = null;
+  let returnFocus = null;
+  let inertRecords = [];
+
+  const isVisible = (element) => {
+    for (let current = element; current; current = current.parentElement) {
+      if (current.hidden) return false;
+    }
+    return typeof getComputedStyle !== "function" || getComputedStyle(element).display !== "none";
+  };
+
+  const getFocusable = (dialog) => [...dialog.querySelectorAll(focusableSelector)]
+    .filter((element) => isVisible(element) && element.getAttribute("aria-hidden") !== "true");
+
+  const restoreBackground = () => {
+    inertRecords.forEach(({ element, inert, ariaHidden }) => {
+      element.inert = inert;
+      if (ariaHidden == null) element.removeAttribute("aria-hidden");
+      else element.setAttribute("aria-hidden", ariaHidden);
+    });
+    inertRecords = [];
+  };
+
+  const isolateDialog = (dialog) => {
+    let node = dialog;
+    while (node?.parentElement) {
+      const parent = node.parentElement;
+      [...parent.children].forEach((sibling) => {
+        if (sibling === node || sibling.contains(dialog)) return;
+        inertRecords.push({
+          element: sibling,
+          inert: sibling.inert === true,
+          ariaHidden: sibling.getAttribute("aria-hidden")
+        });
+        sibling.inert = true;
+        sibling.setAttribute("aria-hidden", "true");
+      });
+      if (parent === document.body) break;
+      node = parent;
+    }
+  };
+
+  const focusFirst = (dialog) => {
+    const target = getFocusable(dialog)[0] || dialog;
+    if (target === dialog && !dialog.hasAttribute("tabindex")) dialog.setAttribute("tabindex", "-1");
+    target.focus?.({ preventScroll: true });
+  };
+
+  const updateActiveDialog = () => {
+    const visibleDialogs = [...document.querySelectorAll('[role="dialog"][aria-modal="true"]')]
+      .filter(isVisible);
+    const nextDialog = visibleDialogs.at(-1) || null;
+    if (nextDialog === activeDialog) return;
+
+    restoreBackground();
+    const previousDialog = activeDialog;
+    activeDialog = nextDialog;
+    if (!nextDialog) {
+      const focusTarget = returnFocus;
+      returnFocus = null;
+      if (focusTarget?.isConnected) focusTarget.focus?.({ preventScroll: true });
+      return;
+    }
+
+    if (!previousDialog || !previousDialog.contains(document.activeElement)) {
+      returnFocus = document.activeElement;
+    }
+    isolateDialog(nextDialog);
+    if (!nextDialog.contains(document.activeElement)) focusFirst(nextDialog);
+  };
+
+  document.addEventListener("keydown", (event) => {
+    if (!activeDialog) return;
+    if (event.key === "Escape") {
+      const dismiss = getFocusable(activeDialog).find((element) => element.matches("[data-dialog-dismiss]"));
+      if (dismiss) {
+        event.preventDefault();
+        dismiss.click();
+      }
+      return;
+    }
+    if (event.key !== "Tab") return;
+    const focusable = getFocusable(activeDialog);
+    if (!focusable.length) {
+      event.preventDefault();
+      focusFirst(activeDialog);
+      return;
+    }
+    const first = focusable[0];
+    const last = focusable.at(-1);
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  }, true);
+
+  document.addEventListener("focusin", (event) => {
+    if (activeDialog && !activeDialog.contains(event.target)) focusFirst(activeDialog);
+  });
+
+  const observer = new MutationObserver(updateActiveDialog);
+  observer.observe(document.body, {
+    subtree: true,
+    attributes: true,
+    attributeFilter: ["hidden", "class", "style"]
+  });
+  updateActiveDialog();
+}
+
 const initialState = {
   xp: 0,
   energy: 3,
@@ -915,6 +1079,7 @@ const legacyPlayerProfile = loadPlayerProfile();
 let playerProfile = null;
 let playerAccessMode = "login";
 let playerAccessBusy = false;
+let pendingPasswordResetToken = null;
 let state = loadState();
 let adminActive = loadAdminSession();
 let adminDialogMode = "login";
@@ -935,6 +1100,17 @@ const elements = {
   playerPassword: document.getElementById("player-password"),
   playerPasswordConfirmField: document.getElementById("player-password-confirm-field"),
   playerPasswordConfirm: document.getElementById("player-password-confirm"),
+  playerPasswordReset: document.getElementById("player-password-reset"),
+  playerModeFieldset: document.getElementById("player-mode-fieldset"),
+  playerConsentFields: document.getElementById("player-consent-fields"),
+  playerTermsAccepted: document.getElementById("player-terms-accepted"),
+  playerPrivacyAccepted: document.getElementById("player-privacy-accepted"),
+  playerAccountActions: document.getElementById("player-account-actions"),
+  playerEmailStatus: document.getElementById("player-email-status"),
+  playerChangePassword: document.getElementById("player-change-password"),
+  playerChangeEmail: document.getElementById("player-change-email"),
+  playerExportData: document.getElementById("player-export-data"),
+  playerDeleteAccount: document.getElementById("player-delete-account"),
   playerModeProgression: document.getElementById("player-mode-progression"),
   playerModeStudy: document.getElementById("player-mode-study"),
   playerAuthSecurity: document.getElementById("player-auth-security"),
@@ -1038,7 +1214,8 @@ function normalizePlayerProfile(value) {
   const mode = value.mode === "study" ? "study" : value.mode === "progression" ? "progression" : null;
   const email = typeof value.email === "string" ? value.email.trim().toLowerCase().slice(0, 254) : "";
   const id = typeof value.id === "string" ? value.id : "";
-  return name.length >= 2 && mode ? { id, email, name, mode } : null;
+  const emailVerified = value.emailVerified === true;
+  return name.length >= 2 && mode ? { id, email, name, mode, emailVerified } : null;
 }
 
 function loadPlayerProfile() {
@@ -1072,9 +1249,10 @@ function renderPlayerProfile() {
   elements.playerProfile.title = playerProfile.email ? `${playerProfile.email} · настройки аккаунта` : "Настройки аккаунта";
 }
 
-function setPlayerAccessError(message = "") {
+function setPlayerAccessError(message = "", success = false) {
   elements.playerAccessError.textContent = message;
   elements.playerAccessError.hidden = !message;
+  elements.playerAccessError.classList.toggle("is-success", Boolean(message) && success);
 }
 
 function setPlayerAccessBusy(busy) {
@@ -1084,10 +1262,15 @@ function setPlayerAccessBusy(busy) {
   elements.playerLogout.disabled = busy;
   elements.playerLoginTab.disabled = busy;
   elements.playerRegisterTab.disabled = busy;
+  elements.playerPasswordReset.disabled = busy;
   elements.playerAccessSubmit.textContent = busy
     ? "Подключаемся…"
     : playerAccessMode === "register"
       ? "Создать аккаунт"
+      : playerAccessMode === "reset"
+        ? "Отправить ссылку"
+        : playerAccessMode === "reset-confirm"
+          ? "Сохранить новый пароль"
       : playerAccessMode === "profile"
         ? "Сохранить настройки"
         : "Войти в академию";
@@ -1097,21 +1280,36 @@ function configurePlayerAccess(mode) {
   playerAccessMode = mode;
   const profileMode = mode === "profile";
   const registrationMode = mode === "register";
-  const selectedMode = playerProfile?.mode || legacyPlayerProfile?.mode || "progression";
+  const resetRequestMode = mode === "reset";
+  const resetConfirmMode = mode === "reset-confirm";
+  const requestedMode = typeof location !== "undefined"
+    ? new URLSearchParams(location.search).get("mode")
+    : null;
+  const selectedMode = playerProfile?.mode
+    || legacyPlayerProfile?.mode
+    || (requestedMode === "study" ? "study" : "progression");
 
-  elements.playerAuthTabs.hidden = profileMode;
+  elements.playerAuthTabs.hidden = profileMode || resetRequestMode || resetConfirmMode;
   elements.playerLoginTab.setAttribute("aria-selected", String(mode === "login"));
   elements.playerRegisterTab.setAttribute("aria-selected", String(registrationMode));
-  elements.playerNameField.hidden = mode === "login";
+  elements.playerNameField.hidden = mode === "login" || resetRequestMode || resetConfirmMode;
   elements.playerName.required = registrationMode || profileMode;
   elements.playerEmail.disabled = profileMode;
-  elements.playerPasswordField.hidden = profileMode;
-  elements.playerPassword.required = !profileMode;
-  elements.playerPasswordConfirmField.hidden = !registrationMode;
-  elements.playerPasswordConfirm.required = registrationMode;
-  elements.playerPassword.setAttribute("autocomplete", registrationMode ? "new-password" : "current-password");
+  elements.playerEmailField.hidden = resetConfirmMode;
+  elements.playerEmail.required = !resetConfirmMode;
+  elements.playerPasswordField.hidden = profileMode || resetRequestMode;
+  elements.playerPassword.required = !profileMode && !resetRequestMode;
+  elements.playerPasswordConfirmField.hidden = !registrationMode && !resetConfirmMode;
+  elements.playerPasswordConfirm.required = registrationMode || resetConfirmMode;
+  elements.playerPassword.setAttribute("autocomplete", registrationMode || resetConfirmMode ? "new-password" : "current-password");
+  elements.playerPasswordReset.hidden = mode !== "login";
+  elements.playerModeFieldset.hidden = resetRequestMode || resetConfirmMode;
+  elements.playerConsentFields.hidden = !registrationMode;
+  elements.playerTermsAccepted.required = registrationMode;
+  elements.playerPrivacyAccepted.required = registrationMode;
+  elements.playerAccountActions.hidden = !profileMode;
   elements.playerLogout.hidden = !profileMode;
-  elements.playerAccessCancel.hidden = !profileMode;
+  elements.playerAccessCancel.hidden = !profileMode && !resetRequestMode && !resetConfirmMode;
   elements.playerModeStudy.checked = selectedMode === "study";
   elements.playerModeProgression.checked = selectedMode !== "study";
 
@@ -1122,11 +1320,24 @@ function configurePlayerAccess(mode) {
     elements.playerEmail.value = playerProfile?.email || "";
     elements.playerPassword.value = "";
     elements.playerPasswordConfirm.value = "";
+    elements.playerEmailStatus.textContent = playerProfile?.emailVerified
+      ? "Email подтверждён."
+      : "Email ещё не подтверждён.";
     elements.playerAuthSecurity.textContent = "Прогресс пяти карт и 45 заданий синхронизируется с аккаунтом в режиме прохождения.";
   } else if (registrationMode) {
     elements.playerAccessTitle.textContent = "Создайте аккаунт аналитика";
     elements.playerAccessCopy.textContent = "Email и пароль позволят продолжить прохождение на другом устройстве.";
     elements.playerAuthSecurity.textContent = "Пароль хранится только в виде стойкого scrypt-хеша. Минимальная длина — 10 символов.";
+  } else if (resetRequestMode) {
+    elements.playerAccessTitle.textContent = "Восстановление пароля";
+    elements.playerAccessCopy.textContent = "Введите email. Если аккаунт существует, мы отправим одноразовую ссылку.";
+    elements.playerAuthSecurity.textContent = "Ссылка действует один час и становится недействительной после первого использования.";
+  } else if (resetConfirmMode) {
+    elements.playerAccessTitle.textContent = "Новый пароль";
+    elements.playerAccessCopy.textContent = "Задайте новый пароль длиной не менее 10 символов.";
+    elements.playerPassword.value = "";
+    elements.playerPasswordConfirm.value = "";
+    elements.playerAuthSecurity.textContent = "После смены пароля все прежние сессии будут завершены.";
   } else {
     elements.playerAccessTitle.textContent = "С возвращением";
     elements.playerAccessCopy.textContent = "Войдите в аккаунт — прогресс пяти карт восстановится автоматически.";
@@ -1145,6 +1356,12 @@ function openPlayerAccess(mode = playerProfile ? "profile" : "login") {
 }
 
 function closePlayerAccess() {
+  if (playerAccessMode === "reset" || playerAccessMode === "reset-confirm") {
+    pendingPasswordResetToken = null;
+    configurePlayerAccess("login");
+    elements.playerEmail.focus?.();
+    return;
+  }
   if (!playerProfile) return;
   elements.playerAccessModal.hidden = true;
   elements.playerAccessError.hidden = true;
@@ -1171,6 +1388,8 @@ function prepareAccountCache(accountId) {
       window.BPMQuestChapter3?.setState?.(window.BPMQuestChapter3.initialState);
       window.BPMQuestChapter4?.setState?.(window.BPMQuestChapter4.initialState);
       window.BPMQuestChapter5?.setState?.(window.BPMQuestChapter5.initialState);
+      learningEventQueue = learningEventQueue.filter((event) => event?.accountId === accountId);
+      saveLearningEventQueue();
     }
     localStorage.setItem(ACCOUNT_CACHE_ID_KEY, accountId);
     localStorage.removeItem(PLAYER_PROFILE_KEY);
@@ -1182,6 +1401,57 @@ function prepareAccountCache(accountId) {
 async function submitPlayerAccess(event) {
   event.preventDefault();
   if (playerAccessBusy) return;
+  if (playerAccessMode === "reset" || playerAccessMode === "reset-confirm") {
+    const resetWasRequest = playerAccessMode === "reset";
+    const email = elements.playerEmail.value.trim().toLowerCase();
+    const password = elements.playerPassword.value;
+    if (playerAccessMode === "reset" && !/^\S+@\S+\.\S+$/.test(email)) {
+      setPlayerAccessError("Введите корректный email.");
+      return;
+    }
+    if (playerAccessMode === "reset-confirm" && (
+      password.length < 10
+      || password.length > 128
+      || password !== elements.playerPasswordConfirm.value
+      || !pendingPasswordResetToken
+    )) {
+      setPlayerAccessError("Проверьте пароль и его подтверждение.");
+      return;
+    }
+    setPlayerAccessBusy(true);
+    try {
+      const endpoint = resetWasRequest
+        ? "/api/auth/password-reset/request"
+        : "/api/auth/password-reset/confirm";
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify(resetWasRequest
+          ? { email }
+          : { token: pendingPasswordResetToken, password })
+      });
+      if (!response.ok) {
+        setPlayerAccessError(resetWasRequest
+          ? "Не удалось отправить ссылку. Попробуйте позже."
+          : "Ссылка недействительна или устарела. Запросите новую.");
+        return;
+      }
+      pendingPasswordResetToken = null;
+      history.replaceState({}, "", location.pathname);
+      configurePlayerAccess("login");
+      setPlayerAccessError(
+        resetWasRequest
+          ? "Если аккаунт существует, ссылка отправлена на указанный email."
+          : "Пароль изменён. Теперь войдите с новым паролем.",
+        true
+      );
+    } catch {
+      setPlayerAccessError("Сервис аккаунтов временно недоступен.");
+    } finally {
+      setPlayerAccessBusy(false);
+    }
+    return;
+  }
   const displayName = elements.playerName.value.trim().replace(/\s+/g, " ").slice(0, 40);
   const email = elements.playerEmail.value.trim().toLowerCase();
   const password = elements.playerPassword.value;
@@ -1217,7 +1487,18 @@ async function submitPlayerAccess(event) {
       headers: { "Content-Type": "application/json", "Accept": "application/json" },
       body: JSON.stringify(playerAccessMode === "profile"
         ? { displayName, mode }
-        : { email, password, mode, ...(playerAccessMode === "register" ? { displayName } : {}) })
+        : {
+            email,
+            password,
+            mode,
+            ...(playerAccessMode === "register"
+              ? {
+                  displayName,
+                  termsAccepted: elements.playerTermsAccepted.checked,
+                  privacyAccepted: elements.playerPrivacyAccepted.checked
+                }
+              : {})
+          })
     });
     const payload = await response.json().catch(() => ({}));
     if (!response.ok) {
@@ -1225,6 +1506,8 @@ async function submitPlayerAccess(event) {
         ? "Аккаунт с таким email уже существует. Переключитесь на вход."
         : response.status === 401
           ? "Неверный email или пароль."
+          : response.status === 403 && payload.code === "email_verification_required"
+            ? "Сначала подтвердите email по ссылке из письма."
           : response.status === 429
             ? "Слишком много попыток. Подождите несколько минут."
             : "Не удалось подключиться к аккаунту. Попробуйте ещё раз.";
@@ -1234,16 +1517,25 @@ async function submitPlayerAccess(event) {
 
     const nextProfile = normalizePlayerProfile(payload.account);
     if (!nextProfile) throw new Error("Invalid account response");
+    if (payload.verificationRequired) {
+      configurePlayerAccess("login");
+      elements.playerEmail.value = nextProfile.email;
+      setPlayerAccessError("Проверьте почту и подтвердите email, затем войдите.", true);
+      return;
+    }
     prepareAccountCache(nextProfile.id);
     playerProfile = nextProfile;
     if (previousMode === "study" && playerProfile.mode === "progression") state = loadState();
+    await loadAdvancedChapters();
     closePlayerAccess();
     renderAll();
     window.BPMQuestChapter2?.applyAccessMode?.(previousMode);
     window.BPMQuestChapter3?.applyAccessMode?.(previousMode);
     window.BPMQuestChapter4?.applyAccessMode?.(previousMode);
     window.BPMQuestChapter5?.applyAccessMode?.(previousMode);
+    trackSessionStarted(playerAccessMode);
     await syncStateFromServer();
+    await flushLearningEvents();
   } catch {
     setPlayerAccessError("Сервер входа недоступен. Проверьте соединение и повторите попытку.");
   } finally {
@@ -1251,18 +1543,15 @@ async function submitPlayerAccess(event) {
   }
 }
 
-async function logoutPlayerAccount() {
-  if (playerAccessBusy) return;
-  setPlayerAccessBusy(true);
-  try {
-    const response = await fetch("/api/auth/logout", { method: "POST", headers: { "Accept": "application/json" } });
-    if (!response.ok) throw new Error("Logout failed");
-  } catch {
-    setPlayerAccessError("Не удалось завершить серверную сессию. Проверьте соединение и повторите попытку.");
-    setPlayerAccessBusy(false);
-    return;
-  }
+function clearPlayerAccountLocally() {
   playerProfile = null;
+  sessionStartTracked = false;
+  missionStartedAt.clear();
+  try {
+    sessionStorage.removeItem(LEARNING_SESSION_ID_KEY);
+  } catch {
+    // The next authenticated session still receives a fresh in-memory identifier.
+  }
   state = { ...initialState, answerOrders: {} };
   elements.playerName.value = "";
   elements.playerEmail.value = "";
@@ -1276,6 +1565,152 @@ async function logoutPlayerAccount() {
   window.BPMQuestFirstChapter?.showMap?.();
   renderAll();
   openPlayerAccess("login");
+}
+
+async function logoutPlayerAccount() {
+  if (playerAccessBusy) return;
+  setPlayerAccessBusy(true);
+  try {
+    const response = await fetch("/api/auth/logout", { method: "POST", headers: { "Accept": "application/json" } });
+    if (!response.ok) throw new Error("Logout failed");
+  } catch {
+    setPlayerAccessError("Не удалось завершить серверную сессию. Проверьте соединение и повторите попытку.");
+    setPlayerAccessBusy(false);
+    return;
+  }
+  clearPlayerAccountLocally();
+}
+
+async function changePlayerPassword() {
+  const currentPassword = window.prompt("Введите текущий пароль:");
+  if (currentPassword == null) return;
+  const nextPassword = window.prompt("Введите новый пароль (не менее 10 символов):");
+  if (nextPassword == null) return;
+  const confirmation = window.prompt("Повторите новый пароль:");
+  if (nextPassword !== confirmation) {
+    setPlayerAccessError("Новые пароли не совпадают.");
+    return;
+  }
+  setPlayerAccessBusy(true);
+  try {
+    const response = await fetch("/api/auth/password", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      body: JSON.stringify({ currentPassword, nextPassword })
+    });
+    if (!response.ok) {
+      setPlayerAccessError("Не удалось сменить пароль. Проверьте текущий пароль.");
+      return;
+    }
+    clearPlayerAccountLocally();
+    setPlayerAccessError("Пароль изменён. Войдите снова.", true);
+  } catch {
+    setPlayerAccessError("Сервис аккаунтов временно недоступен.");
+  } finally {
+    setPlayerAccessBusy(false);
+  }
+}
+
+async function changePlayerEmail() {
+  const email = window.prompt("Введите новый email:", playerProfile?.email || "");
+  if (email == null) return;
+  setPlayerAccessBusy(true);
+  try {
+    const response = await fetch("/api/auth/email-change", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      body: JSON.stringify({ email })
+    });
+    if (!response.ok) {
+      setPlayerAccessError(response.status === 409
+        ? "Этот email уже используется."
+        : "Не удалось отправить письмо на новый email.");
+      return;
+    }
+    setPlayerAccessError("Письмо отправлено на новый email. Подтвердите изменение по ссылке.", true);
+  } catch {
+    setPlayerAccessError("Сервис аккаунтов временно недоступен.");
+  } finally {
+    setPlayerAccessBusy(false);
+  }
+}
+
+async function exportPlayerData() {
+  setPlayerAccessBusy(true);
+  try {
+    const response = await fetch("/api/account/export", { headers: { "Accept": "application/json" } });
+    if (!response.ok) throw new Error("Export failed");
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `bpmsoft-quest-export-${playerProfile?.id || "account"}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+    setPlayerAccessError("Экспорт подготовлен и скачан.", true);
+  } catch {
+    setPlayerAccessError("Не удалось подготовить экспорт данных.");
+  } finally {
+    setPlayerAccessBusy(false);
+  }
+}
+
+async function deletePlayerAccount() {
+  if (!window.confirm("Удалить аккаунт, прогресс и историю событий без возможности восстановления?")) return;
+  const password = window.prompt("Для удаления введите текущий пароль:");
+  if (password == null) return;
+  setPlayerAccessBusy(true);
+  try {
+    const response = await fetch("/api/account", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      body: JSON.stringify({ password })
+    });
+    if (!response.ok) {
+      setPlayerAccessError("Аккаунт не удалён. Проверьте пароль.");
+      return;
+    }
+    clearPlayerAccountLocally();
+    setPlayerAccessError("Аккаунт и связанные данные удалены.", true);
+  } catch {
+    setPlayerAccessError("Сервис аккаунтов временно недоступен.");
+  } finally {
+    setPlayerAccessBusy(false);
+  }
+}
+
+async function handleLifecycleLink() {
+  if (typeof location === "undefined") return false;
+  const parameters = new URLSearchParams(location.search);
+  const resetToken = parameters.get("resetToken");
+  const verifyToken = parameters.get("verifyToken");
+  if (resetToken) {
+    pendingPasswordResetToken = resetToken.slice(0, 128);
+    openPlayerAccess("reset-confirm");
+    return true;
+  }
+  if (!verifyToken) return false;
+  openPlayerAccess("login");
+  setPlayerAccessBusy(true);
+  try {
+    const response = await fetch("/api/auth/verify-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      body: JSON.stringify({ token: verifyToken.slice(0, 128) })
+    });
+    history.replaceState({}, "", location.pathname);
+    setPlayerAccessError(
+      response.ok
+        ? "Email подтверждён. Теперь войдите в аккаунт."
+        : "Ссылка подтверждения недействительна или устарела.",
+      response.ok
+    );
+  } catch {
+    setPlayerAccessError("Не удалось проверить ссылку подтверждения.");
+  } finally {
+    setPlayerAccessBusy(false);
+  }
+  return true;
 }
 
 async function restorePlayerSession() {
@@ -1294,6 +1729,7 @@ async function restorePlayerSession() {
     if (!account) throw new Error("Invalid account response");
     prepareAccountCache(account.id);
     playerProfile = account;
+    await loadAdvancedChapters();
     closePlayerAccess();
     setPlayerAccessBusy(false);
     renderAll();
@@ -1301,7 +1737,9 @@ async function restorePlayerSession() {
     window.BPMQuestChapter3?.applyAccessMode?.();
     window.BPMQuestChapter4?.applyAccessMode?.();
     window.BPMQuestChapter5?.applyAccessMode?.();
+    trackSessionStarted("restore");
     await syncStateFromServer();
+    await flushLearningEvents();
   } catch {
     openPlayerAccess("login");
     setPlayerAccessError("Не удалось проверить сессию. Войдите ещё раз.");
@@ -1565,7 +2003,8 @@ function getPersistedState(sourceState = state) {
 }
 
 function getProgressRank(sourceState) {
-  return COMPLETION_FLAGS.reduce((rank, flag) => rank + Number(sourceState[flag] === true), 0);
+  return window.BPMQuestProgressCore?.completionRank(sourceState, COMPLETION_FLAGS)
+    ?? COMPLETION_FLAGS.reduce((rank, flag) => rank + Number(sourceState[flag] === true), 0);
 }
 
 function writeLocalState(savedState, updatedAt = new Date().toISOString()) {
@@ -1577,12 +2016,176 @@ function writeLocalState(savedState, updatedAt = new Date().toISOString()) {
   }
 }
 
-async function pushAccountProgress(chapter, savedState) {
+function createClientUuid() {
+  if (typeof globalThis.crypto?.randomUUID === "function") return globalThis.crypto.randomUUID();
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (character) => {
+    const value = Math.floor(Math.random() * 16);
+    const resolved = character === "x" ? value : (value & 0x3) | 0x8;
+    return resolved.toString(16);
+  });
+}
+
+function getLearningSessionId() {
+  try {
+    const saved = typeof sessionStorage === "undefined" ? "" : sessionStorage.getItem(LEARNING_SESSION_ID_KEY);
+    if (saved) return saved;
+    const created = createClientUuid();
+    if (typeof sessionStorage !== "undefined") sessionStorage.setItem(LEARNING_SESSION_ID_KEY, created);
+    return created;
+  } catch {
+    return createClientUuid();
+  }
+}
+
+function loadLearningEventQueue() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(LEARNING_EVENT_QUEUE_KEY));
+    const cutoff = Date.now() - 89 * 86_400_000;
+    return Array.isArray(parsed)
+      ? parsed.filter((event) => new Date(event?.occurredAt).getTime() >= cutoff).slice(-200)
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveLearningEventQueue() {
+  try {
+    localStorage.setItem(LEARNING_EVENT_QUEUE_KEY, JSON.stringify(learningEventQueue.slice(-200)));
+  } catch {
+    // Telemetry remains best-effort when browser storage is unavailable.
+  }
+}
+
+async function flushLearningEvents() {
+  if (typeof fetch !== "function" || !playerProfile || learningEventQueue.length === 0) return;
+  learningEventQueue = learningEventQueue.filter((event) => event?.accountId === playerProfile.id);
+  const batch = learningEventQueue.slice(0, 50);
+  if (batch.length === 0) {
+    saveLearningEventQueue();
+    return;
+  }
+  const response = await fetch("/api/account/events", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Accept": "application/json" },
+    body: JSON.stringify({ events: batch })
+  });
+  if (response.status === 401) return;
+  if (!response.ok) throw new Error(`Learning event sync failed with status ${response.status}`);
+  const acceptedIds = new Set(batch.map((event) => event.id));
+  learningEventQueue = learningEventQueue.filter((event) => !acceptedIds.has(event.id));
+  saveLearningEventQueue();
+  if (learningEventQueue.length) scheduleLearningEventFlush();
+}
+
+function scheduleLearningEventFlush() {
+  if (typeof setTimeout !== "function" || learningEventSyncTimer || !playerProfile) return;
+  learningEventSyncTimer = setTimeout(() => {
+    learningEventSyncTimer = null;
+    flushLearningEvents().catch(() => {
+      // Events remain queued locally and will be retried after the next action or sign-in.
+    });
+  }, 300);
+}
+
+function trackLearningEvent(eventType, {
+  chapterId = "chapter1",
+  missionKey = null,
+  outcome = null,
+  attempt = null,
+  details = {}
+} = {}) {
+  if (!playerProfile) return;
+  const timingKey = missionKey ? `${chapterId}:${missionKey}` : null;
+  const now = Date.now();
+  if (eventType === "mission_started" && timingKey) missionStartedAt.set(timingKey, now);
+  const startedAt = timingKey ? missionStartedAt.get(timingKey) : null;
+  const durationMs = eventType === "mission_completed" && startedAt ? Math.max(0, now - startedAt) : null;
+  learningEventQueue.push({
+    id: createClientUuid(),
+    accountId: playerProfile.id,
+    sessionId: getLearningSessionId(),
+    chapterId,
+    missionKey,
+    eventType,
+    outcome,
+    attempt,
+    durationMs,
+    details: {
+      ...details,
+      mode: playerProfile.mode
+    },
+    occurredAt: new Date(now).toISOString()
+  });
+  if (eventType === "mission_completed" && timingKey) missionStartedAt.delete(timingKey);
+  learningEventQueue = learningEventQueue.slice(-200);
+  saveLearningEventQueue();
+  scheduleLearningEventFlush();
+}
+
+function trackSessionStarted(source = "unknown") {
+  if (!playerProfile || sessionStartTracked) return;
+  sessionStartTracked = true;
+  trackLearningEvent("session_started", {
+    details: { source }
+  });
+}
+
+function getLocalProgressUpdatedAt(chapter) {
+  const keys = {
+    chapter1: STORAGE_UPDATED_AT_KEY,
+    chapter2: "bpmsoft-quest-chapter2-updated-at",
+    chapter3: "bpmsoft-quest-chapter3-updated-at",
+    chapter4: "bpmsoft-quest-chapter4-updated-at",
+    chapter5: "bpmsoft-quest-chapter5-updated-at"
+  };
+  try {
+    return new Date(localStorage.getItem(keys[chapter]) || 0).getTime() || 0;
+  } catch {
+    return 0;
+  }
+}
+
+function getChapterProgressRank(chapter, sourceState) {
+  if (chapter === "chapter1") return getProgressRank(sourceState);
+  return window[`BPMQuestChapter${chapter.slice(-1)}`]?.getProgressRank?.(sourceState) || 0;
+}
+
+function shouldPushLocalProgress(chapter, localState, remoteProgress) {
+  if (!remoteProgress) return true;
+  const localRank = getChapterProgressRank(chapter, localState);
+  const remoteRank = getChapterProgressRank(chapter, remoteProgress.state);
+  if (localRank !== remoteRank) return localRank > remoteRank;
+  return getLocalProgressUpdatedAt(chapter) > new Date(remoteProgress.updatedAt || 0).getTime();
+}
+
+function hydrateRemoteProgress(chapter, remoteProgress) {
+  if (!remoteProgress) return;
+  progressRevisions[chapter] = Number(remoteProgress.revision) || 0;
+  if (chapter === "chapter1") {
+    const remoteState = normalizeState(remoteProgress.state);
+    remoteState.revealedLevelHints = [...new Set([
+      ...remoteState.revealedLevelHints,
+      ...state.revealedLevelHints
+    ])].slice(0, 5);
+    state = remoteState;
+    writeLocalState(getPersistedState(state), remoteProgress.updatedAt);
+  } else {
+    window[`BPMQuestChapter${chapter.slice(-1)}`]?.hydrateState?.(
+      remoteProgress.state,
+      remoteProgress.updatedAt
+    );
+  }
+  const announcer = document.getElementById("app-announcer");
+  if (announcer) announcer.textContent = "Прогресс обновлён из более новой сессии.";
+}
+
+async function pushAccountProgress(chapter, savedState, allowConflictRetry = true) {
   if (typeof fetch !== "function" || !playerProfile || isStudyMode()) return null;
   const response = await fetch(`/api/account/progress/${chapter}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json", "Accept": "application/json" },
-    body: JSON.stringify({ state: savedState })
+    body: JSON.stringify({ state: savedState, revision: progressRevisions[chapter] })
   });
   if (response.status === 401) {
     playerProfile = null;
@@ -1590,8 +2193,23 @@ async function pushAccountProgress(chapter, savedState) {
     openPlayerAccess("login");
     return null;
   }
+  if (response.status === 409) {
+    const payload = await response.json().catch(() => ({}));
+    const remoteProgress = payload.progress || null;
+    if (remoteProgress) progressRevisions[chapter] = Number(remoteProgress.revision) || 0;
+    const localRank = getChapterProgressRank(chapter, savedState);
+    const remoteRank = getChapterProgressRank(chapter, remoteProgress?.state);
+    if (allowConflictRetry && remoteProgress && localRank > remoteRank) {
+      return pushAccountProgress(chapter, savedState, false);
+    }
+    hydrateRemoteProgress(chapter, remoteProgress);
+    renderAll();
+    return payload;
+  }
   if (!response.ok) throw new Error(`Account progress sync failed with status ${response.status}`);
-  return response.json();
+  const payload = await response.json();
+  progressRevisions[chapter] = Number(payload.progress?.revision) || progressRevisions[chapter];
+  return payload;
 }
 
 function scheduleProgressSync(savedState) {
@@ -1746,6 +2364,16 @@ function useLevelHint(contextId) {
   state.revealedLevelHints = [...state.revealedLevelHints, contextId].slice(0, 5);
   saveState();
   refreshLevelHints();
+  const contextParts = contextId.split(":");
+  const contextChapter = /^c[2-5]$/.test(contextParts[0])
+    ? `chapter${contextParts[0].slice(1)}`
+    : "chapter1";
+  trackLearningEvent("hint_used", {
+    chapterId: contextChapter,
+    missionKey: contextChapter === "chapter1" ? state.activeMission : contextParts[1],
+    attempt: contextChapter === "chapter1" ? state.attempts : null,
+    details: { contextId }
+  });
   return true;
 }
 
@@ -1780,20 +2408,24 @@ async function syncStateFromServer() {
     }
     if (!response.ok) return;
     const { progress } = await response.json();
+    Object.keys(progressRevisions).forEach((chapter) => {
+      progressRevisions[chapter] = Number(progress?.[chapter]?.revision) || 0;
+    });
 
     const localChapter1 = getPersistedState();
-    const localChapter1Rank = getProgressRank(localChapter1);
     const remoteChapter1 = progress?.chapter1 || null;
     if (!remoteChapter1) {
       if (!isStudyMode()) await pushAccountProgress("chapter1", localChapter1);
     } else {
       const remoteState = normalizeState(remoteChapter1.state);
-      const remoteRank = getProgressRank(remoteState);
       const mergedHintUses = [...new Set([
         ...localChapter1.revealedLevelHints,
         ...remoteState.revealedLevelHints
       ])].slice(0, 5);
-      if (!isStudyMode() && localChapter1Rank > remoteRank) {
+      if (!isStudyMode() && (
+        shouldPushLocalProgress("chapter1", localChapter1, remoteChapter1)
+        || mergedHintUses.length > remoteState.revealedLevelHints.length
+      )) {
         state.revealedLevelHints = mergedHintUses;
         await pushAccountProgress("chapter1", {
           ...localChapter1,
@@ -1804,22 +2436,18 @@ async function syncStateFromServer() {
         state = remoteState;
         state.revealedLevelHints = mergedHintUses;
         writeLocalState(getPersistedState(state), remoteChapter1.updatedAt);
-        if (!isStudyMode() && mergedHintUses.length > remoteHintCount) {
-          await pushAccountProgress("chapter1", getPersistedState(state));
-        }
+        if (!isStudyMode() && mergedHintUses.length > remoteHintCount) await pushAccountProgress("chapter1", getPersistedState(state));
       }
     }
 
     const chapter2Api = window.BPMQuestChapter2;
     if (chapter2Api?.getPersistedState) {
       const localChapter2 = chapter2Api.getPersistedState();
-      const localChapter2Rank = chapter2Api.getProgressRank(localChapter2);
       const remoteChapter2 = progress?.chapter2 || null;
       if (!remoteChapter2) {
         if (!isStudyMode()) await pushAccountProgress("chapter2", localChapter2);
       } else {
-        const remoteRank = chapter2Api.getProgressRank(remoteChapter2.state);
-        if (!isStudyMode() && localChapter2Rank > remoteRank) {
+        if (!isStudyMode() && shouldPushLocalProgress("chapter2", localChapter2, remoteChapter2)) {
           await pushAccountProgress("chapter2", localChapter2);
         } else {
           chapter2Api.hydrateState?.(remoteChapter2.state, remoteChapter2.updatedAt);
@@ -1830,13 +2458,11 @@ async function syncStateFromServer() {
     const chapter3Api = window.BPMQuestChapter3;
     if (chapter3Api?.getPersistedState) {
       const localChapter3 = chapter3Api.getPersistedState();
-      const localChapter3Rank = chapter3Api.getProgressRank(localChapter3);
       const remoteChapter3 = progress?.chapter3 || null;
       if (!remoteChapter3) {
         if (!isStudyMode()) await pushAccountProgress("chapter3", localChapter3);
       } else {
-        const remoteRank = chapter3Api.getProgressRank(remoteChapter3.state);
-        if (!isStudyMode() && localChapter3Rank > remoteRank) {
+        if (!isStudyMode() && shouldPushLocalProgress("chapter3", localChapter3, remoteChapter3)) {
           await pushAccountProgress("chapter3", localChapter3);
         } else {
           chapter3Api.hydrateState?.(remoteChapter3.state, remoteChapter3.updatedAt);
@@ -1847,13 +2473,11 @@ async function syncStateFromServer() {
     const chapter4Api = window.BPMQuestChapter4;
     if (chapter4Api?.getPersistedState) {
       const localChapter4 = chapter4Api.getPersistedState();
-      const localChapter4Rank = chapter4Api.getProgressRank(localChapter4);
       const remoteChapter4 = progress?.chapter4 || null;
       if (!remoteChapter4) {
         if (!isStudyMode()) await pushAccountProgress("chapter4", localChapter4);
       } else {
-        const remoteRank = chapter4Api.getProgressRank(remoteChapter4.state);
-        if (!isStudyMode() && localChapter4Rank > remoteRank) {
+        if (!isStudyMode() && shouldPushLocalProgress("chapter4", localChapter4, remoteChapter4)) {
           await pushAccountProgress("chapter4", localChapter4);
         } else {
           chapter4Api.hydrateState?.(remoteChapter4.state, remoteChapter4.updatedAt);
@@ -1864,13 +2488,11 @@ async function syncStateFromServer() {
     const chapter5Api = window.BPMQuestChapter5;
     if (chapter5Api?.getPersistedState) {
       const localChapter5 = chapter5Api.getPersistedState();
-      const localChapter5Rank = chapter5Api.getProgressRank(localChapter5);
       const remoteChapter5 = progress?.chapter5 || null;
       if (!remoteChapter5) {
         if (!isStudyMode()) await pushAccountProgress("chapter5", localChapter5);
       } else {
-        const remoteRank = chapter5Api.getProgressRank(remoteChapter5.state);
-        if (!isStudyMode() && localChapter5Rank > remoteRank) {
+        if (!isStudyMode() && shouldPushLocalProgress("chapter5", localChapter5, remoteChapter5)) {
           await pushAccountProgress("chapter5", localChapter5);
         } else {
           chapter5Api.hydrateState?.(remoteChapter5.state, remoteChapter5.updatedAt);
@@ -1890,10 +2512,14 @@ async function syncStateFromServer() {
 async function resetAccountProgress(chapter) {
   if (!playerProfile || isStudyMode() || typeof fetch !== "function") return;
   try {
-    await fetch(`/api/account/progress/${chapter}`, {
+    const response = await fetch(`/api/account/progress/${chapter}`, {
       method: "DELETE",
       headers: { "Accept": "application/json" }
     });
+    if (response.ok) {
+      const payload = await response.json();
+      progressRevisions[chapter] = Number(payload.progress?.revision) || progressRevisions[chapter];
+    }
   } catch {
     // The local reset remains visible and will retry on the next explicit reset.
   }
@@ -2814,7 +3440,7 @@ function renderInsightDialogScene(mission = getMission()) {
   guide.className = "guide-dialog";
   const wrongTool = state.insightWrongAnswer ? getTool(state.insightWrongAnswer, mission) : null;
   guide.innerHTML = `
-    <img src="assets/mentor-archivist.png" alt="Ирина Лейт, куратор выпускного курса">
+    <img loading="lazy" decoding="async" src="assets/optimized/mentor-archivist.jpg" alt="Ирина Лейт, куратор выпускного курса">
     <div class="guide-dialog-bubble">
       <span>${completed ? "Консультация завершена" : `Вопрос ${currentIndex + 1} из ${mission.questions.length}`}</span>
       <strong>${completed ? "Теперь каждый управленческий вопрос получил ясную форму ответа." : currentQuestion.prompt}</strong>
@@ -3376,6 +4002,13 @@ function answerQuiz(id) {
   const dialog = mission.sceneInteraction === "dialog";
 
   if (id !== question.correct) {
+    trackLearningEvent("answer_checked", {
+      chapterId: "chapter1",
+      missionKey: mission.key,
+      outcome: "failure",
+      attempt: state.attempts,
+      details: { questionIndex }
+    });
     state.energy = Math.max(0, state.energy - 1);
     state.attempts += 1;
     if (citadel) state.accessWrongAnswer = id;
@@ -3392,6 +4025,13 @@ function answerQuiz(id) {
     return;
   }
 
+  trackLearningEvent("answer_checked", {
+    chapterId: "chapter1",
+    missionKey: mission.key,
+    outcome: "success",
+    attempt: state.attempts,
+    details: { questionIndex }
+  });
   if (citadel) state.accessWrongAnswer = null;
   if (dialog) state.insightWrongAnswer = null;
   state.selected[questionIndex] = id;
@@ -3424,6 +4064,13 @@ function answerGatewayTest(id) {
   const test = mission.tests[testIndex];
 
   if (id !== test.correct) {
+    trackLearningEvent("answer_checked", {
+      chapterId: "chapter1",
+      missionKey: mission.key,
+      outcome: "failure",
+      attempt: state.attempts,
+      details: { testIndex, stage: "gateway-test" }
+    });
     state.energy = Math.max(0, state.energy - 1);
     state.attempts += 1;
     elements.missionHint.textContent = testIndex === 0
@@ -3438,6 +4085,13 @@ function answerGatewayTest(id) {
     return;
   }
 
+  trackLearningEvent("answer_checked", {
+    chapterId: "chapter1",
+    missionKey: mission.key,
+    outcome: "success",
+    attempt: state.attempts,
+    details: { testIndex, stage: "gateway-test" }
+  });
   state.gatewayTestAnswers[testIndex] = id;
   elements.missionHint.textContent = `Верно. ${test.explanation}`;
   elements.missionHint.style.color = "var(--moss)";
@@ -3460,6 +4114,13 @@ function answerBlueprintTest(id) {
   const test = mission.tests[testIndex];
 
   if (id !== test.correct) {
+    trackLearningEvent("answer_checked", {
+      chapterId: "chapter1",
+      missionKey: mission.key,
+      outcome: "failure",
+      attempt: state.attempts,
+      details: { testIndex, stage: "blueprint-test" }
+    });
     state.energy = Math.max(0, state.energy - 1);
     state.attempts += 1;
     elements.missionHint.textContent = test.wrongHint;
@@ -3470,6 +4131,13 @@ function answerBlueprintTest(id) {
     return;
   }
 
+  trackLearningEvent("answer_checked", {
+    chapterId: "chapter1",
+    missionKey: mission.key,
+    outcome: "success",
+    attempt: state.attempts,
+    details: { testIndex, stage: "blueprint-test" }
+  });
   state.blueprintTestAnswers[testIndex] = id;
   elements.missionHint.textContent = `Верно. ${test.explanation}`;
   elements.missionHint.style.color = "var(--moss)";
@@ -3804,6 +4472,17 @@ function checkSolution() {
   elements.missionHint.style.color = "";
   const result = calculateScore();
   const success = result.exactMatches === getMission().correct.length;
+  trackLearningEvent("answer_checked", {
+    chapterId: "chapter1",
+    missionKey: getMission().key,
+    outcome: success ? "success" : "failure",
+    attempt: state.attempts,
+    details: {
+      exactMatches: result.exactMatches,
+      requiredCount,
+      traps: result.traps
+    }
+  });
 
   if (success) {
     if (getMission().mode === "blueprint") {
@@ -3871,8 +4550,16 @@ function startGatewayTests() {
 
 function completeMission(score) {
   const mission = getMission();
+  const firstCompletion = !state[mission.completionFlag];
   state.missionRunComplete = true;
   renderBuilder();
+  trackLearningEvent("mission_completed", {
+    chapterId: "chapter1",
+    missionKey: mission.key,
+    outcome: "success",
+    attempt: state.attempts,
+    details: { score, firstCompletion }
+  });
   if (isStudyMode()) {
     const missionIndex = MISSION_KEYS.indexOf(mission.key);
     const nextMissionKey = MISSION_KEYS[missionIndex + 1] || null;
@@ -3888,7 +4575,6 @@ function completeMission(score) {
     });
     return;
   }
-  const firstCompletion = !state[mission.completionFlag];
   state[mission.completionFlag] = true;
   state.energy = Math.min(3, state.energy + 1);
 
@@ -4212,6 +4898,12 @@ function beginMission(key) {
   state.blueprintTestAnswers = [];
   state.blueprintLocked = Array(6).fill(false);
   state.blueprintComplete = false;
+  trackLearningEvent("mission_started", {
+    chapterId: "chapter1",
+    missionKey: key,
+    attempt: 1,
+    details: { replay: state[missions[key].completionFlag] === true }
+  });
   renderMissionContent();
   hideFeedback();
   renderBuilder();
@@ -4227,6 +4919,10 @@ function resetProgress() {
 
   state = { ...initialState, answerOrders: {} };
   writeLocalState(getPersistedState(state));
+  trackLearningEvent("chapter_reset", {
+    chapterId: "chapter1",
+    details: { source: "player" }
+  });
   resetAccountProgress("chapter1");
   renderAll();
   showView("map");
@@ -4245,8 +4941,13 @@ elements.playerAccessForm.addEventListener("submit", submitPlayerAccess);
 elements.playerAccessCancel.addEventListener("click", closePlayerAccess);
 elements.playerLoginTab.addEventListener("click", () => configurePlayerAccess("login"));
 elements.playerRegisterTab.addEventListener("click", () => configurePlayerAccess("register"));
+elements.playerPasswordReset.addEventListener("click", () => configurePlayerAccess("reset"));
 elements.playerLogout.addEventListener("click", logoutPlayerAccount);
 elements.playerProfile.addEventListener("click", () => openPlayerAccess("profile"));
+elements.playerChangePassword.addEventListener("click", changePlayerPassword);
+elements.playerChangeEmail.addEventListener("click", changePlayerEmail);
+elements.playerExportData.addEventListener("click", exportPlayerData);
+elements.playerDeleteAccount.addEventListener("click", deletePlayerAccount);
 elements.startMission.addEventListener("click", (event) => beginMission(event.currentTarget.dataset.mission));
 elements.missionIntroStart.addEventListener("click", acceptMissionIntro);
 elements.missionIntroMap.addEventListener("click", dismissMissionIntro);
@@ -4322,6 +5023,15 @@ document.querySelectorAll('[data-zone="solution"]').forEach((button) => {
   button.addEventListener("click", () => beginMission("solution"));
 });
 
+document.querySelectorAll("[data-zone]").forEach((button) => {
+  const previewMission = () => {
+    const mission = missions[button.dataset.zone];
+    if (mission && !button.disabled) renderBrief(mission);
+  };
+  button.addEventListener("pointerenter", previewMission);
+  button.addEventListener("focus", previewMission);
+});
+
 elements.finaleMapAction.addEventListener("click", () => showView("map"));
 elements.finaleReplayAction.addEventListener("click", () => beginMission("solution"));
 
@@ -4341,6 +5051,7 @@ if (typeof window !== "undefined") {
     getLevelHintBalance,
     isLevelHintRevealed,
     useLevelHint,
+    trackLearningEvent,
     createLevelHintButton,
     refreshLevelHints,
     showMap: () => {
@@ -4352,9 +5063,13 @@ if (typeof window !== "undefined") {
   };
 }
 
+initializeDialogManager();
 renderAll();
-openPlayerAccess("login");
-elements.playerAccessTitle.textContent = "Подключаем аккаунт…";
-elements.playerAccessCopy.textContent = "Проверяем защищённую сессию и готовим сохранённый прогресс.";
-setPlayerAccessBusy(true);
-restorePlayerSession();
+handleLifecycleLink().then((handled) => {
+  if (handled) return;
+  openPlayerAccess("login");
+  elements.playerAccessTitle.textContent = "Подключаем аккаунт…";
+  elements.playerAccessCopy.textContent = "Проверяем защищённую сессию и готовим сохранённый прогресс.";
+  setPlayerAccessBusy(true);
+  restorePlayerSession();
+});

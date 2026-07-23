@@ -1162,7 +1162,7 @@
   padding: 48px 20px;
   background:
     linear-gradient(rgba(0, 0, 0, 0.56), rgba(0, 0, 0, 0.86)),
-    url("assets/chapter2-world-map-4k.jpg") center / cover no-repeat,
+    url("assets/optimized/chapter2-world-map-4k.jpg") center / cover no-repeat,
     #100d0b;
 }
 

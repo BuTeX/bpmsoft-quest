@@ -47,7 +47,7 @@ const elements = {
 
 let currentSnapshot = null;
 let liveSnapshot = null;
-let allowDemo = true;
+let allowDemo = false;
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -64,6 +64,10 @@ function formatNumber(value) {
 
 function formatPercent(value) {
   return `${Math.round(Number(value) || 0)}%`;
+}
+
+function formatOptionalPercent(value) {
+  return value == null ? "—" : formatPercent(value);
 }
 
 function formatDate(value, withTime = false) {
@@ -347,7 +351,7 @@ function renderUsers(data) {
     <div class="bar-column"><div data-value="${point.registrations}" style="height:${Math.max(2, point.registrations / maxRegistrations * 100)}%"></div><span>${index % Math.max(1, Math.ceil(registrations.length / 10)) === 0 ? escapeHtml(point.label) : ""}</span></div>`).join("") : emptyState());
   setHtml("recency-chart", trackRows(data.recency || []));
   setHtml("cohort-table", data.cohorts?.length ? `<table class="data-table"><thead><tr><th>Когорта</th><th>Размер</th><th>D7</th><th>D14</th><th>D30</th></tr></thead><tbody>${data.cohorts.map((cohort) => `
-    <tr><td><strong>${escapeHtml(cohort.label)}</strong></td><td>${formatNumber(cohort.size)}</td><td class="cohort-cell" style="--heat:${cohort.day7}">${formatPercent(cohort.day7)}</td><td class="cohort-cell" style="--heat:${cohort.day14}">${formatPercent(cohort.day14)}</td><td class="cohort-cell" style="--heat:${cohort.day30}">${formatPercent(cohort.day30)}</td></tr>`).join("")}</tbody></table>` : emptyState());
+    <tr><td><strong>${escapeHtml(cohort.label)}</strong></td><td>${formatNumber(cohort.size)}</td><td class="cohort-cell" style="--heat:${cohort.day7 || 0}">${formatOptionalPercent(cohort.day7)}</td><td class="cohort-cell" style="--heat:${cohort.day14 || 0}">${formatOptionalPercent(cohort.day14)}</td><td class="cohort-cell" style="--heat:${cohort.day30 || 0}">${formatOptionalPercent(cohort.day30)}</td></tr>`).join("")}</tbody></table>` : emptyState());
   setHtml("mode-progress", data.modes?.length ? data.modes.map((mode, index) => `
     <div class="comparison-row"><div><span>${escapeHtml(mode.label)}</span><strong>${formatPercent(mode.averageProgress)}</strong></div><div class="track ${index ? "is-orange" : ""}"><span style="width:${mode.averageProgress}%"></span></div><small>${formatNumber(mode.value)} игроков</small></div>`).join("") : emptyState());
   setHtml("leaderboard", data.leaderboard?.length ? data.leaderboard.map((person, index) => `
@@ -424,7 +428,7 @@ function renderSnapshot(data) {
   currentSnapshot = data;
   const demo = data.meta.source === "demo";
   elements.demoBanner.hidden = !demo;
-  elements.dataSource.textContent = demo ? "Демо-данные" : "Живые данные";
+  elements.dataSource.textContent = demo ? "Демо-данные" : `Живые события · ${formatNumber(data.meta.eventCount)}`;
   elements.dataSource.classList.toggle("is-demo", demo);
   elements.lastUpdated.textContent = `Обновлено ${formatDate(data.meta.generatedAt, true)}`;
   renderOverview(data);
@@ -451,8 +455,7 @@ async function loadData() {
     }
     if (!response.ok) throw new Error("Analytics request failed");
     liveSnapshot = await response.json();
-    const next = liveSnapshot.summary.totalUsers === 0 && allowDemo ? makeDemoSnapshot() : liveSnapshot;
-    renderSnapshot(next);
+    renderSnapshot(liveSnapshot);
   } catch {
     elements.error.hidden = false;
   } finally {
@@ -540,7 +543,7 @@ document.querySelectorAll(".dashboard-tab").forEach((tab) => {
 });
 
 elements.authForm.addEventListener("submit", submitAuth);
-elements.refresh.addEventListener("click", () => { allowDemo = true; loadData(); });
+elements.refresh.addEventListener("click", loadData);
 elements.retry.addEventListener("click", loadData);
 elements.period.addEventListener("change", loadData);
 elements.chapter.addEventListener("change", loadData);

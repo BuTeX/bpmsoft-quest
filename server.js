@@ -7,10 +7,11 @@ import { promisify } from "node:util";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import pg from "pg";
 import { MemoryAccountStore, PostgresAccountStore } from "./account-store.js";
+import { buildPostgresPoolConfig } from "./db/connection.js";
+import { runMigrations } from "./db/migrate.js";
 
 const { Pool } = pg;
 const ROOT_DIR = path.dirname(fileURLToPath(import.meta.url));
-const SCHEMA_PATH = path.join(ROOT_DIR, "db", "schema.sql");
 const BODY_LIMIT_BYTES = 64 * 1024;
 const ADMIN_WINDOW_MS = 10 * 60 * 1000;
 const ADMIN_ATTEMPT_LIMIT = 5;
@@ -24,14 +25,23 @@ const ADMIN_SESSION_COOKIE = "bpmsoft_admin";
 const SECURE_ADMIN_SESSION_COOKIE = "__Host-bpmsoft_admin";
 const PASSWORD_MIN_LENGTH = 10;
 const PASSWORD_MAX_LENGTH = 128;
+const EMAIL_VERIFICATION_TTL_MS = 24 * 60 * 60 * 1000;
+const PASSWORD_RESET_TTL_MS = 60 * 60 * 1000;
+const EMAIL_CHANGE_TTL_MS = 60 * 60 * 1000;
 const SCRYPT_PARAMS = { N: 2 ** 15, r: 8, p: 3, maxmem: 64 * 1024 * 1024 };
 const scryptAsync = promisify(scrypt);
 const publicRootFiles = new Set([
   "index.html",
+  "landing.html",
+  "landing.css",
+  "privacy.html",
+  "terms.html",
+  "legal.css",
   "admin.html",
   "admin.css",
   "admin.js",
   "app.js",
+  "progress-core.js",
   "update.css",
   "styles.css",
   "chapter2.css",
@@ -57,6 +67,22 @@ const chapter2MissionKeys = ["sorting", "portal", "signal", "cycle", "package", 
 const chapter3MissionKeys = ["contact", "lead", "channel", "bpmn", "sla", "access", "integration", "ai", "orbit"];
 const chapter4MissionKeys = ["migration", "consent", "campaign", "franchise", "order", "stock", "returns", "insight", "transformation"];
 const chapter5MissionKeys = ["schedule", "connections", "baggage", "disruption", "rebooking", "partner", "integration", "forecast", "crisis"];
+const learningEventTypes = new Set([
+  "session_started",
+  "mission_started",
+  "answer_checked",
+  "hint_used",
+  "mission_completed",
+  "chapter_reset"
+]);
+const learningEventOutcomes = new Set(["success", "failure", "cancelled"]);
+const missionKeysByChapter = {
+  chapter1: new Set(missionKeys),
+  chapter2: new Set(chapter2MissionKeys),
+  chapter3: new Set(chapter3MissionKeys),
+  chapter4: new Set(chapter4MissionKeys),
+  chapter5: new Set(chapter5MissionKeys)
+};
 
 const completionFlags = [
   "missionComplete",
@@ -162,6 +188,12 @@ const adminSessions = new Map();
 const authAttempts = new Map();
 let pool = null;
 let accountStore = null;
+const operationalMetrics = {
+  startedAt: Date.now(),
+  activeRequests: 0,
+  requests: new Map(),
+  durationMs: new Map()
+};
 
 function json(response, statusCode, payload) {
   response.writeHead(statusCode, {
@@ -177,10 +209,71 @@ function applySecurityHeaders(response) {
   response.setHeader("X-Content-Type-Options", "nosniff");
   response.setHeader("X-Frame-Options", "DENY");
   response.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+  response.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+  response.setHeader("Cross-Origin-Resource-Policy", "same-origin");
+  if (process.env.NODE_ENV === "production") {
+    response.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+  }
+}
+
+function metricRoute(pathname) {
+  if (pathname.startsWith("/assets/")) return "/assets/*";
+  if (/^\/api\/account\/progress\/chapter[1-5]$/.test(pathname)) return "/api/account/progress/:chapter";
+  return pathname;
+}
+
+function recordRequestMetric(method, pathname, statusCode, durationMs) {
+  const key = `${method} ${metricRoute(pathname)} ${statusCode}`;
+  operationalMetrics.requests.set(key, (operationalMetrics.requests.get(key) || 0) + 1);
+  operationalMetrics.durationMs.set(key, (operationalMetrics.durationMs.get(key) || 0) + durationMs);
+}
+
+function renderPrometheusMetrics() {
+  const lines = [
+    "# HELP bpmsoft_uptime_seconds Process uptime in seconds.",
+    "# TYPE bpmsoft_uptime_seconds gauge",
+    `bpmsoft_uptime_seconds ${Math.floor((Date.now() - operationalMetrics.startedAt) / 1000)}`,
+    "# HELP bpmsoft_http_active_requests Current active HTTP requests.",
+    "# TYPE bpmsoft_http_active_requests gauge",
+    `bpmsoft_http_active_requests ${operationalMetrics.activeRequests}`,
+    "# HELP bpmsoft_http_requests_total Completed HTTP requests.",
+    "# TYPE bpmsoft_http_requests_total counter"
+  ];
+  for (const [key, count] of operationalMetrics.requests) {
+    const [method, route, status] = key.split(" ");
+    lines.push(`bpmsoft_http_requests_total{method="${method}",route="${route}",status="${status}"} ${count}`);
+  }
+  lines.push(
+    "# HELP bpmsoft_http_request_duration_ms_sum Total request duration in milliseconds.",
+    "# TYPE bpmsoft_http_request_duration_ms_sum counter"
+  );
+  for (const [key, duration] of operationalMetrics.durationMs) {
+    const [method, route, status] = key.split(" ");
+    lines.push(`bpmsoft_http_request_duration_ms_sum{method="${method}",route="${route}",status="${status}"} ${duration.toFixed(3)}`);
+  }
+  return `${lines.join("\n")}\n`;
+}
+
+function handleMetrics(request, response) {
+  const expectedToken = process.env.METRICS_TOKEN;
+  if (expectedToken) {
+    const candidate = String(request.headers.authorization || "").replace(/^Bearer\s+/i, "");
+    if (!securePasswordMatches(candidate, expectedToken)) {
+      json(response, 401, { error: "Metrics authentication required" });
+      return;
+    }
+  }
+  const body = renderPrometheusMetrics();
+  response.writeHead(200, {
+    "Content-Type": "text/plain; version=0.0.4; charset=utf-8",
+    "Cache-Control": "no-store",
+    "Content-Length": Buffer.byteLength(body)
+  });
+  response.end(body);
 }
 
 function getClientAddress(request) {
-  const forwarded = request.headers["x-forwarded-for"];
+  const forwarded = process.env.TRUST_PROXY === "true" ? request.headers["x-forwarded-for"] : null;
   return (Array.isArray(forwarded) ? forwarded[0] : forwarded?.split(",")[0])?.trim()
     || request.socket.remoteAddress
     || "unknown";
@@ -433,13 +526,134 @@ function normalizeAccessMode(value) {
   return value === "study" ? "study" : value === "progression" ? "progression" : "";
 }
 
+function isUuid(value) {
+  return typeof value === "string"
+    && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+}
+
+function sanitizeEventDetails(input) {
+  if (!input || typeof input !== "object" || Array.isArray(input)) return {};
+  const entries = [];
+  for (const [key, value] of Object.entries(input)) {
+    if (entries.length >= 20 || !/^[a-z][a-z0-9_]{0,39}$/i.test(key)) continue;
+    if (typeof value === "string") entries.push([key, value.slice(0, 240)]);
+    else if (typeof value === "boolean") entries.push([key, value]);
+    else if (typeof value === "number" && Number.isFinite(value)) entries.push([key, Math.max(-1_000_000, Math.min(value, 1_000_000))]);
+    else if (Array.isArray(value)) {
+      entries.push([key, value
+        .filter((item) => ["string", "boolean", "number"].includes(typeof item))
+        .slice(0, 20)
+        .map((item) => typeof item === "string" ? item.slice(0, 120) : item)]);
+    }
+  }
+  return Object.fromEntries(entries);
+}
+
+function sanitizeLearningEvent(input, now = Date.now()) {
+  if (!input || typeof input !== "object" || Array.isArray(input)) return null;
+  const chapterId = typeof input.chapterId === "string" ? input.chapterId : "";
+  const eventType = typeof input.eventType === "string" ? input.eventType : "";
+  const missionKey = typeof input.missionKey === "string" ? input.missionKey : null;
+  const outcome = typeof input.outcome === "string" ? input.outcome : null;
+  const occurredAt = new Date(input.occurredAt);
+  const occurredAtMs = occurredAt.getTime();
+  if (
+    !isUuid(input.id)
+    || !isUuid(input.sessionId)
+    || !missionKeysByChapter[chapterId]
+    || !learningEventTypes.has(eventType)
+    || (missionKey != null && !missionKeysByChapter[chapterId].has(missionKey))
+    || (outcome != null && !learningEventOutcomes.has(outcome))
+    || !Number.isFinite(occurredAtMs)
+    || occurredAtMs < now - 90 * 86_400_000
+    || occurredAtMs > now + 5 * 60_000
+  ) return null;
+  const attempt = input.attempt == null ? null : Math.max(1, Math.min(Number(input.attempt) || 1, 100));
+  const durationMs = input.durationMs == null
+    ? null
+    : Math.max(0, Math.min(Math.round(Number(input.durationMs) || 0), 86_400_000));
+  return {
+    id: input.id,
+    sessionId: input.sessionId,
+    chapterId,
+    missionKey,
+    eventType,
+    outcome,
+    attempt,
+    durationMs,
+    details: sanitizeEventDetails(input.details),
+    occurredAt: occurredAt.toISOString()
+  };
+}
+
 function publicAccount(account) {
   return account ? {
     id: account.id,
     email: account.email,
     displayName: account.displayName,
-    mode: account.mode
+    mode: account.mode,
+    emailVerified: Boolean(account.emailVerifiedAt),
+    policyVersion: account.policyVersion || null
   } : null;
+}
+
+function lifecycleTokenHash(token) {
+  return createHash("sha256").update(token).digest("hex");
+}
+
+async function sendLifecycleMessage({ to, template, actionUrl, expiresInMinutes }) {
+  const webhookUrl = process.env.MAIL_WEBHOOK_URL;
+  if (!webhookUrl) return false;
+  const response = await fetch(webhookUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(process.env.MAIL_WEBHOOK_TOKEN
+        ? { Authorization: `Bearer ${process.env.MAIL_WEBHOOK_TOKEN}` }
+        : {})
+    },
+    body: JSON.stringify({
+      to,
+      template,
+      actionUrl,
+      expiresInMinutes
+    }),
+    signal: AbortSignal.timeout(10_000)
+  });
+  if (!response.ok) throw new Error(`Mail webhook failed with status ${response.status}`);
+  return true;
+}
+
+async function createLifecycleToken(account, purpose, payload = {}) {
+  const token = randomBytes(32).toString("base64url");
+  const ttlByPurpose = {
+    verify_email: EMAIL_VERIFICATION_TTL_MS,
+    reset_password: PASSWORD_RESET_TTL_MS,
+    change_email: EMAIL_CHANGE_TTL_MS
+  };
+  const ttl = ttlByPurpose[purpose];
+  const expiresAt = new Date(Date.now() + ttl);
+  await getAccountStore().createAccountToken({
+    id: randomUUID(),
+    accountId: account.id,
+    purpose,
+    tokenHash: lifecycleTokenHash(token),
+    payload,
+    expiresAt
+  });
+  const baseUrl = process.env.APP_BASE_URL || `http://localhost:${Number(process.env.PORT) || 4173}`;
+  const actionUrl = new URL("/academy.html", baseUrl);
+  actionUrl.searchParams.set(purpose === "reset_password" ? "resetToken" : "verifyToken", token);
+  const delivered = await sendLifecycleMessage({
+    to: purpose === "change_email" ? payload.email : account.email,
+    template: purpose,
+    actionUrl: actionUrl.toString(),
+    expiresInMinutes: Math.round(ttl / 60_000)
+  });
+  if (!delivered && process.env.REQUIRE_EMAIL_DELIVERY === "true") {
+    throw new Error("Email delivery is required but MAIL_WEBHOOK_URL is not configured");
+  }
+  return delivered;
 }
 
 export async function hashPassword(password) {
@@ -468,17 +682,7 @@ function getDatabasePool() {
   if (!process.env.DATABASE_URL) return null;
   if (pool) return pool;
 
-  const ssl = process.env.PGSSLMODE === "disable"
-    ? false
-    : { rejectUnauthorized: false };
-
-  pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl,
-    max: 8,
-    connectionTimeoutMillis: 10_000,
-    idleTimeoutMillis: 30_000
-  });
+  pool = new Pool(buildPostgresPoolConfig(process.env.DATABASE_URL));
 
   pool.on("error", (error) => {
     console.error("Unexpected PostgreSQL pool error", error);
@@ -507,8 +711,7 @@ export async function initializeDatabase() {
     }
     return false;
   }
-  const schema = await readFile(SCHEMA_PATH, "utf8");
-  await database.query(schema);
+  await runMigrations(database);
   return true;
 }
 
@@ -518,6 +721,44 @@ export async function closeDatabase() {
   pool = null;
   accountStore = null;
   await currentPool.end();
+}
+
+export function validateProductionConfiguration(environment = process.env) {
+  if (environment.NODE_ENV !== "production") return true;
+  const errors = [];
+  if (!environment.DATABASE_URL) errors.push("DATABASE_URL is required");
+  if (environment.REQUIRE_DATABASE !== "true") errors.push("REQUIRE_DATABASE must be true");
+  if (!environment.ADMIN_PASSWORD || environment.ADMIN_PASSWORD.length < 16) {
+    errors.push("ADMIN_PASSWORD must contain at least 16 characters");
+  }
+  if (environment.REQUIRE_EMAIL_VERIFICATION !== "true") {
+    errors.push("REQUIRE_EMAIL_VERIFICATION must be true");
+  }
+  if (environment.REQUIRE_EMAIL_DELIVERY !== "true") {
+    errors.push("REQUIRE_EMAIL_DELIVERY must be true");
+  }
+  if (!environment.MAIL_WEBHOOK_URL) errors.push("MAIL_WEBHOOK_URL is required");
+  if (!environment.MAIL_WEBHOOK_TOKEN) errors.push("MAIL_WEBHOOK_TOKEN is required");
+  if (environment.TRUST_PROXY !== "true") errors.push("TRUST_PROXY must be true");
+  if (!environment.METRICS_TOKEN || environment.METRICS_TOKEN.length < 16) {
+    errors.push("METRICS_TOKEN must contain at least 16 characters");
+  }
+  if (!environment.LEGAL_ENTITY_NAME) errors.push("LEGAL_ENTITY_NAME is required");
+  if (!environment.PRIVACY_CONTACT_EMAIL || !normalizeEmail(environment.PRIVACY_CONTACT_EMAIL)) {
+    errors.push("PRIVACY_CONTACT_EMAIL must be a valid email");
+  }
+  if (!environment.LEGAL_JURISDICTION) errors.push("LEGAL_JURISDICTION is required");
+  if (!environment.POLICY_VERSION) errors.push("POLICY_VERSION is required");
+  try {
+    if (!environment.APP_BASE_URL || new URL(environment.APP_BASE_URL).protocol !== "https:") {
+      errors.push("APP_BASE_URL must use HTTPS");
+    }
+  } catch {
+    errors.push("APP_BASE_URL must be a valid HTTPS URL");
+  }
+  if (errors.length) throw new Error(`Unsafe production configuration: ${errors.join("; ")}`);
+  buildPostgresPoolConfig(environment.DATABASE_URL, environment);
+  return true;
 }
 
 async function readJsonBody(request) {
@@ -571,9 +812,26 @@ function parseCookies(request) {
 }
 
 function isSecureRequest(request) {
-  const forwardedProto = request.headers["x-forwarded-proto"];
-  return request.socket.encrypted === true
+  const forwardedProto = process.env.TRUST_PROXY === "true" ? request.headers["x-forwarded-proto"] : null;
+  return process.env.NODE_ENV === "production"
+    || request.socket.encrypted === true
     || (Array.isArray(forwardedProto) ? forwardedProto[0] : forwardedProto?.split(",")[0])?.trim() === "https";
+}
+
+function hasTrustedMutationOrigin(request) {
+  const origin = request.headers.origin;
+  if (!origin) return true;
+  const allowed = new Set();
+  if (process.env.APP_BASE_URL) {
+    try {
+      allowed.add(new URL(process.env.APP_BASE_URL).origin);
+    } catch {
+      return false;
+    }
+  }
+  const host = request.headers.host;
+  if (host) allowed.add(`${isSecureRequest(request) ? "https" : "http"}://${host}`);
+  return allowed.has(origin);
 }
 
 function setSessionCookie(request, response, token) {
@@ -810,45 +1068,102 @@ function normalizeAnalyticsRecord(record, now) {
   };
 }
 
-function buildTimeline(users, periodDays, now) {
+function buildTimeline(users, events, periodDays, now) {
   const bucketDays = Math.max(1, Math.ceil(periodDays / 30));
   const bucketCount = Math.ceil(periodDays / bucketDays);
   return Array.from({ length: bucketCount }, (_, index) => {
     const end = now - (bucketCount - index - 1) * bucketDays * 86_400_000;
     const start = end - bucketDays * 86_400_000;
+    const activeAccounts = new Set(events
+      .filter((event) => timestamp(event.occurredAt) > start && timestamp(event.occurredAt) <= end)
+      .map((event) => event.accountId));
     return {
       label: new Intl.DateTimeFormat("ru-RU", { day: "2-digit", month: "short" }).format(new Date(end)),
       registrations: users.filter((user) => user.createdAt > start && user.createdAt <= end).length,
-      activity: users.filter((user) => user.latestActivity > start && user.latestActivity <= end).length
+      activity: activeAccounts.size
     };
   });
 }
 
-function buildCohorts(users, now) {
+function buildCohorts(users, events, now) {
+  const eventsByAccount = new Map();
+  events.forEach((event) => {
+    const saved = eventsByAccount.get(event.accountId) || [];
+    saved.push(timestamp(event.occurredAt));
+    eventsByAccount.set(event.accountId, saved);
+  });
   return Array.from({ length: 8 }, (_, index) => {
     const weekEnd = now - index * 7 * 86_400_000;
     const weekStart = weekEnd - 7 * 86_400_000;
     const cohort = users.filter((user) => user.createdAt > weekStart && user.createdAt <= weekEnd);
-    const retained = (days) => cohort.filter((user) => user.latestActivity >= user.createdAt + days * 86_400_000).length;
+    const retention = (days) => {
+      const eligible = cohort.filter((user) => now >= user.createdAt + days * 86_400_000);
+      const retained = eligible.filter((user) => {
+        const windowStart = user.createdAt + days * 86_400_000;
+        const windowEnd = windowStart + 7 * 86_400_000;
+        return (eventsByAccount.get(user.id) || []).some((eventAt) => eventAt >= windowStart && eventAt < windowEnd);
+      });
+      return {
+        value: eligible.length ? percent(retained.length, eligible.length) : null,
+        eligible: eligible.length
+      };
+    };
+    const day7 = retention(7);
+    const day14 = retention(14);
+    const day30 = retention(30);
     return {
       label: `−${index} нед.`,
       size: cohort.length,
-      day7: percent(retained(7), cohort.length),
-      day14: percent(retained(14), cohort.length),
-      day30: percent(retained(30), cohort.length)
+      day7: day7.value,
+      day7Eligible: day7.eligible,
+      day14: day14.value,
+      day14Eligible: day14.eligible,
+      day30: day30.value,
+      day30Eligible: day30.eligible
     };
   }).reverse();
 }
 
-function buildAnalyticsSnapshot(records, { periodDays = 30, mode = "all", chapterId = "all" } = {}) {
+function buildAnalyticsSnapshot(records, rawEvents, { periodDays = 30, mode = "all", chapterId = "all" } = {}) {
   const now = Date.now();
+  const activeSince = now - periodDays * 86_400_000;
+  const scopedEvents = rawEvents.filter((event) => (
+    (mode === "all" || event.mode === mode)
+    && (chapterId === "all" || event.chapterId === chapterId)
+  ));
+  const events = scopedEvents.filter((event) => timestamp(event.occurredAt) >= activeSince);
   const allUsers = records.map((record) => normalizeAnalyticsRecord(record, now));
   const users = mode === "all" ? allUsers : allUsers.filter((user) => user.mode === mode);
+  const latestEventByAccount = new Map();
+  events.forEach((event) => {
+    latestEventByAccount.set(event.accountId, Math.max(
+      latestEventByAccount.get(event.accountId) || 0,
+      timestamp(event.occurredAt)
+    ));
+  });
+  users.forEach((user) => {
+    user.latestActivity = Math.max(user.latestActivity, latestEventByAccount.get(user.id) || 0);
+    user.daysInactive = user.latestActivity ? Math.floor((now - user.latestActivity) / 86_400_000) : null;
+  });
+  const missionEvents = (chapter, key) => events.filter((event) => (
+    event.chapterId === chapter && event.missionKey === key
+  ));
   const chapters = chapterMissionDefinitions.map((definition, chapterIndex) => {
     const userChapters = users.map((user) => user.chapters[chapterIndex]);
-    const started = userChapters.filter((chapter) => chapter.started.some(Boolean) || chapter.score > 0).length;
-    const completed = userChapters.filter((chapter) => chapter.score === 9).length;
+    const chapterEvents = events.filter((event) => event.chapterId === definition.id);
+    const started = new Set(chapterEvents
+      .filter((event) => ["mission_started", "answer_checked", "hint_used", "mission_completed"].includes(event.eventType))
+      .map((event) => event.accountId)).size;
+    const completedMissionKeysByAccount = new Map();
+    chapterEvents.filter((event) => event.eventType === "mission_completed").forEach((event) => {
+      const completedKeys = completedMissionKeysByAccount.get(event.accountId) || new Set();
+      completedKeys.add(event.missionKey);
+      completedMissionKeysByAccount.set(event.accountId, completedKeys);
+    });
+    const completed = [...completedMissionKeysByAccount.values()].filter((keys) => keys.size === definition.keys.length).length;
     const scores = userChapters.reduce((sum, chapter) => sum + chapter.score, 0);
+    const attempts = chapterEvents.filter((event) => event.eventType === "answer_checked").length;
+    const errors = chapterEvents.filter((event) => event.eventType === "answer_checked" && event.outcome === "failure").length;
     return {
       id: definition.id,
       title: definition.title,
@@ -858,10 +1173,10 @@ function buildAnalyticsSnapshot(records, { periodDays = 30, mode = "all", chapte
       completionRate: percent(completed, users.length),
       conversionRate: percent(completed, started),
       averageScore: users.length ? round(scores / users.length, 1) : 0,
-      attempts: userChapters.reduce((sum, chapter) => sum + chapter.attempts, 0),
-      averageAttempts: started ? round(userChapters.reduce((sum, chapter) => sum + chapter.attempts, 0) / started, 1) : 0,
-      errors: userChapters.reduce((sum, chapter) => sum + chapter.wrong.reduce((value, count) => value + count, 0), 0),
-      answerVolume: userChapters.reduce((sum, chapter) => sum + chapter.answerVolume, 0),
+      attempts,
+      averageAttempts: started ? round(attempts / started, 1) : 0,
+      errors,
+      answerVolume: attempts,
       averageEnergy: round(userChapters.reduce((sum, chapter) => sum + (chapter.energy ?? chapter.maxEnergy), 0) / Math.max(users.length, 1), 1),
       maxEnergy: userChapters[0]?.maxEnergy || 4
     };
@@ -870,25 +1185,31 @@ function buildAnalyticsSnapshot(records, { periodDays = 30, mode = "all", chapte
   const quests = missionCatalog.map((mission) => {
     const chapterIndex = Number(mission.chapterId.slice(-1)) - 1;
     const missionIndex = (mission.number - 1) % 9;
-    const started = users.filter((user) => user.chapters[chapterIndex].started[missionIndex]).length;
-    const completed = users.filter((user) => user.chapters[chapterIndex].completed[missionIndex]).length;
-    const errors = users.reduce((sum, user) => sum + user.chapters[chapterIndex].wrong[missionIndex], 0);
+    const scopedEvents = missionEvents(mission.chapterId, mission.key);
+    const started = new Set(scopedEvents
+      .filter((event) => ["mission_started", "answer_checked", "hint_used", "mission_completed"].includes(event.eventType))
+      .map((event) => event.accountId)).size;
+    const completed = new Set(scopedEvents
+      .filter((event) => event.eventType === "mission_completed")
+      .map((event) => event.accountId)).size;
+    const errors = scopedEvents.filter((event) => event.eventType === "answer_checked" && event.outcome === "failure").length;
+    const attempts = scopedEvents.filter((event) => event.eventType === "answer_checked").length;
     return {
       ...mission,
       started,
       completed,
       errors,
+      attempts,
       completionRate: percent(completed, users.length),
       conversionRate: percent(completed, started),
       dropoffRate: started ? round(100 - percent(completed, started), 1) : 0
     };
   }).filter((mission) => chapterId === "all" || mission.chapterId === chapterId);
 
-  const activeSince = now - periodDays * 86_400_000;
   const previousPeriodStart = now - periodDays * 2 * 86_400_000;
   const newUsers = users.filter((user) => user.createdAt >= activeSince).length;
   const previousNewUsers = users.filter((user) => user.createdAt >= previousPeriodStart && user.createdAt < activeSince).length;
-  const activeUsers = users.filter((user) => user.latestActivity >= activeSince).length;
+  const activeUsers = new Set(events.map((event) => event.accountId)).size;
   const completedUsers = users.filter((user) => user.totalScore === 45).length;
   const progressionUsers = users.filter((user) => user.mode === "progression");
   const studyUsers = users.filter((user) => user.mode === "study");
@@ -950,16 +1271,23 @@ function buildAnalyticsSnapshot(records, { periodDays = 30, mode = "all", chapte
     })),
     { label: "Завершили путь", value: completedUsers }
   ];
-  const recentActivity = [...users]
-    .filter((user) => user.latestActivity)
-    .sort((left, right) => right.latestActivity - left.latestActivity)
+  const eventLabels = {
+    session_started: "Начал учебную сессию",
+    mission_started: "Открыл задание",
+    answer_checked: "Проверил решение",
+    hint_used: "Использовал подсказку",
+    mission_completed: "Завершил задание",
+    chapter_reset: "Сбросил прогресс карты"
+  };
+  const recentActivity = [...events]
+    .sort((left, right) => timestamp(right.occurredAt) - timestamp(left.occurredAt))
     .slice(0, 10)
-    .map((user) => ({
-      id: user.id,
-      name: user.displayName,
-      at: new Date(user.latestActivity).toISOString(),
-      progress: user.progressPercent,
-      action: user.totalScore === 45 ? "Завершил обучение" : `Прогресс: ${user.totalScore} из 45`
+    .map((event) => ({
+      id: event.id,
+      name: event.displayName,
+      at: new Date(event.occurredAt).toISOString(),
+      progress: users.find((user) => user.id === event.accountId)?.progressPercent || 0,
+      action: `${eventLabels[event.eventType] || event.eventType}${event.missionKey ? ` · ${event.missionKey}` : ""}`
     }));
 
   return {
@@ -969,7 +1297,9 @@ function buildAnalyticsSnapshot(records, { periodDays = 30, mode = "all", chapte
       mode,
       chapterId,
       widgets: 30,
-      source: getDatabasePool() ? "postgres" : "memory"
+      source: getDatabasePool() ? "postgres" : "memory",
+      eventCount: events.length,
+      telemetryWindowStartedAt: new Date(activeSince).toISOString()
     },
     summary: {
       totalUsers: users.length,
@@ -982,7 +1312,7 @@ function buildAnalyticsSnapshot(records, { periodDays = 30, mode = "all", chapte
       averageProgress: users.length ? round(users.reduce((sum, user) => sum + user.progressPercent, 0) / users.length, 1) : 0,
       averageErrors: users.length ? round(users.reduce((sum, user) => sum + user.wrongCount, 0) / users.length, 1) : 0
     },
-    timeline: buildTimeline(users, periodDays, now),
+    timeline: buildTimeline(users, events, periodDays, now),
     modes: [
       { id: "progression", label: "Прохождение", value: progressionUsers.length, averageProgress: progressionUsers.length ? round(progressionUsers.reduce((sum, user) => sum + user.progressPercent, 0) / progressionUsers.length, 1) : 0 },
       { id: "study", label: "Изучение", value: studyUsers.length, averageProgress: studyUsers.length ? round(studyUsers.reduce((sum, user) => sum + user.progressPercent, 0) / studyUsers.length, 1) : 0 }
@@ -990,7 +1320,7 @@ function buildAnalyticsSnapshot(records, { periodDays = 30, mode = "all", chapte
     status,
     attention,
     recency,
-    cohorts: buildCohorts(users, now),
+    cohorts: buildCohorts(users, scopedEvents, now),
     leaderboard,
     directory,
     chapters,
@@ -1005,9 +1335,9 @@ function buildAnalyticsSnapshot(records, { periodDays = 30, mode = "all", chapte
     recentActivity,
     telemetry: [
       { label: "Профиль заполнен", value: percent(users.filter((user) => user.displayName && user.email).length, users.length) },
-      { label: "Есть вход", value: percent(users.filter((user) => user.lastLoginAt).length, users.length) },
-      { label: "Есть прогресс", value: percent(users.filter((user) => user.totalScore > 0).length, users.length) },
-      { label: "Есть ответы", value: percent(users.filter((user) => user.answerVolume > 0).length, users.length) }
+      { label: "Есть события за период", value: percent(new Set(events.map((event) => event.accountId)).size, users.length) },
+      { label: "Есть старты заданий", value: percent(new Set(events.filter((event) => event.eventType === "mission_started").map((event) => event.accountId)).size, users.length) },
+      { label: "Есть проверки ответов", value: percent(new Set(events.filter((event) => event.eventType === "answer_checked").map((event) => event.accountId)).size, users.length) }
     ]
   };
 }
@@ -1066,8 +1396,12 @@ async function handleAdminAnalytics(request, response, url) {
   const mode = ["all", "progression", "study"].includes(rawMode) ? rawMode : "all";
   const rawChapter = url.searchParams.get("chapter") || "all";
   const chapterId = ["all", "chapter1", "chapter2", "chapter3", "chapter4", "chapter5"].includes(rawChapter) ? rawChapter : "all";
-  const records = await getAccountStore().getAnalyticsRecords();
-  json(response, 200, buildAnalyticsSnapshot(records, { periodDays, mode, chapterId }));
+  const store = getAccountStore();
+  const [records, events] = await Promise.all([
+    store.getAnalyticsRecords(),
+    store.getAnalyticsEvents(new Date(Date.now() - 90 * 86_400_000).toISOString())
+  ]);
+  json(response, 200, buildAnalyticsSnapshot(records, events, { periodDays, mode, chapterId }));
 }
 
 function validatePassword(password) {
@@ -1083,23 +1417,40 @@ async function handleAccountRegistration(request, response) {
   const displayName = normalizeDisplayName(body.displayName);
   const password = body.password;
   const mode = normalizeAccessMode(body.mode);
-  if (!email || !displayName || !validatePassword(password) || !mode) {
+  const termsAccepted = body.termsAccepted === true;
+  const privacyAccepted = body.privacyAccepted === true;
+  if (!email || !displayName || !validatePassword(password) || !mode || !termsAccepted || !privacyAccepted) {
     recordAuthFailure(request);
     json(response, 400, { error: "Invalid registration data" });
     return;
   }
 
   try {
+    const verificationRequired = process.env.REQUIRE_EMAIL_VERIFICATION === "true";
+    const acceptedAt = new Date().toISOString();
     const account = await getAccountStore().createAccount({
       id: randomUUID(),
       email,
       displayName,
       passwordHash: await hashPassword(password),
-      mode
+      mode,
+      emailVerifiedAt: verificationRequired ? null : acceptedAt,
+      termsAcceptedAt: acceptedAt,
+      privacyAcceptedAt: acceptedAt,
+      policyVersion: process.env.POLICY_VERSION || "draft-2026-07-23"
     });
-    await issueSession(request, response, account.id);
+    if (verificationRequired) {
+      try {
+        await createLifecycleToken(account, "verify_email");
+      } catch (error) {
+        await getAccountStore().deleteAccount(account.id);
+        throw error;
+      }
+    } else {
+      await issueSession(request, response, account.id);
+    }
     clearAuthFailures(request);
-    json(response, 201, { account: publicAccount(account) });
+    json(response, 201, { account: publicAccount(account), verificationRequired });
   } catch (error) {
     if (error.code === "23505") {
       recordAuthFailure(request);
@@ -1124,6 +1475,12 @@ async function handleAccountLogin(request, response) {
   if (!email || !validatePassword(password) || !mode || !account || !passwordMatches) {
     recordAuthFailure(request);
     json(response, 401, { error: "Invalid email or password" });
+    return;
+  }
+
+  if (process.env.REQUIRE_EMAIL_VERIFICATION === "true" && !account.emailVerifiedAt) {
+    recordAuthFailure(request);
+    json(response, 403, { error: "Email verification is required", code: "email_verification_required" });
     return;
   }
 
@@ -1164,6 +1521,184 @@ async function handleAccountProfile(request, response) {
   json(response, 200, { account: publicAccount(updatedAccount) });
 }
 
+async function handleEmailVerification(request, response) {
+  const body = await readJsonBody(request);
+  const rawToken = typeof body.token === "string" ? body.token.slice(0, 128) : "";
+  if (!rawToken) {
+    json(response, 400, { error: "Verification token is required" });
+    return;
+  }
+  const token = await getAccountStore().consumeAccountToken(
+    lifecycleTokenHash(rawToken),
+    ["verify_email", "change_email"]
+  );
+  if (!token) {
+    json(response, 400, { error: "Verification token is invalid or expired" });
+    return;
+  }
+  const nextEmail = token.purpose === "change_email" ? normalizeEmail(token.payload?.email) : null;
+  if (token.purpose === "change_email" && !nextEmail) {
+    json(response, 400, { error: "Verification token is invalid" });
+    return;
+  }
+  try {
+    const account = await getAccountStore().markEmailVerified(token.accountId, nextEmail);
+    if (!account) {
+      json(response, 404, { error: "Account not found" });
+      return;
+    }
+    await getAccountStore().deleteSessionsForAccount(account.id);
+    json(response, 200, { ok: true, email: account.email });
+  } catch (error) {
+    if (error.code === "23505") {
+      json(response, 409, { error: "Email is already registered" });
+      return;
+    }
+    throw error;
+  }
+}
+
+async function handlePasswordResetRequest(request, response) {
+  if (rejectRateLimitedAuth(request, response)) return;
+  const body = await readJsonBody(request);
+  const email = normalizeEmail(body.email);
+  const account = email ? await getAccountStore().findAccountByEmail(email) : null;
+  if (account) {
+    try {
+      await createLifecycleToken(account, "reset_password");
+    } catch (error) {
+      console.error("Password reset delivery failed", error);
+    }
+  }
+  json(response, 202, { ok: true });
+}
+
+async function handlePasswordResetConfirm(request, response) {
+  if (rejectRateLimitedAuth(request, response)) return;
+  const body = await readJsonBody(request);
+  const rawToken = typeof body.token === "string" ? body.token.slice(0, 128) : "";
+  const password = body.password;
+  if (!rawToken || !validatePassword(password)) {
+    json(response, 400, { error: "Invalid password reset data" });
+    return;
+  }
+  const token = await getAccountStore().consumeAccountToken(
+    lifecycleTokenHash(rawToken),
+    ["reset_password"]
+  );
+  if (!token) {
+    json(response, 400, { error: "Password reset token is invalid or expired" });
+    return;
+  }
+  await getAccountStore().updatePassword(token.accountId, await hashPassword(password));
+  await getAccountStore().deleteSessionsForAccount(token.accountId);
+  clearAuthFailures(request);
+  json(response, 200, { ok: true });
+}
+
+async function handlePasswordChange(request, response) {
+  const account = await requireAuthenticatedAccount(request, response);
+  if (!account) return;
+  const body = await readJsonBody(request);
+  const currentPassword = body.currentPassword;
+  const nextPassword = body.nextPassword;
+  if (
+    !validatePassword(currentPassword)
+    || !validatePassword(nextPassword)
+    || !(await verifyPassword(currentPassword, account.passwordHash))
+  ) {
+    json(response, 400, { error: "Current password is invalid" });
+    return;
+  }
+  await getAccountStore().updatePassword(account.id, await hashPassword(nextPassword));
+  await getAccountStore().deleteSessionsForAccount(account.id);
+  clearSessionCookies(response);
+  json(response, 200, { ok: true });
+}
+
+async function handleEmailChange(request, response) {
+  const account = await requireAuthenticatedAccount(request, response);
+  if (!account) return;
+  const body = await readJsonBody(request);
+  const nextEmail = normalizeEmail(body.email);
+  if (!nextEmail || nextEmail === account.email) {
+    json(response, 400, { error: "A different valid email is required" });
+    return;
+  }
+  if (await getAccountStore().findAccountByEmail(nextEmail)) {
+    json(response, 409, { error: "Email is already registered" });
+    return;
+  }
+  try {
+    const delivered = await createLifecycleToken(account, "change_email", { email: nextEmail });
+    if (!delivered) {
+      json(response, 503, { error: "Email delivery is not configured" });
+      return;
+    }
+    json(response, 202, { ok: true });
+  } catch (error) {
+    console.error("Email change delivery failed", error);
+    json(response, 503, { error: "Email delivery is unavailable" });
+  }
+}
+
+async function handleAccountExport(request, response) {
+  const account = await requireAuthenticatedAccount(request, response);
+  if (!account) return;
+  const exported = await getAccountStore().getAccountExport(account.id);
+  if (!exported) {
+    json(response, 404, { error: "Account not found" });
+    return;
+  }
+  const safeAccount = publicAccount(exported.account);
+  const body = JSON.stringify({
+    exportedAt: new Date().toISOString(),
+    account: safeAccount,
+    progress: exported.progress,
+    events: exported.events
+  }, null, 2);
+  response.writeHead(200, {
+    "Content-Type": "application/json; charset=utf-8",
+    "Content-Disposition": `attachment; filename="bpmsoft-quest-export-${account.id}.json"`,
+    "Cache-Control": "no-store",
+    "Content-Length": Buffer.byteLength(body)
+  });
+  response.end(body);
+}
+
+async function handleAccountDeletion(request, response) {
+  const account = await requireAuthenticatedAccount(request, response);
+  if (!account) return;
+  const body = await readJsonBody(request);
+  const password = body.password;
+  if (!validatePassword(password) || !(await verifyPassword(password, account.passwordHash))) {
+    json(response, 400, { error: "Password confirmation is invalid" });
+    return;
+  }
+  await getAccountStore().deleteAccount(account.id);
+  clearSessionCookies(response);
+  json(response, 200, { ok: true });
+}
+
+async function handleAccountEvents(request, response) {
+  const account = await requireAuthenticatedAccount(request, response);
+  if (!account) return;
+  const body = await readJsonBody(request);
+  const rawEvents = Array.isArray(body.events) ? body.events.slice(0, 50) : [];
+  if (!rawEvents.length) {
+    json(response, 400, { error: "At least one learning event is required" });
+    return;
+  }
+  const now = Date.now();
+  const events = rawEvents.map((event) => sanitizeLearningEvent(event, now));
+  if (events.some((event) => event === null)) {
+    json(response, 400, { error: "Invalid learning event" });
+    return;
+  }
+  const inserted = await getAccountStore().recordLearningEvents(account.id, events);
+  json(response, 202, { accepted: events.length, inserted });
+}
+
 async function handleAccountProgress(request, response, chapter = null) {
   const account = await requireAuthenticatedAccount(request, response);
   if (!account) return;
@@ -1186,6 +1721,11 @@ async function handleAccountProgress(request, response, chapter = null) {
 
   if (request.method === "PUT") {
     const body = await readJsonBody(request);
+    const revision = Number(body.revision);
+    if (!Number.isSafeInteger(revision) || revision < 0) {
+      json(response, 400, { error: "A non-negative progress revision is required" });
+      return;
+    }
     const sanitizers = {
       chapter1: sanitizeProgressState,
       chapter2: sanitizeChapter2ProgressState,
@@ -1206,14 +1746,18 @@ async function handleAccountProgress(request, response, chapter = null) {
       return;
     }
     const score = scoreReaders[chapter](state);
-    const saved = await store.saveProgress(account.id, chapter, state, score);
-    json(response, 200, { ok: true, progress: saved });
+    const result = await store.saveProgress(account.id, chapter, state, score, revision);
+    if (result.conflict) {
+      json(response, 409, { error: "Progress revision conflict", progress: result.progress });
+      return;
+    }
+    json(response, 200, { ok: true, progress: result.progress });
     return;
   }
 
   if (request.method === "DELETE") {
-    await store.resetProgress(account.id, chapter);
-    json(response, 200, { ok: true });
+    const progress = await store.resetProgress(account.id, chapter);
+    json(response, 200, { ok: true, progress });
     return;
   }
 
@@ -1238,8 +1782,8 @@ async function serveStatic(request, response, pathname) {
     return;
   }
   const relativePath = decodedPath === "/"
-    ? "index.html"
-    : isUpdateVariant
+    ? "landing.html"
+    : requestedPath === "academy.html" || requestedPath === "update"
       ? "index.html"
       : requestedPath;
   if (relativePath.split("/").some((segment) => segment.startsWith("."))) {
@@ -1265,8 +1809,31 @@ async function serveStatic(request, response, pathname) {
         .replace("<html lang=\"ru\">", "<html lang=\"ru\" class=\"visual-update\">")
         .replace(
           "</head>",
-          "  <link rel=\"stylesheet\" href=\"/update.css?v=20260723-polish-1\">\n</head>"
+          "  <link rel=\"stylesheet\" href=\"/update.css?v=20260723-polish-2\">\n</head>"
         );
+      response.writeHead(200, {
+        "Content-Type": "text/html; charset=utf-8",
+        "Cache-Control": "no-store",
+        "Content-Length": Buffer.byteLength(body)
+      });
+      if (request.method === "HEAD") response.end();
+      else response.end(body);
+      return;
+    }
+    if (relativePath === "privacy.html" || relativePath === "terms.html") {
+      const template = await readFile(path.resolve(ROOT_DIR, relativePath), "utf8");
+      const legalValues = {
+        LEGAL_ENTITY_NAME: process.env.LEGAL_ENTITY_NAME || "Оператор не указан — публичный запуск запрещён",
+        PRIVACY_CONTACT_EMAIL: process.env.PRIVACY_CONTACT_EMAIL || "privacy@example.invalid",
+        LEGAL_JURISDICTION: process.env.LEGAL_JURISDICTION || "не указана",
+        POLICY_VERSION: process.env.POLICY_VERSION || "draft-2026-07-23"
+      };
+      const escapeHtml = (value) => String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+      const body = template.replace(/\{\{([A-Z_]+)\}\}/g, (_, key) => escapeHtml(legalValues[key] || ""));
       response.writeHead(200, {
         "Content-Type": "text/html; charset=utf-8",
         "Cache-Control": "no-store",
@@ -1302,12 +1869,53 @@ async function serveStatic(request, response, pathname) {
 export function createApplicationServer() {
   return createServer(async (request, response) => {
     applySecurityHeaders(response);
+    const requestId = randomUUID();
+    const startedAt = process.hrtime.bigint();
+    let pathnameForLog = "/";
+    operationalMetrics.activeRequests += 1;
+    response.setHeader("X-Request-ID", requestId);
+    response.once("finish", () => {
+      operationalMetrics.activeRequests = Math.max(0, operationalMetrics.activeRequests - 1);
+      const durationMs = Number(process.hrtime.bigint() - startedAt) / 1_000_000;
+      recordRequestMetric(request.method || "UNKNOWN", pathnameForLog, response.statusCode, durationMs);
+      if (process.env.LOG_FORMAT === "json" || process.env.NODE_ENV === "production") {
+        console.log(JSON.stringify({
+          level: response.statusCode >= 500 ? "error" : response.statusCode >= 400 ? "warn" : "info",
+          type: "http_request",
+          requestId,
+          method: request.method,
+          path: metricRoute(pathnameForLog),
+          status: response.statusCode,
+          durationMs: Math.round(durationMs * 100) / 100,
+          clientAddress: getClientAddress(request)
+        }));
+      }
+    });
 
     try {
       const url = new URL(request.url || "/", "http://localhost");
+      pathnameForLog = url.pathname;
+      if (
+        url.pathname.startsWith("/api/")
+        && ["POST", "PUT", "PATCH", "DELETE"].includes(request.method || "")
+        && !hasTrustedMutationOrigin(request)
+      ) {
+        json(response, 403, { error: "Untrusted request origin" });
+        return;
+      }
 
       if (url.pathname === "/health" && request.method === "GET") {
         await handleHealth(response);
+        return;
+      }
+
+      if (url.pathname === "/ready" && request.method === "GET") {
+        await handleHealth(response);
+        return;
+      }
+
+      if (url.pathname === "/metrics" && request.method === "GET") {
+        handleMetrics(request, response);
         return;
       }
 
@@ -1341,6 +1949,21 @@ export function createApplicationServer() {
         return;
       }
 
+      if (url.pathname === "/api/auth/verify-email" && request.method === "POST") {
+        await handleEmailVerification(request, response);
+        return;
+      }
+
+      if (url.pathname === "/api/auth/password-reset/request" && request.method === "POST") {
+        await handlePasswordResetRequest(request, response);
+        return;
+      }
+
+      if (url.pathname === "/api/auth/password-reset/confirm" && request.method === "POST") {
+        await handlePasswordResetConfirm(request, response);
+        return;
+      }
+
       if (url.pathname === "/api/auth/session" && request.method === "GET") {
         await handleAccountSession(request, response);
         return;
@@ -1353,6 +1976,31 @@ export function createApplicationServer() {
 
       if (url.pathname === "/api/auth/profile" && request.method === "PUT") {
         await handleAccountProfile(request, response);
+        return;
+      }
+
+      if (url.pathname === "/api/auth/password" && request.method === "PUT") {
+        await handlePasswordChange(request, response);
+        return;
+      }
+
+      if (url.pathname === "/api/auth/email-change" && request.method === "POST") {
+        await handleEmailChange(request, response);
+        return;
+      }
+
+      if (url.pathname === "/api/account/export" && request.method === "GET") {
+        await handleAccountExport(request, response);
+        return;
+      }
+
+      if (url.pathname === "/api/account" && request.method === "DELETE") {
+        await handleAccountDeletion(request, response);
+        return;
+      }
+
+      if (url.pathname === "/api/account/events" && request.method === "POST") {
+        await handleAccountEvents(request, response);
         return;
       }
 
@@ -1391,6 +2039,7 @@ export function createApplicationServer() {
 }
 
 async function start() {
+  validateProductionConfiguration();
   await initializeDatabase();
   const server = createApplicationServer();
   const port = Number(process.env.PORT) || 4173;

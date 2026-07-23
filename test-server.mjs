@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createServer as createHttpServer } from "node:http";
 import { after, before, test } from "node:test";
 import {
   createApplicationServer,
@@ -9,6 +10,7 @@ import {
   sanitizeChapter4ProgressState,
   sanitizeChapter5ProgressState,
   sanitizeProgressState,
+  validateProductionConfiguration,
   verifyPassword
 } from "./server.js";
 
@@ -33,6 +35,12 @@ test("health endpoint reports a running server", async () => {
   const response = await fetch(`${baseUrl}/health`);
   assert.equal(response.status, 200);
   assert.deepEqual(await response.json(), { status: "ok", database: "disabled" });
+  assert.match(response.headers.get("x-request-id"), /^[0-9a-f-]{36}$/);
+  const readiness = await fetch(`${baseUrl}/ready`);
+  assert.equal(readiness.status, 200);
+  const metrics = await fetch(`${baseUrl}/metrics`);
+  assert.equal(metrics.status, 200);
+  assert.match(await metrics.text(), /bpmsoft_http_requests_total/);
 });
 
 test("static application is served with security headers", async () => {
@@ -42,6 +50,23 @@ test("static application is served with security headers", async () => {
   assert.match(response.headers.get("content-type"), /text\/html/);
   assert.match(response.headers.get("content-security-policy"), /default-src 'self'/);
   assert.match(html, /BPMSoft Quest/);
+  assert.match(html, /45 заданий/);
+  const academy = await fetch(`${baseUrl}/academy.html`);
+  assert.equal(academy.status, 200);
+  const academyHtml = await academy.text();
+  assert.match(academyHtml, /player-access-modal/);
+  assert.doesNotMatch(academyHtml, /update\.css|visual-update/);
+  const update = await fetch(`${baseUrl}/update`);
+  assert.equal(update.status, 200);
+  const updateHtml = await update.text();
+  assert.match(updateHtml, /update\.css/);
+  assert.match(updateHtml, /class="visual-update"/);
+  const updateSlash = await fetch(`${baseUrl}/update/`, { redirect: "manual" });
+  assert.equal(updateSlash.status, 308);
+  assert.equal(updateSlash.headers.get("location"), "/update");
+  const privacy = await fetch(`${baseUrl}/privacy.html`);
+  assert.equal(privacy.status, 200);
+  assert.doesNotMatch(await privacy.text(), /\{\{[A-Z_]+\}\}/);
 });
 
 test("admin analytics page and its assets are public", async () => {
@@ -271,7 +296,9 @@ test("account registration, session and all chapter saves work together", async 
       email: "Colleague@Example.com",
       displayName: "Коллега",
       password: "long-test-password",
-      mode: "progression"
+      mode: "progression",
+      termsAccepted: true,
+      privacyAccepted: true
     })
   });
   assert.equal(registration.status, 201);
@@ -280,24 +307,76 @@ test("account registration, session and all chapter saves work together", async 
   assert.match(registration.headers.get("set-cookie"), /SameSite=Lax/);
   const registered = await registration.json();
   assert.equal(registered.account.email, "colleague@example.com");
+  assert.equal(registered.account.emailVerified, true);
   assert.equal(registered.account.passwordHash, undefined);
 
   const session = await fetch(`${baseUrl}/api/auth/session`, { headers: { Cookie: cookie } });
   assert.equal(session.status, 200);
   assert.equal((await session.json()).account.displayName, "Коллега");
 
+  const learningEvents = [
+    {
+      id: "10000000-0000-4000-8000-000000000001",
+      sessionId: "20000000-0000-4000-8000-000000000001",
+      chapterId: "chapter1",
+      missionKey: "interface",
+      eventType: "mission_started",
+      attempt: 1,
+      details: { source: "test" },
+      occurredAt: new Date().toISOString()
+    },
+    {
+      id: "10000000-0000-4000-8000-000000000002",
+      sessionId: "20000000-0000-4000-8000-000000000001",
+      chapterId: "chapter1",
+      missionKey: "interface",
+      eventType: "answer_checked",
+      outcome: "failure",
+      attempt: 1,
+      details: { wrongCount: 1 },
+      occurredAt: new Date().toISOString()
+    }
+  ];
+  const eventResponse = await fetch(`${baseUrl}/api/account/events`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Cookie: cookie },
+    body: JSON.stringify({ events: learningEvents })
+  });
+  assert.equal(eventResponse.status, 202);
+  assert.deepEqual(await eventResponse.json(), { accepted: 2, inserted: 2 });
+
+  const duplicateEventResponse = await fetch(`${baseUrl}/api/account/events`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Cookie: cookie },
+    body: JSON.stringify({ events: [learningEvents[0]] })
+  });
+  assert.equal(duplicateEventResponse.status, 202);
+  assert.deepEqual(await duplicateEventResponse.json(), { accepted: 1, inserted: 0 });
+
   const chapter1 = await fetch(`${baseUrl}/api/account/progress/chapter1`, {
     method: "PUT",
     headers: { "Content-Type": "application/json", Cookie: cookie },
-    body: JSON.stringify({ state: { missionComplete: true, dataMissionComplete: true, energy: 2 } })
+    body: JSON.stringify({ state: { missionComplete: true, dataMissionComplete: true, energy: 2 }, revision: 0 })
   });
   assert.equal(chapter1.status, 200);
-  assert.equal((await chapter1.json()).progress.score, 2);
+  const chapter1Payload = await chapter1.json();
+  assert.equal(chapter1Payload.progress.score, 2);
+  assert.equal(chapter1Payload.progress.revision, 1);
+
+  const staleChapter1 = await fetch(`${baseUrl}/api/account/progress/chapter1`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json", Cookie: cookie },
+    body: JSON.stringify({ state: { missionComplete: true, energy: 3 }, revision: 0 })
+  });
+  assert.equal(staleChapter1.status, 409);
+  const staleChapter1Payload = await staleChapter1.json();
+  assert.equal(staleChapter1Payload.progress.score, 2);
+  assert.equal(staleChapter1Payload.progress.revision, 1);
 
   const chapter2 = await fetch(`${baseUrl}/api/account/progress/chapter2`, {
     method: "PUT",
     headers: { "Content-Type": "application/json", Cookie: cookie },
-    body: JSON.stringify({ state: { sortingComplete: true, energy: 3 } })
+    body: JSON.stringify({ state: { sortingComplete: true, energy: 3 }, revision: 0 })
   });
   assert.equal(chapter2.status, 200);
   assert.equal((await chapter2.json()).progress.score, 1);
@@ -305,7 +384,7 @@ test("account registration, session and all chapter saves work together", async 
   const chapter3 = await fetch(`${baseUrl}/api/account/progress/chapter3`, {
     method: "PUT",
     headers: { "Content-Type": "application/json", Cookie: cookie },
-    body: JSON.stringify({ state: { contactComplete: true, energy: 4 } })
+    body: JSON.stringify({ state: { contactComplete: true, energy: 4 }, revision: 0 })
   });
   assert.equal(chapter3.status, 200);
   assert.equal((await chapter3.json()).progress.score, 1);
@@ -313,7 +392,7 @@ test("account registration, session and all chapter saves work together", async 
   const chapter4 = await fetch(`${baseUrl}/api/account/progress/chapter4`, {
     method: "PUT",
     headers: { "Content-Type": "application/json", Cookie: cookie },
-    body: JSON.stringify({ state: { migrationComplete: true, energy: 4 } })
+    body: JSON.stringify({ state: { migrationComplete: true, energy: 4 }, revision: 0 })
   });
   assert.equal(chapter4.status, 200);
   assert.equal((await chapter4.json()).progress.score, 1);
@@ -321,7 +400,7 @@ test("account registration, session and all chapter saves work together", async 
   const chapter5 = await fetch(`${baseUrl}/api/account/progress/chapter5`, {
     method: "PUT",
     headers: { "Content-Type": "application/json", Cookie: cookie },
-    body: JSON.stringify({ state: { scheduleComplete: true, energy: 4 } })
+    body: JSON.stringify({ state: { scheduleComplete: true, energy: 4 }, revision: 0 })
   });
   assert.equal(chapter5.status, 200);
   assert.equal((await chapter5.json()).progress.score, 1);
@@ -404,8 +483,10 @@ test("admin session protects analytics and returns all 45 quest metrics", async 
     const payload = await analytics.json();
     assert.equal(payload.meta.widgets, 30);
     assert.equal(payload.meta.periodDays, 7);
+    assert.equal(payload.meta.eventCount, 2);
     assert.equal(payload.quests.length, 45);
     assert.equal(payload.chapters.length, 5);
+    assert.equal(payload.quests.find((quest) => quest.chapterId === "chapter1" && quest.key === "interface").errors, 1);
 
     const logout = await fetch(`${baseUrl}/api/admin/logout`, { method: "POST", headers: { Cookie: cookie } });
     assert.equal(logout.status, 200);
@@ -414,4 +495,201 @@ test("admin session protects analytics and returns all 45 quest metrics", async 
   } finally {
     delete process.env.ADMIN_PASSWORD;
   }
+});
+
+test("account export, password rotation and deletion complete the lifecycle", async () => {
+  const registration = await fetch(`${baseUrl}/api/auth/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      email: "lifecycle@example.com",
+      displayName: "Lifecycle",
+      password: "initial-test-password",
+      mode: "progression",
+      termsAccepted: true,
+      privacyAccepted: true
+    })
+  });
+  assert.equal(registration.status, 201);
+  const firstCookie = registration.headers.get("set-cookie").split(";")[0];
+
+  const exported = await fetch(`${baseUrl}/api/account/export`, { headers: { Cookie: firstCookie } });
+  assert.equal(exported.status, 200);
+  assert.match(exported.headers.get("content-disposition"), /attachment/);
+  const exportPayload = await exported.json();
+  assert.equal(exportPayload.account.email, "lifecycle@example.com");
+  assert.equal(exportPayload.account.passwordHash, undefined);
+
+  const changeEmail = await fetch(`${baseUrl}/api/auth/email-change`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Cookie: firstCookie },
+    body: JSON.stringify({ email: "new-lifecycle@example.com" })
+  });
+  assert.equal(changeEmail.status, 503);
+
+  const passwordChange = await fetch(`${baseUrl}/api/auth/password`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json", Cookie: firstCookie },
+    body: JSON.stringify({
+      currentPassword: "initial-test-password",
+      nextPassword: "rotated-test-password"
+    })
+  });
+  assert.equal(passwordChange.status, 200);
+  assert.equal((await fetch(`${baseUrl}/api/auth/session`, { headers: { Cookie: firstCookie } })).status, 401);
+
+  const login = await fetch(`${baseUrl}/api/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      email: "lifecycle@example.com",
+      password: "rotated-test-password",
+      mode: "progression"
+    })
+  });
+  assert.equal(login.status, 200);
+  const secondCookie = login.headers.get("set-cookie").split(";")[0];
+
+  const deletion = await fetch(`${baseUrl}/api/account`, {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json", Cookie: secondCookie },
+    body: JSON.stringify({ password: "rotated-test-password" })
+  });
+  assert.equal(deletion.status, 200);
+  assert.equal((await fetch(`${baseUrl}/api/auth/session`, { headers: { Cookie: secondCookie } })).status, 401);
+
+  const resetRequest = await fetch(`${baseUrl}/api/auth/password-reset/request`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email: "missing@example.com" })
+  });
+  assert.equal(resetRequest.status, 202);
+});
+
+test("email verification, email change and password recovery use one-time links", async () => {
+  const deliveries = [];
+  const mailServer = createHttpServer((request, response) => {
+    const chunks = [];
+    request.on("data", (chunk) => chunks.push(chunk));
+    request.on("end", () => {
+      deliveries.push(JSON.parse(Buffer.concat(chunks).toString("utf8")));
+      response.writeHead(204);
+      response.end();
+    });
+  });
+  await new Promise((resolve) => mailServer.listen(0, "127.0.0.1", resolve));
+  const mailAddress = mailServer.address();
+  process.env.REQUIRE_EMAIL_VERIFICATION = "true";
+  process.env.REQUIRE_EMAIL_DELIVERY = "true";
+  process.env.MAIL_WEBHOOK_URL = `http://127.0.0.1:${mailAddress.port}/send`;
+  process.env.APP_BASE_URL = baseUrl;
+  try {
+    const registration = await fetch(`${baseUrl}/api/auth/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: "verified@example.com",
+        displayName: "Verified",
+        password: "verification-password",
+        mode: "progression",
+        termsAccepted: true,
+        privacyAccepted: true
+      })
+    });
+    assert.equal(registration.status, 201);
+    assert.equal((await registration.json()).verificationRequired, true);
+    assert.equal(deliveries.at(-1).template, "verify_email");
+    const verificationToken = new URL(deliveries.at(-1).actionUrl).searchParams.get("verifyToken");
+
+    const verification = await fetch(`${baseUrl}/api/auth/verify-email`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: verificationToken })
+    });
+    assert.equal(verification.status, 200);
+    assert.equal((await fetch(`${baseUrl}/api/auth/verify-email`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: verificationToken })
+    })).status, 400);
+
+    const login = await fetch(`${baseUrl}/api/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: "verified@example.com",
+        password: "verification-password",
+        mode: "progression"
+      })
+    });
+    assert.equal(login.status, 200);
+    const cookie = login.headers.get("set-cookie").split(";")[0];
+
+    const emailChange = await fetch(`${baseUrl}/api/auth/email-change`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Cookie: cookie },
+      body: JSON.stringify({ email: "verified-next@example.com" })
+    });
+    assert.equal(emailChange.status, 202);
+    const emailToken = new URL(deliveries.at(-1).actionUrl).searchParams.get("verifyToken");
+    assert.equal((await fetch(`${baseUrl}/api/auth/verify-email`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: emailToken })
+    })).status, 200);
+
+    const resetRequest = await fetch(`${baseUrl}/api/auth/password-reset/request`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: "verified-next@example.com" })
+    });
+    assert.equal(resetRequest.status, 202);
+    const resetToken = new URL(deliveries.at(-1).actionUrl).searchParams.get("resetToken");
+    const resetConfirmation = await fetch(`${baseUrl}/api/auth/password-reset/confirm`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: resetToken, password: "recovered-password" })
+    });
+    assert.equal(resetConfirmation.status, 200);
+    assert.equal((await fetch(`${baseUrl}/api/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: "verified-next@example.com",
+        password: "recovered-password",
+        mode: "progression"
+      })
+    })).status, 200);
+  } finally {
+    delete process.env.REQUIRE_EMAIL_VERIFICATION;
+    delete process.env.REQUIRE_EMAIL_DELIVERY;
+    delete process.env.MAIL_WEBHOOK_URL;
+    delete process.env.APP_BASE_URL;
+    await new Promise((resolve) => mailServer.close(resolve));
+  }
+});
+
+test("production configuration fails closed", () => {
+  assert.throws(
+    () => validateProductionConfiguration({ NODE_ENV: "production" }),
+    /Unsafe production configuration/
+  );
+  assert.equal(validateProductionConfiguration({
+    NODE_ENV: "production",
+    DATABASE_URL: "postgresql://example.invalid/bpmsoft",
+    REQUIRE_DATABASE: "true",
+    ADMIN_PASSWORD: "a-very-long-admin-password",
+    REQUIRE_EMAIL_VERIFICATION: "true",
+    REQUIRE_EMAIL_DELIVERY: "true",
+    MAIL_WEBHOOK_URL: "https://mail.example.invalid/send",
+    MAIL_WEBHOOK_TOKEN: "secret",
+    APP_BASE_URL: "https://quest.example.invalid",
+    TRUST_PROXY: "true",
+    METRICS_TOKEN: "a-long-metrics-token",
+    LEGAL_ENTITY_NAME: "Test Operator LLC",
+    PRIVACY_CONTACT_EMAIL: "privacy@example.com",
+    LEGAL_JURISDICTION: "Test jurisdiction",
+    POLICY_VERSION: "2026-07-23",
+    PGSSLMODE: "verify-full"
+  }), true);
 });

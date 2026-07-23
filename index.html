@@ -4,6 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#1B0B3B">
+  <meta name="description" content="Интерактивная Академия аналитика BPMSoft: 45 практических заданий на пяти картах.">
+  <meta name="robots" content="noindex">
+  <meta property="og:title" content="Академия Гуд программ — BPMSoft Quest">
+  <meta property="og:description" content="Практический тренажёр по BPMSoft: 45 заданий и пять отраслевых проектов.">
+  <meta property="og:image" content="/assets/optimized/world-map-4k.jpg">
   <title>Академия Гуд программ | BPMSoft Quest</title>
   <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png?v=20260720-1">
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=20260720-1">
@@ -45,7 +50,8 @@
           <span>Повторите пароль</span>
           <input id="player-password-confirm" name="passwordConfirm" type="password" minlength="10" maxlength="128" autocomplete="new-password">
         </label>
-        <fieldset class="player-mode-fieldset">
+        <button id="player-password-reset" class="player-inline-action" type="button">Забыли пароль?</button>
+        <fieldset id="player-mode-fieldset" class="player-mode-fieldset">
           <legend>Режим</legend>
           <label class="player-mode-card">
             <input id="player-mode-progression" name="questMode" type="radio" value="progression" checked>
@@ -62,11 +68,30 @@
             </span>
           </label>
         </fieldset>
+        <div id="player-consent-fields" class="player-consent-fields" hidden>
+          <label>
+            <input id="player-terms-accepted" type="checkbox">
+            <span>Принимаю <a href="/terms.html" target="_blank" rel="noopener">условия использования</a>.</span>
+          </label>
+          <label>
+            <input id="player-privacy-accepted" type="checkbox">
+            <span>Согласен с <a href="/privacy.html" target="_blank" rel="noopener">политикой конфиденциальности</a>.</span>
+          </label>
+        </div>
+        <section id="player-account-actions" class="player-account-actions" hidden aria-label="Управление аккаунтом">
+          <p id="player-email-status"></p>
+          <div>
+            <button id="player-change-password" class="secondary-action" type="button">Сменить пароль</button>
+            <button id="player-change-email" class="secondary-action" type="button">Сменить email</button>
+            <button id="player-export-data" class="secondary-action" type="button">Скачать мои данные</button>
+            <button id="player-delete-account" class="secondary-action danger-action" type="button">Удалить аккаунт</button>
+          </div>
+        </section>
         <p id="player-auth-security" class="player-auth-security">Сессия хранится в защищённой cookie, а пароль — только в виде стойкого хеша.</p>
         <p id="player-access-error" class="admin-error" role="alert" hidden></p>
         <div class="player-access-actions">
           <button id="player-logout" class="secondary-action player-logout-action" type="button" hidden>Выйти из аккаунта</button>
-          <button id="player-access-cancel" class="secondary-action" type="button" hidden>Отмена</button>
+          <button id="player-access-cancel" class="secondary-action" type="button" data-dialog-dismiss hidden>Отмена</button>
           <button id="player-access-submit" class="primary-action" type="submit">Войти в академию</button>
         </div>
       </form>
@@ -83,7 +108,7 @@
         </label>
         <p id="admin-error" class="admin-error" role="alert" hidden>Неверный пароль. Попробуйте ещё раз.</p>
         <div class="admin-dialog-actions">
-          <button id="admin-cancel" class="secondary-action" type="button">Отмена</button>
+          <button id="admin-cancel" class="secondary-action" type="button" data-dialog-dismiss>Отмена</button>
           <button id="admin-submit" class="primary-action" type="submit">Войти</button>
         </div>
       </form>
@@ -92,7 +117,7 @@
     <div id="mission-intro" class="mission-intro" hidden>
       <section class="mission-intro-dialog" role="dialog" aria-modal="true" aria-labelledby="mission-intro-title" aria-describedby="mission-intro-copy">
         <div class="mission-intro-visual">
-          <img id="mission-intro-image" src="assets/mission-interface-hub.png" alt="Учебное рабочее место Академии">
+          <img loading="lazy" decoding="async" id="mission-intro-image" src="assets/optimized/mission-interface-hub.jpg" alt="Учебное рабочее место Академии">
           <div class="mission-intro-seal" aria-hidden="true">
             <span>Задание</span>
             <strong id="mission-intro-number">01</strong>
@@ -106,7 +131,7 @@
             <p>Соберите путь пользователя от рабочего места до нужных данных и объясните назначение каждого уровня навигации.</p>
           </div>
           <div class="mission-intro-actions">
-            <button id="mission-intro-map" class="secondary-action" type="button">Вернуться на карту</button>
+            <button id="mission-intro-map" class="secondary-action" type="button" data-dialog-dismiss>Вернуться на карту</button>
             <button id="mission-intro-start" class="primary-action" type="button">Принять задание</button>
           </div>
         </div>
@@ -116,7 +141,7 @@
     <div id="chapter2-prologue" class="c2-prologue" hidden>
       <section class="c2-prologue-dialog" role="dialog" aria-modal="true" aria-labelledby="chapter2-prologue-title" aria-describedby="chapter2-prologue-copy">
         <div class="c2-prologue-visual" aria-hidden="true">
-          <img class="c2-prologue-image" src="assets/chapter2-world-map-4k.jpg" alt="">
+          <img loading="lazy" decoding="async" class="c2-prologue-image" src="assets/optimized/chapter2-world-map-4k.jpg" alt="">
           <div class="c2-prologue-core"><span></span></div>
           <div class="c2-prologue-route"></div>
           <p>АО «Медные машины»</p>
@@ -129,7 +154,7 @@
             <p>Компания расширяет производство и дилерскую сеть, но заказы дублируются, интеграции работают нестабильно, а изменения сложно выпускать. Ваша задача — разобраться в процессах и подготовить решения, которые можно принять в эксплуатацию.</p>
           </div>
           <div class="c2-prologue-actions">
-            <button id="chapter2-prologue-back" class="secondary-action" type="button">Вернуться в Академию</button>
+            <button id="chapter2-prologue-back" class="secondary-action" type="button" data-dialog-dismiss>Вернуться в Академию</button>
             <button id="chapter2-prologue-start" class="primary-action" type="button">Начать проект</button>
           </div>
         </div>
@@ -139,7 +164,7 @@
     <div id="chapter2-mission-intro" class="c2-prologue c2-mission-intro" hidden>
       <section class="c2-prologue-dialog" role="dialog" aria-modal="true" aria-labelledby="chapter2-mission-intro-title" aria-describedby="chapter2-mission-intro-copy">
         <div id="chapter2-mission-intro-visual" class="c2-prologue-visual c2-mission-intro-visual" aria-hidden="true">
-          <img id="chapter2-mission-intro-image" class="c2-mission-intro-image" src="assets/mission-sorting-furnace.png" alt="">
+          <img loading="lazy" decoding="async" id="chapter2-mission-intro-image" class="c2-mission-intro-image" src="assets/optimized/mission-sorting-furnace.jpg" alt="">
           <div class="c2-mission-intro-number"><span>Задание</span><strong id="chapter2-mission-intro-number">10</strong></div>
         </div>
         <div class="c2-prologue-content">
@@ -147,7 +172,7 @@
           <h2 id="chapter2-mission-intro-title">Импорт производственных заказов</h2>
           <div id="chapter2-mission-intro-copy" class="c2-prologue-copy"></div>
           <div class="c2-prologue-actions">
-            <button id="chapter2-mission-intro-map" class="secondary-action" type="button">Вернуться на карту</button>
+            <button id="chapter2-mission-intro-map" class="secondary-action" type="button" data-dialog-dismiss>Вернуться на карту</button>
             <button id="chapter2-mission-intro-start" class="primary-action" type="button">Принять задание</button>
           </div>
         </div>
@@ -157,7 +182,7 @@
     <div id="chapter3-prologue" class="c3-overlay" hidden>
       <section class="c3-overlay-dialog" role="dialog" aria-modal="true" aria-labelledby="chapter3-prologue-title" aria-describedby="chapter3-prologue-copy">
         <div class="c3-overlay-visual" aria-hidden="true">
-          <img src="assets/chapter3-world-map-4k.jpg" alt="">
+          <img loading="lazy" decoding="async" src="assets/optimized/chapter3-world-map-4k.jpg" alt="">
           <div class="c3-orbit-rings"><span></span><span></span><span></span></div>
           <div class="c3-prism-mark"></div>
           <p>Группа «Семь дорог»</p>
@@ -170,7 +195,7 @@
             <p>Команде предстоит привести в порядок клиентские данные, квалификацию лидов, коммуникации, сервис, права, интеграции и AI-сценарии. Вы подключаетесь как ведущий аналитик и помогаете выстроить рабочие правила.</p>
           </div>
           <div class="c3-overlay-actions">
-            <button id="chapter3-prologue-back" class="secondary-action" type="button">Вернуться к проекту «Медные машины»</button>
+            <button id="chapter3-prologue-back" class="secondary-action" type="button" data-dialog-dismiss>Вернуться к проекту «Медные машины»</button>
             <button id="chapter3-prologue-start" class="primary-action" type="button">Начать работу</button>
           </div>
         </div>
@@ -180,7 +205,7 @@
     <div id="chapter3-mission-intro" class="c3-overlay c3-mission-intro" hidden>
       <section class="c3-overlay-dialog" role="dialog" aria-modal="true" aria-labelledby="chapter3-mission-intro-title" aria-describedby="chapter3-mission-intro-copy">
         <div id="chapter3-mission-intro-visual" class="c3-overlay-visual c3-mission-intro-visual" aria-hidden="true">
-          <img id="chapter3-mission-intro-image" src="assets/mission-contact-genome.png" alt="">
+          <img loading="lazy" decoding="async" id="chapter3-mission-intro-image" src="assets/optimized/mission-contact-genome.jpg" alt="">
           <div class="c3-mission-intro-number"><span>Задание</span><strong id="chapter3-mission-intro-number">19</strong></div>
         </div>
         <div class="c3-overlay-content">
@@ -188,7 +213,7 @@
           <h2 id="chapter3-mission-intro-title">Дубли в клиентской базе</h2>
           <div id="chapter3-mission-intro-copy" class="c3-overlay-copy"></div>
           <div class="c3-overlay-actions">
-            <button id="chapter3-mission-intro-map" class="secondary-action" type="button">Вернуться на карту</button>
+            <button id="chapter3-mission-intro-map" class="secondary-action" type="button" data-dialog-dismiss>Вернуться на карту</button>
             <button id="chapter3-mission-intro-start" class="primary-action" type="button">Начать работу</button>
           </div>
         </div>
@@ -198,7 +223,7 @@
     <div id="chapter4-prologue" class="c4-overlay" hidden>
       <section class="c4-overlay-dialog" role="dialog" aria-modal="true" aria-labelledby="chapter4-prologue-title" aria-describedby="chapter4-prologue-copy">
         <div class="c4-overlay-visual" aria-hidden="true">
-          <img src="assets/chapter4-world-map-4k.jpg" alt="">
+          <img loading="lazy" decoding="async" src="assets/optimized/chapter4-world-map-4k.jpg" alt="">
           <div class="c4-overlay-orbit"><span></span><span></span><span></span></div>
         </div>
         <div class="c4-overlay-content">
@@ -211,7 +236,7 @@
             </div>
           </div>
           <div class="c4-overlay-actions">
-            <button id="chapter4-prologue-back" class="secondary-action" type="button">Вернуться к проекту «Семь дорог»</button>
+            <button id="chapter4-prologue-back" class="secondary-action" type="button" data-dialog-dismiss>Вернуться к проекту «Семь дорог»</button>
             <button id="chapter4-prologue-start" class="primary-action" type="button">Начать трансформацию</button>
           </div>
         </div>
@@ -221,7 +246,7 @@
     <div id="chapter4-mission-intro" class="c4-overlay c4-mission-intro" hidden>
       <section class="c4-overlay-dialog" role="dialog" aria-modal="true" aria-labelledby="chapter4-mission-intro-title" aria-describedby="chapter4-mission-intro-copy">
         <div class="c4-overlay-visual c4-mission-intro-visual" aria-hidden="true">
-          <img id="chapter4-mission-intro-image" src="assets/mission-legacy-ledgers.png" alt="">
+          <img loading="lazy" decoding="async" id="chapter4-mission-intro-image" src="assets/optimized/mission-legacy-ledgers.jpg" alt="">
           <div class="c4-mission-intro-number"><span>Задание</span><strong id="chapter4-mission-intro-number">28</strong></div>
         </div>
         <div class="c4-overlay-content">
@@ -241,7 +266,7 @@
             </section>
           </div>
           <div class="c4-overlay-actions">
-            <button id="chapter4-mission-intro-map" class="secondary-action" type="button">Вернуться на карту</button>
+            <button id="chapter4-mission-intro-map" class="secondary-action" type="button" data-dialog-dismiss>Вернуться на карту</button>
             <button id="chapter4-mission-intro-start" class="primary-action" type="button">Начать аудит</button>
           </div>
         </div>
@@ -251,7 +276,7 @@
     <div id="chapter5-prologue" class="c5-overlay" hidden>
       <section class="c5-overlay-dialog" role="dialog" aria-modal="true" aria-labelledby="chapter5-prologue-title" aria-describedby="chapter5-prologue-copy">
         <div class="c5-overlay-visual" aria-hidden="true">
-          <img src="assets/concepts/chapter5-good-avia-infinity-megahub.png" alt="">
+          <img loading="lazy" decoding="async" src="assets/optimized/chapter5-good-avia-infinity-megahub.jpg" alt="">
           <div class="c5-infinity-mark"><span></span><span></span></div>
           <p>Авиакомпания «Гуд Авиа»</p>
         </div>
@@ -263,7 +288,7 @@
             <p>Лада Ветрова приглашает вас в операционный двойник мегахаба. Здесь нельзя угадывать по яркому симптому: наблюдайте неизменный поток событий, найдите первое неверное решение системы, измените только доступные правила и повторите тот же сценарий.</p>
           </div>
           <div class="c5-overlay-actions">
-            <button id="chapter5-prologue-back" class="secondary-action" type="button">Вернуться к «Золотой полке»</button>
+            <button id="chapter5-prologue-back" class="secondary-action" type="button" data-dialog-dismiss>Вернуться к «Золотой полке»</button>
             <button id="chapter5-prologue-start" class="primary-action" type="button">Войти в мегахаб</button>
           </div>
         </div>
@@ -273,7 +298,7 @@
     <div id="chapter5-mission-intro" class="c5-overlay c5-mission-intro" hidden>
       <section class="c5-overlay-dialog" role="dialog" aria-modal="true" aria-labelledby="chapter5-mission-intro-title" aria-describedby="chapter5-mission-intro-copy">
         <div class="c5-overlay-visual" aria-hidden="true">
-          <img src="assets/concepts/chapter5-good-avia-infinity-megahub.png" alt="">
+          <img loading="lazy" decoding="async" src="assets/optimized/chapter5-good-avia-infinity-megahub.jpg" alt="">
           <div class="c5-mission-intro-number"><span>Задание</span><strong id="chapter5-mission-intro-number">37</strong></div>
         </div>
         <div class="c5-overlay-content">
@@ -290,7 +315,7 @@
             </ol>
           </section>
           <div class="c5-overlay-actions">
-            <button id="chapter5-mission-intro-map" class="secondary-action" type="button">Вернуться на карту</button>
+            <button id="chapter5-mission-intro-map" class="secondary-action" type="button" data-dialog-dismiss>Вернуться на карту</button>
             <button id="chapter5-mission-intro-start" class="primary-action" type="button">Запустить двойник</button>
           </div>
         </div>
@@ -300,7 +325,7 @@
     <header class="topbar">
       <div class="brand" aria-label="BPMSoft Quest">
         <div class="company-logo-wrap">
-          <img class="company-logo" src="assets/good-program-logo-color.png" alt="Гуд Программ">
+          <img loading="eager" decoding="async" fetchpriority="high" class="company-logo" src="assets/good-program-logo-color.png" alt="Гуд Программ">
         </div>
         <div>
           <p class="brand-kicker">Академия Гуд программ</p>
@@ -415,7 +440,7 @@
           </aside>
 
           <section class="world-stage" aria-label="Карта учебного кампуса">
-            <img class="world-map" src="assets/world-map-4k.jpg" alt="Кампус Академии аналитиков BPMSoft">
+            <img loading="lazy" decoding="async" class="world-map" src="assets/optimized/world-map-4k.jpg" alt="Кампус Академии аналитиков BPMSoft">
 
             <button class="map-node node-interface is-current" type="button" data-zone="interface" style="--x: 29%; --y: 29%;">
               <span class="node-pin">01</span>
@@ -459,7 +484,7 @@
           <aside class="quest-brief">
             <div class="mentor-block">
               <div class="mentor-portrait">
-                <img src="assets/mentor-archivist.png" alt="Ирина Лейт, куратор выпускного курса">
+                <img loading="lazy" decoding="async" src="assets/optimized/mentor-archivist.jpg" alt="Ирина Лейт, куратор выпускного курса">
               </div>
               <div>
                 <p class="eyebrow">Куратор курса</p>
@@ -511,7 +536,7 @@
             </header>
 
             <div id="scene-banner" class="scene-banner">
-              <img id="scene-image" src="assets/mission-interface-hub.png" alt="Учебное рабочее место Академии">
+              <img loading="lazy" decoding="async" id="scene-image" src="assets/optimized/mission-interface-hub.jpg" alt="Учебное рабочее место Академии">
               <div id="scene-route" class="scene-route" aria-label="Маршрут по сцене" aria-live="polite" hidden></div>
               <div id="forge-layer" class="forge-layer" aria-label="Интерактивная схема модели данных" aria-live="polite" hidden></div>
               <div id="access-layer" class="access-layer" aria-label="Уровни настройки доступа" aria-live="polite" hidden></div>
@@ -644,7 +669,7 @@
           </aside>
 
           <section class="c2-world-stage" aria-label="Карта проекта АО «Медные машины»">
-            <img class="c2-world-map-image" src="assets/chapter2-world-map-4k.jpg" alt="" aria-hidden="true">
+            <img loading="lazy" decoding="async" class="c2-world-map-image" src="assets/optimized/chapter2-world-map-4k.jpg" alt="" aria-hidden="true">
 
             <button class="c2-map-node" type="button" data-c2-zone="sorting" style="--x: 18%; --y: 75%;"><span>10</span><strong>Планирование</strong></button>
             <button class="c2-map-node" type="button" data-c2-zone="portal" style="--x: 22%; --y: 22%;" disabled><span>11</span><strong>Дилерский портал</strong></button>
@@ -660,7 +685,7 @@
 
           <aside class="c2-quest-brief">
             <div class="c2-mentor-block">
-              <img class="c2-mentor-portrait" src="assets/chapter2-mentor-hephaestus.png" alt="Бран Коваль, руководитель производственных систем">
+              <img loading="lazy" decoding="async" class="c2-mentor-portrait" src="assets/optimized/chapter2-mentor-hephaestus.jpg" alt="Бран Коваль, руководитель производственных систем">
               <div><p class="eyebrow">Представитель заказчика</p><strong>Бран Коваль</strong><small>Руководитель производственных систем</small></div>
             </div>
             <div class="c2-brief-copy">
@@ -695,7 +720,7 @@
             </header>
 
             <div id="chapter2-scene" class="c2-scene" aria-label="Исходные данные задания">
-              <img id="chapter2-scene-image" class="c2-scene-image" src="assets/mission-sorting-furnace.png" alt="Участок планирования производства">
+              <img loading="lazy" decoding="async" id="chapter2-scene-image" class="c2-scene-image" src="assets/optimized/mission-sorting-furnace.jpg" alt="Участок планирования производства">
               <div class="c2-scene-copy"><span id="chapter2-scene-kicker">Диагностика</span><p id="chapter2-scene-copy"></p></div>
             </div>
 
@@ -740,7 +765,7 @@
           <h2 id="chapter2-finale-title">Рабочий релиз принят в эксплуатацию</h2>
           <p>АО «Медные машины» получило управляемый импорт заказов, разграниченный дилерский портал, наблюдаемые интеграции и понятный процесс выпуска изменений.</p>
           <div class="finale-stats"><div><strong>9 / 9</strong><span>заданий</span></div><div><strong>500 XP</strong><span>за проект</span></div><div><strong>III–IV</strong><span>уровни</span></div></div>
-          <div class="achievement-card"><img class="c2-finale-scout" src="assets/chapter2-scout-bolt.png" alt="Ремонтный голем производственной компании"><div><p class="eyebrow">Новое достижение</p><h3>Аналитик производственного проекта</h3><p>Вы связали требования подразделений, конфигурацию, интеграции и приёмку рабочего релиза.</p></div></div>
+          <div class="achievement-card"><img loading="lazy" decoding="async" class="c2-finale-scout" src="assets/optimized/chapter2-scout-bolt.jpg" alt="Ремонтный голем производственной компании"><div><p class="eyebrow">Новое достижение</p><h3>Аналитик производственного проекта</h3><p>Вы связали требования подразделений, конфигурацию, интеграции и приёмку рабочего релиза.</p></div></div>
           <blockquote>Хорошее решение видно не по схеме, а по тому, что заказ проходит весь путь без дублей, потерянных прав и ручных обходов. <cite>— Бран Коваль</cite></blockquote>
           <div class="finale-actions"><button id="chapter2-finale-map" class="primary-action" type="button">Вернуться к проекту</button><button id="chapter2-finale-chapter3" class="primary-action c3-launch-action" type="button">Перейти к проекту «Семь дорог»</button><button id="chapter2-finale-replay" class="secondary-action" type="button">Повторить приёмку релиза</button><button id="chapter2-finale-first" class="secondary-action" type="button">Вернуться в Академию</button></div>
         </div>
@@ -768,7 +793,7 @@
           </aside>
 
           <section class="c3-world-stage" aria-label="Карта проекта группы «Семь дорог»">
-            <img class="c3-world-map-image" src="assets/chapter3-world-map-4k.jpg" alt="" aria-hidden="true">
+            <img loading="lazy" decoding="async" class="c3-world-map-image" src="assets/optimized/chapter3-world-map-4k.jpg" alt="" aria-hidden="true">
             <button class="c3-map-node" type="button" data-c3-zone="contact" style="--x: 18%; --y: 22%;"><span>19</span><strong>Данные клиента</strong></button>
             <button class="c3-map-node" type="button" data-c3-zone="lead" style="--x: 48%; --y: 10%;" disabled><span>20</span><strong>Квалификация</strong></button>
             <button class="c3-map-node" type="button" data-c3-zone="channel" style="--x: 78%; --y: 22%;" disabled><span>21</span><strong>Каналы</strong></button>
@@ -783,7 +808,7 @@
 
           <aside class="c3-quest-brief">
             <div class="c3-mentor-block">
-              <img src="assets/chapter3-mentor-nova.png" alt="Лиора Вель, руководитель CRM-центра">
+              <img loading="lazy" decoding="async" src="assets/optimized/chapter3-mentor-nova.jpg" alt="Лиора Вель, руководитель CRM-центра">
               <div><p class="eyebrow">Представитель заказчика</p><strong>Лиора Вель</strong><small>Руководитель CRM-центра</small></div>
             </div>
             <div class="c3-brief-copy">
@@ -817,7 +842,7 @@
               <span id="chapter3-attempt-badge" class="attempt-badge">Попытка 1</span>
             </header>
             <div class="c3-scene">
-              <img id="chapter3-scene-image" src="assets/mission-contact-genome.png" alt="Рабочая область клиентских данных">
+              <img loading="lazy" decoding="async" id="chapter3-scene-image" src="assets/optimized/mission-contact-genome.jpg" alt="Рабочая область клиентских данных">
               <div class="c3-scene-copy"><span id="chapter3-scene-kicker">Исходные данные</span><p id="chapter3-scene-copy"></p></div>
               <div class="c3-telemetry" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
             </div>
@@ -862,7 +887,7 @@
           <h2 id="chapter3-finale-title">Центр компетенций готов развивать систему</h2>
           <p>Команда связала клиентские данные, продажи, сервис, права и интеграции в наблюдаемый процесс. AI используется как проверяемый помощник, а изменения проходят через понятные критерии приёмки.</p>
           <div class="finale-stats"><div><strong>9 / 9</strong><span>заданий</span></div><div><strong>600 XP</strong><span>за проект</span></div><div><strong>V–VI</strong><span>уровни</span></div></div>
-          <div class="achievement-card"><img class="c3-finale-scout" src="assets/chapter3-scout-pico.png" alt="Диагностический дрон CRM-команды"><div><p class="eyebrow">Новое достижение</p><h3>Ведущий CRM-аналитик</h3><p>Вы помогли внутренней команде выстроить правила развития данных, процессов, сервиса, интеграций и AI.</p></div></div>
+          <div class="achievement-card"><img loading="lazy" decoding="async" class="c3-finale-scout" src="assets/optimized/chapter3-scout-pico.jpg" alt="Диагностический дрон CRM-команды"><div><p class="eyebrow">Новое достижение</p><h3>Ведущий CRM-аналитик</h3><p>Вы помогли внутренней команде выстроить правила развития данных, процессов, сервиса, интеграций и AI.</p></div></div>
           <blockquote>Единая картина клиента — не одна большая карточка. Это договорённость команд и систем о том, какие данные они используют и как проверяют результат. <cite>— Лиора Вель</cite></blockquote>
           <div class="finale-actions"><button id="chapter3-finale-map" class="primary-action" type="button">Вернуться к проекту</button><button id="chapter3-finale-chapter4" class="primary-action c4-launch-action" type="button">Перейти к «Золотой полке»</button><button id="chapter3-finale-replay" class="secondary-action" type="button">Повторить итоговую приёмку</button><button id="chapter3-finale-second" class="secondary-action" type="button">Перейти к «Медным машинам»</button><button id="chapter3-finale-first" class="secondary-action" type="button">Вернуться в Академию</button></div>
         </div>
@@ -890,7 +915,7 @@
           </aside>
 
           <section class="c4-world-stage" aria-label="Карта торговой сети «Золотая полка»">
-            <img class="c4-world-map-image" src="assets/chapter4-world-map-4k.jpg" alt="" aria-hidden="true">
+            <img loading="lazy" decoding="async" class="c4-world-map-image" src="assets/optimized/chapter4-world-map-4k.jpg" alt="" aria-hidden="true">
             <button class="c4-map-node" type="button" data-c4-zone="migration" style="--x: 16%; --y: 27%;"><span>28</span><strong>Миграция</strong></button>
             <button class="c4-map-node" type="button" data-c4-zone="consent" style="--x: 42%; --y: 12%;" disabled><span>29</span><strong>Согласия</strong></button>
             <button class="c4-map-node" type="button" data-c4-zone="campaign" style="--x: 68%; --y: 18%;" disabled><span>30</span><strong>Кампании</strong></button>
@@ -905,7 +930,7 @@
 
           <aside class="c4-quest-brief">
             <div class="c4-mentor-block">
-              <img src="assets/chapter4-mentor-ruta.png" alt="Рута Мейл, директор по клиентскому опыту">
+              <img loading="lazy" decoding="async" src="assets/optimized/chapter4-mentor-ruta.jpg" alt="Рута Мейл, директор по клиентскому опыту">
               <div><p class="eyebrow">Представитель заказчика</p><strong>Рута Мейл</strong><small>Директор по клиентскому опыту</small></div>
             </div>
             <div class="c4-brief-copy">
@@ -956,7 +981,7 @@
               </div>
               <p id="chapter4-stage-instruction" class="c4-stage-instruction"></p>
               <div class="c4-audit-image">
-                <img id="chapter4-scene-image" src="assets/mission-legacy-ledgers.png" alt="Рабочая панорама аудита">
+                <img loading="lazy" decoding="async" id="chapter4-scene-image" src="assets/optimized/mission-legacy-ledgers.jpg" alt="Рабочая панорама аудита">
                 <div id="chapter4-hotspot-layer" class="c4-hotspot-layer"></div>
               </div>
             </section>
@@ -1003,7 +1028,7 @@
           <h2 id="chapter4-finale-title">«Золотая полка» работает как единая сеть</h2>
           <p>Магазины, сайт, склады, франчайзи и контактный центр сохранили свои роли, но теперь используют согласованные данные, ограничения и измеримые события одного клиентского маршрута.</p>
           <div class="finale-stats"><div><strong>9 / 9</strong><span>заданий</span></div><div><strong>700 XP</strong><span>за проект</span></div><div><strong>VII–VIII</strong><span>уровни</span></div></div>
-          <div class="achievement-card"><img class="c4-finale-scout" src="assets/chapter4-scout-tally.png" alt="Инвентарный помощник торговой сети"><div><p class="eyebrow">Новое достижение</p><h3>Архитектор клиентской трансформации</h3><p>Вы связали мастер-данные, маркетинг, партнёров, заказы, остатки, сервис и аналитику в доказуемую операционную модель.</p></div></div>
+          <div class="achievement-card"><img loading="lazy" decoding="async" class="c4-finale-scout" src="assets/optimized/chapter4-scout-tally.jpg" alt="Инвентарный помощник торговой сети"><div><p class="eyebrow">Новое достижение</p><h3>Архитектор клиентской трансформации</h3><p>Вы связали мастер-данные, маркетинг, партнёров, заказы, остатки, сервис и аналитику в доказуемую операционную модель.</p></div></div>
           <blockquote>Единая сеть — не место, где все делают одно и то же. Это место, где каждый отвечает за свой шаг и никто не спорит с фактами. <cite>— Рута Мейл</cite></blockquote>
           <div class="finale-actions"><button id="chapter4-finale-map" class="primary-action" type="button">Вернуться к проекту</button><button id="chapter4-finale-chapter5" class="primary-action" type="button">Перейти в «Гуд Авиа»</button><button id="chapter4-finale-replay" class="secondary-action" type="button">Повторить сквозную приёмку</button><button id="chapter4-finale-third" class="secondary-action" type="button">Перейти к «Семи дорогам»</button><button id="chapter4-finale-first" class="secondary-action" type="button">Вернуться в Академию</button></div>
         </div>
@@ -1021,7 +1046,7 @@
           </aside>
 
           <section id="chapter5-world-stage" class="c5-world-stage" aria-label="Карта воздушного мегахаба «Гуд Авиа»">
-            <img class="c5-world-map-image" src="assets/concepts/chapter5-good-avia-infinity-megahub.png" alt="Воздушный мегахаб с маршрутами в форме знака бесконечности">
+            <img loading="lazy" decoding="async" class="c5-world-map-image" src="assets/optimized/chapter5-good-avia-infinity-megahub.jpg" alt="Воздушный мегахаб с маршрутами в форме знака бесконечности">
             <div id="chapter5-map-nodes" class="c5-map-nodes"></div>
             <div class="c5-map-caption"><span>∞</span> «Гуд Авиа» · операционный контур без разрывов</div>
           </section>
@@ -1184,13 +1209,7 @@
     </main>
   </div>
 
+  <script src="progress-core.js?v=20260723-launch-1"></script>
   <script src="app.js?v=20260723-level-hints"></script>
-  <script src="chapter2-missions.js?v=20260721-knowledge-links"></script>
-  <script src="chapter2.js?v=20260723-level-hints"></script>
-  <script src="chapter3-missions.js?v=20260721-knowledge-links"></script>
-  <script src="chapter3.js?v=20260723-level-hints"></script>
-  <script src="chapter4-missions.js?v=20260721-golden-shelf-2"></script>
-  <script src="chapter4.js?v=20260723-level-hints"></script>
-  <script type="module" src="chapter5.js?v=20260723-c5-ux-1"></script>
 </body>
 </html>

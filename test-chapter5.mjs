@@ -17,6 +17,11 @@ assert.equal(
   2,
   "Chapter 5 map and list clicks do not both open missions directly"
 );
+assert.equal(
+  source.match(/button\.addEventListener\("focus", \(\) => renderBrief\(key\)\);/g)?.length,
+  2,
+  "Chapter 5 map and list cards do not both refresh the mission preview on keyboard focus"
+);
 assert.match(html, /chapter5-task-contract-title/, "Chapter 5 acceptance conditions are missing");
 assert.match(html, /chapter5-configuration-panel" class="c5-configuration-panel is-locked"/, "Chapter 5 rules are not progressively disclosed");
 assert.match(html, /chapter5-feedback-chain/, "Chapter 5 causal chain has no UI target");
@@ -50,12 +55,16 @@ assert.equal(sanitized.missionProgress.unknown, undefined);
 
 const store = new MemoryAccountStore();
 const account = await store.createAccount({ id: "c5-test", email: "c5@example.com", displayName: "Test", passwordHash: "hash", mode: "progression" });
-await store.saveProgress(account.id, "chapter5", sanitized, 1);
+await store.saveProgress(account.id, "chapter5", sanitized, 1, 0);
 const saved = await store.getProgress(account.id);
 assert.equal(saved.chapter5.score, 1);
+assert.equal(saved.chapter5.revision, 1);
 assert.equal(saved.chapter5.state.scheduleComplete, true);
 assert.equal(saved.chapter4, null, "Saving Chapter 5 changed Chapter 4 progress");
 await store.resetProgress(account.id, "chapter5");
-assert.equal((await store.getProgress(account.id)).chapter5, null);
+const reset = (await store.getProgress(account.id)).chapter5;
+assert.equal(reset.state, null);
+assert.equal(reset.score, 0);
+assert.equal(reset.revision, 2);
 
 console.log("Chapter 5 canonical sanitizer, isolated persistence and runtime wiring: OK");

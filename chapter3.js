@@ -5,15 +5,15 @@ const CHAPTER3_MISSION_KEYS = ["contact", "lead", "channel", "bpmn", "sla", "acc
 const CHAPTER3_COMPLETION_FLAGS = CHAPTER3_MISSION_KEYS.map((key) => `${key}Complete`);
 const CHAPTER3_CANONICAL_XP = [60, 120, 180, 240, 300, 360, 420, 480, 600];
 const CHAPTER3_MISSION_IMAGES = {
-  contact: "assets/mission-contact-genome.png",
-  lead: "assets/mission-lead-spectrum.png",
-  channel: "assets/mission-channel-array.png",
-  bpmn: "assets/mission-bpmn-navigator.png",
-  sla: "assets/mission-sla-rings.png",
-  access: "assets/mission-access-prism.png",
-  integration: "assets/mission-integration-dock.png",
-  ai: "assets/mission-ai-core.png",
-  orbit: "assets/mission-orbit-360.png"
+  contact: "assets/optimized/mission-contact-genome.jpg",
+  lead: "assets/optimized/mission-lead-spectrum.jpg",
+  channel: "assets/optimized/mission-channel-array.jpg",
+  bpmn: "assets/optimized/mission-bpmn-navigator.jpg",
+  sla: "assets/optimized/mission-sla-rings.jpg",
+  access: "assets/optimized/mission-access-prism.jpg",
+  integration: "assets/optimized/mission-integration-dock.jpg",
+  ai: "assets/optimized/mission-ai-core.jpg",
+  orbit: "assets/optimized/mission-orbit-360.jpg"
 };
 
 const chapter3InitialState = {
@@ -43,7 +43,8 @@ const chapter3InitialState = {
 };
 
 function getChapter3ProgressRank(sourceState) {
-  return CHAPTER3_COMPLETION_FLAGS.reduce((rank, flag) => rank + Number(sourceState?.[flag] === true), 0);
+  return window.BPMQuestProgressCore?.completionRank(sourceState, CHAPTER3_COMPLETION_FLAGS)
+    ?? CHAPTER3_COMPLETION_FLAGS.reduce((rank, flag) => rank + Number(sourceState?.[flag] === true), 0);
 }
 
 function normalizeChapter3State(saved) {
@@ -330,6 +331,10 @@ function resetChapter3Progress() {
   if (!window.confirm("Сбросить баллы, попытки и открытые задания проекта «Семь дорог»?")) return;
   chapter3State = { ...chapter3InitialState };
   writeChapter3LocalState(getPersistedChapter3State());
+  window.BPMQuestFirstChapter?.trackLearningEvent?.("chapter_reset", {
+    chapterId: "chapter3",
+    details: { source: "player" }
+  });
   window.BPMQuestFirstChapter?.resetAccountProgress?.("chapter3");
   renderChapter3Stats();
   renderChapter3MapState();
@@ -363,6 +368,11 @@ function initializeChapter3Map() {
   document.getElementById("chapter3-prologue-back")?.addEventListener("click", activateChapter2FromChapter3);
   document.getElementById("chapter3-reset-progress")?.addEventListener("click", resetChapter3Progress);
   document.querySelectorAll("[data-c3-zone]").forEach((button) => {
+    const previewMission = () => {
+      if (!button.disabled) renderChapter3Brief(button.dataset.c3Zone);
+    };
+    button.addEventListener("pointerenter", previewMission);
+    button.addEventListener("focus", previewMission);
     button.addEventListener("click", () => {
       if (!button.disabled) beginChapter3Mission(button.dataset.c3Zone);
     });
@@ -644,6 +654,13 @@ function checkChapter3Phase() {
   }
   const wrongSlots = phase.slots.filter((slot) => progress.answers[slot.id] !== slot.correct);
   if (wrongSlots.length) {
+    window.BPMQuestFirstChapter?.trackLearningEvent?.("answer_checked", {
+      chapterId: "chapter3",
+      missionKey: mission.key,
+      outcome: "failure",
+      attempt: chapter3State.attempts,
+      details: { phase: progress.phase, wrongCount: wrongSlots.length }
+    });
     phase.slots.forEach((slot) => {
       if (progress.answers[slot.id] === slot.correct) progress.locked[slot.id] = true;
     });
@@ -667,6 +684,13 @@ function checkChapter3Phase() {
     });
     return false;
   }
+  window.BPMQuestFirstChapter?.trackLearningEvent?.("answer_checked", {
+    chapterId: "chapter3",
+    missionKey: mission.key,
+    outcome: "success",
+    attempt: chapter3State.attempts,
+    details: { phase: progress.phase }
+  });
   progress.lastWrong = [];
   const finalPhase = progress.phase === mission.phases.length - 1;
   if (!finalPhase) {
@@ -683,6 +707,13 @@ function checkChapter3Phase() {
   renderChapter3Board(mission, progress);
   const study = isChapter3StudyMode();
   const awarded = completeChapter3Mission(mission);
+  window.BPMQuestFirstChapter?.trackLearningEvent?.("mission_completed", {
+    chapterId: "chapter3",
+    missionKey: mission.key,
+    outcome: "success",
+    attempt: chapter3State.attempts,
+    details: { score: awarded, firstCompletion: awarded > 0 }
+  });
   const index = CHAPTER3_MISSION_KEYS.indexOf(mission.key);
   const nextKey = CHAPTER3_MISSION_KEYS[index + 1];
   const nextMission = nextKey ? chapter3Missions[nextKey] : null;
@@ -723,6 +754,12 @@ function beginChapter3Mission(key) {
   chapter3State.activePhase = 0;
   getChapter3MissionProgress(key, { reset: true });
   saveChapter3State();
+  window.BPMQuestFirstChapter?.trackLearningEvent?.("mission_started", {
+    chapterId: "chapter3",
+    missionKey: key,
+    attempt: 1,
+    details: { replay: chapter3State[mission.completionFlag] === true }
+  });
   hideChapter3Feedback();
   showChapter3View("chapter3-mission-view");
   renderChapter3Mission();

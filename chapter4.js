@@ -5,15 +5,15 @@ const CHAPTER4_MISSION_KEYS = ["migration", "consent", "campaign", "franchise", 
 const CHAPTER4_COMPLETION_FLAGS = CHAPTER4_MISSION_KEYS.map((key) => `${key}Complete`);
 const CHAPTER4_CANONICAL_XP = [70, 140, 210, 280, 350, 420, 490, 560, 700];
 const CHAPTER4_MISSION_IMAGES = {
-  migration: "assets/mission-legacy-ledgers.png",
-  consent: "assets/mission-consent-pavilion.png",
-  campaign: "assets/mission-campaign-house.png",
-  franchise: "assets/mission-franchise-arcade.png",
-  order: "assets/mission-order-courtyard.png",
-  stock: "assets/mission-stock-exchange.png",
-  returns: "assets/mission-returns-center.png",
-  insight: "assets/mission-insight-ledger.png",
-  transformation: "assets/mission-transformation-room.png"
+  migration: "assets/optimized/mission-legacy-ledgers.jpg",
+  consent: "assets/optimized/mission-consent-pavilion.jpg",
+  campaign: "assets/optimized/mission-campaign-house.jpg",
+  franchise: "assets/optimized/mission-franchise-arcade.jpg",
+  order: "assets/optimized/mission-order-courtyard.jpg",
+  stock: "assets/optimized/mission-stock-exchange.jpg",
+  returns: "assets/optimized/mission-returns-center.jpg",
+  insight: "assets/optimized/mission-insight-ledger.jpg",
+  transformation: "assets/optimized/mission-transformation-room.jpg"
 };
 const CHAPTER4_SLOT_LABELS = {
   cause: ["Шаг 2 · Причина", "Что объясняет найденные факты"],
@@ -60,7 +60,8 @@ const chapter4InitialState = {
 };
 
 function getChapter4ProgressRank(sourceState) {
-  return CHAPTER4_COMPLETION_FLAGS.reduce((rank, flag) => rank + Number(sourceState?.[flag] === true), 0);
+  return window.BPMQuestProgressCore?.completionRank(sourceState, CHAPTER4_COMPLETION_FLAGS)
+    ?? CHAPTER4_COMPLETION_FLAGS.reduce((rank, flag) => rank + Number(sourceState?.[flag] === true), 0);
 }
 
 function normalizeChapter4State(saved) {
@@ -356,6 +357,10 @@ function resetChapter4Progress() {
   if (!window.confirm("Сбросить баллы, попытки и открытые задания проекта «Золотая полка»?")) return;
   chapter4State = { ...chapter4InitialState };
   writeChapter4LocalState(getPersistedChapter4State());
+  window.BPMQuestFirstChapter?.trackLearningEvent?.("chapter_reset", {
+    chapterId: "chapter4",
+    details: { source: "player" }
+  });
   window.BPMQuestFirstChapter?.resetAccountProgress?.("chapter4");
   renderChapter4Stats();
   renderChapter4MapState();
@@ -743,6 +748,13 @@ function checkChapter4Chain() {
   }
   const wrong = roles.filter((role) => getChapter4Placement(stage, progress, role) !== stage.solution[role]);
   if (wrong.length) {
+    window.BPMQuestFirstChapter?.trackLearningEvent?.("answer_checked", {
+      chapterId: "chapter4",
+      missionKey: mission.key,
+      outcome: "failure",
+      attempt: chapter4State.attempts,
+      details: { stage: progress.stage, wrongCount: wrong.length }
+    });
     const tutorialGrace = mission.key === "migration" && !progress.tutorialGraceUsed;
     if (tutorialGrace) progress.tutorialGraceUsed = true;
     else {
@@ -770,6 +782,13 @@ function checkChapter4Chain() {
     return false;
   }
 
+  window.BPMQuestFirstChapter?.trackLearningEvent?.("answer_checked", {
+    chapterId: "chapter4",
+    missionKey: mission.key,
+    outcome: "success",
+    attempt: chapter4State.attempts,
+    details: { stage: progress.stage }
+  });
   progress.lastWrong = [];
   if (progress.stage < mission.stages.length - 1) {
     progress.stage += 1;
@@ -789,6 +808,13 @@ function checkChapter4Chain() {
   renderChapter4Audit(stage, progress);
   renderChapter4Decision(stage, progress);
   const awarded = completeChapter4Mission(mission);
+  window.BPMQuestFirstChapter?.trackLearningEvent?.("mission_completed", {
+    chapterId: "chapter4",
+    missionKey: mission.key,
+    outcome: "success",
+    attempt: chapter4State.attempts,
+    details: { score: awarded, firstCompletion: awarded > 0 }
+  });
   const index = CHAPTER4_MISSION_KEYS.indexOf(mission.key);
   const nextKey = CHAPTER4_MISSION_KEYS[index + 1];
   const nextMission = nextKey ? chapter4Missions[nextKey] : null;
@@ -828,6 +854,12 @@ function beginChapter4Mission(key) {
   chapter4State.attempts = 1;
   getChapter4MissionProgress(key, { reset: true });
   saveChapter4State();
+  window.BPMQuestFirstChapter?.trackLearningEvent?.("mission_started", {
+    chapterId: "chapter4",
+    missionKey: key,
+    attempt: 1,
+    details: { replay: chapter4State[mission.completionFlag] === true }
+  });
   hideChapter4Feedback();
   showChapter4View("chapter4-mission-view");
   renderChapter4Mission();
@@ -884,6 +916,11 @@ function initializeChapter4() {
   document.getElementById("chapter4-prologue-back")?.addEventListener("click", activateChapter3FromChapter4);
   document.getElementById("chapter4-reset-progress")?.addEventListener("click", resetChapter4Progress);
   document.querySelectorAll("[data-c4-zone]").forEach((button) => {
+    const previewMission = () => {
+      if (!button.disabled) renderChapter4Brief(button.dataset.c4Zone);
+    };
+    button.addEventListener("pointerenter", previewMission);
+    button.addEventListener("focus", previewMission);
     button.addEventListener("click", () => {
       if (!button.disabled) beginChapter4Mission(button.dataset.c4Zone);
     });

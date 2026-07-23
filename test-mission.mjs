@@ -101,6 +101,9 @@ const context = vm.createContext({
 });
 
 const source = fs.readFileSync(new URL("./app.js", import.meta.url), "utf8");
+if (!source.includes('button.addEventListener("focus", previewMission);')) {
+  throw new Error("Chapter 1 map cards do not refresh the mission preview on keyboard focus");
+}
 const exports = `
   globalThis.__missionTest = {
     missions,

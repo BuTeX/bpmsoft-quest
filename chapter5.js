@@ -27,7 +27,8 @@ const initialState = {
 };
 
 function progressRank(source = state) {
-  return COMPLETION_FLAGS.reduce((rank, flag) => rank + Number(source?.[flag] === true), 0);
+  return window.BPMQuestProgressCore?.completionRank(source, COMPLETION_FLAGS)
+    ?? COMPLETION_FLAGS.reduce((rank, flag) => rank + Number(source?.[flag] === true), 0);
 }
 
 function sanitizeMissionProgress(input) {
@@ -253,6 +254,8 @@ function buildMap() {
     button.type = "button";
     button.dataset.c5Zone = key;
     button.innerHTML = `<span>${mission.number}</span><strong>${mission.zone}<small>${mission.title}</small></strong>`;
+    button.addEventListener("pointerenter", () => renderBrief(key));
+    button.addEventListener("focus", () => renderBrief(key));
     button.addEventListener("click", () => beginMission(key));
     item.append(button);
     return item;
@@ -267,6 +270,8 @@ function buildMap() {
     button.style.setProperty("--x", `${MAP_POSITIONS[index][0]}%`);
     button.style.setProperty("--y", `${MAP_POSITIONS[index][1]}%`);
     button.innerHTML = `<span>${mission.number}</span><strong>${mission.mapLabel}</strong>`;
+    button.addEventListener("pointerenter", () => renderBrief(key));
+    button.addEventListener("focus", () => renderBrief(key));
     button.addEventListener("click", () => beginMission(key));
     return button;
   }));
@@ -436,6 +441,12 @@ function beginMission(key) {
   renderCodex(mission);
   setupRound();
   saveState();
+  window.BPMQuestFirstChapter?.trackLearningEvent?.("mission_started", {
+    chapterId: "chapter5",
+    missionKey: key,
+    attempt: 1,
+    details: { replay: state[COMPLETION_FLAGS[index]] === true }
+  });
   if (!state.introSeen.includes(key)) renderMissionIntro(mission);
   else closeOverlays();
   window.scrollTo?.({ top: 0, behavior: "smooth" });
@@ -564,6 +575,12 @@ function renderContextHints() {
 function showNextContextHint() {
   if (contextHintLevel >= 2) return;
   contextHintLevel += 1;
+  window.BPMQuestFirstChapter?.trackLearningEvent?.("hint_used", {
+    chapterId: "chapter5",
+    missionKey: activeMission?.key,
+    attempt: state.attempts,
+    details: { round: activeRound?.id, hintLevel: contextHintLevel }
+  });
   renderContextHints();
 }
 
@@ -604,6 +621,13 @@ function dispatch(action) {
   if (action.type === "SELECT_CHECKPOINT") diagnosisSelectionPending = false;
 
   if (runtime.status === "failed" && previousStatus !== "failed") {
+    window.BPMQuestFirstChapter?.trackLearningEvent?.("answer_checked", {
+      chapterId: "chapter5",
+      missionKey: activeMission.key,
+      outcome: "failure",
+      attempt: state.attempts,
+      details: { round: activeRound.id }
+    });
     state.energy = Math.max(0, state.energy - 1);
     state.attempts += 1;
     Object.entries(runtime.verification?.controls || {}).forEach(([id, result]) => {
@@ -618,6 +642,13 @@ function dispatch(action) {
   }
 
   if (runtime.status === "passed" && previousStatus !== "passed") {
+    window.BPMQuestFirstChapter?.trackLearningEvent?.("answer_checked", {
+      chapterId: "chapter5",
+      missionKey: activeMission.key,
+      outcome: "success",
+      attempt: state.attempts,
+      details: { round: activeRound.id }
+    });
     activeProgress.lastWrong = [];
     completeRound();
   }
@@ -878,6 +909,13 @@ function completeRound() {
   }
 
   const awarded = completeMission(activeMission);
+  window.BPMQuestFirstChapter?.trackLearningEvent?.("mission_completed", {
+    chapterId: "chapter5",
+    missionKey: activeMission.key,
+    outcome: "success",
+    attempt: state.attempts,
+    details: { score: awarded, firstCompletion: awarded > 0 }
+  });
   const index = goodAviaMissionKeys.indexOf(activeMission.key);
   const nextKey = goodAviaMissionKeys[index + 1];
   showFeedback({
@@ -1037,6 +1075,10 @@ function resetProgress() {
   if (!window.confirm("Сбросить баллы, попытки и открытые задания проекта «Гуд Авиа»?")) return;
   state = { ...initialState, missionProgress: {}, introSeen: [] };
   writeLocalState(persistedState());
+  window.BPMQuestFirstChapter?.trackLearningEvent?.("chapter_reset", {
+    chapterId: "chapter5",
+    details: { source: "player" }
+  });
   window.BPMQuestFirstChapter?.resetAccountProgress?.("chapter5");
   renderStats();
   renderMap();

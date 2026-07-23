@@ -158,7 +158,11 @@ h3 {
 .player-auth-tabs[hidden],
 .player-name-field[hidden],
 .player-auth-security[hidden],
-.player-logout-action[hidden] {
+.player-logout-action[hidden],
+.player-consent-fields[hidden],
+.player-account-actions[hidden],
+.player-inline-action[hidden],
+.player-mode-fieldset[hidden] {
   display: none;
 }
 
@@ -225,6 +229,20 @@ h3 {
 .player-name-field input:focus {
   border-color: var(--blue);
   outline: 3px solid rgba(120, 86, 255, 0.18);
+}
+
+.player-inline-action {
+  display: block;
+  margin: -14px 0 20px auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--blue);
+  font: inherit;
+  font-size: 10px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .player-mode-fieldset {
@@ -301,6 +319,60 @@ h3 {
   border-color: #fe5500;
   background: rgba(254, 85, 0, 0.1);
   box-shadow: inset 5px 0 #fe5500, 0 0 0 3px rgba(254, 85, 0, 0.14);
+}
+
+.player-consent-fields {
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+  color: var(--ink-muted);
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.player-consent-fields label {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+}
+
+.player-consent-fields input {
+  margin-top: 3px;
+}
+
+.player-consent-fields a {
+  color: var(--blue);
+}
+
+.player-account-actions {
+  margin-top: 20px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface-strong);
+}
+
+.player-account-actions p {
+  margin-bottom: 12px;
+  color: var(--ink-muted);
+  font-size: 10px;
+}
+
+.player-account-actions > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.player-account-actions .secondary-action {
+  min-height: 38px;
+  padding: 8px 11px;
+  font-size: 9px;
+}
+
+.danger-action {
+  border-color: rgba(211, 59, 77, 0.5);
+  color: #a82b3a;
 }
 
 .player-access-actions {
@@ -480,6 +552,10 @@ body.is-study-mode .player-profile-action {
   margin: 8px 0 0;
   color: var(--rust);
   font-size: 11px;
+}
+
+.admin-error.is-success {
+  color: var(--moss);
 }
 
 .admin-dialog-actions {

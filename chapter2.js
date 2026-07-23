@@ -25,15 +25,15 @@ const CHAPTER2_COMPLETION_FLAGS = [
 ];
 const CHAPTER2_CANONICAL_XP = [50, 100, 150, 200, 250, 300, 350, 400, 500];
 const CHAPTER2_MISSION_IMAGES = {
-  sorting: "assets/mission-sorting-furnace.png",
-  portal: "assets/mission-portal-gate.png",
-  signal: "assets/mission-signal-yard.png",
-  cycle: "assets/mission-cycle-foundry.png",
-  package: "assets/mission-package-depot.png",
-  trace: "assets/mission-trace-furnace.png",
-  change: "assets/mission-change-assembly.png",
-  oracle: "assets/mission-oracle-forge.png",
-  contour: "assets/mission-contour-heart.png"
+  sorting: "assets/optimized/mission-sorting-furnace.jpg",
+  portal: "assets/optimized/mission-portal-gate.jpg",
+  signal: "assets/optimized/mission-signal-yard.jpg",
+  cycle: "assets/optimized/mission-cycle-foundry.jpg",
+  package: "assets/optimized/mission-package-depot.jpg",
+  trace: "assets/optimized/mission-trace-furnace.jpg",
+  change: "assets/optimized/mission-change-assembly.jpg",
+  oracle: "assets/optimized/mission-oracle-forge.jpg",
+  contour: "assets/optimized/mission-contour-heart.jpg"
 };
 
 const chapter2InitialState = {
@@ -63,7 +63,8 @@ const chapter2InitialState = {
 };
 
 function getChapter2ProgressRank(sourceState) {
-  return CHAPTER2_COMPLETION_FLAGS.reduce(
+  return window.BPMQuestProgressCore?.completionRank(sourceState, CHAPTER2_COMPLETION_FLAGS)
+    ?? CHAPTER2_COMPLETION_FLAGS.reduce(
     (rank, flag) => rank + Number(sourceState?.[flag] === true),
     0
   );
@@ -450,6 +451,10 @@ function resetChapter2Progress() {
   if (!confirmed) return;
   chapter2State = { ...chapter2InitialState };
   writeChapter2LocalState(getPersistedChapter2State());
+  window.BPMQuestFirstChapter?.trackLearningEvent?.("chapter_reset", {
+    chapterId: "chapter2",
+    details: { source: "player" }
+  });
   window.BPMQuestFirstChapter?.resetAccountProgress?.("chapter2");
   renderChapter2Stats();
   renderChapter2MapState();
@@ -492,6 +497,11 @@ function initializeChapter2Map() {
   document.getElementById("chapter2-prologue-back")?.addEventListener("click", activateFirstChapter);
   document.getElementById("chapter2-reset-progress")?.addEventListener("click", resetChapter2Progress);
   document.querySelectorAll("[data-c2-zone]").forEach((button) => {
+    const previewMission = () => {
+      if (!button.disabled) renderChapter2Brief(button.dataset.c2Zone);
+    };
+    button.addEventListener("pointerenter", previewMission);
+    button.addEventListener("focus", previewMission);
     button.addEventListener("click", () => {
       if (button.disabled) return;
       beginChapter2Mission(button.dataset.c2Zone);
@@ -813,6 +823,13 @@ function checkChapter2Phase() {
 
   const wrongSlots = phase.slots.filter((slot) => progress.answers[slot.id] !== slot.correct);
   if (wrongSlots.length > 0) {
+    window.BPMQuestFirstChapter?.trackLearningEvent?.("answer_checked", {
+      chapterId: "chapter2",
+      missionKey: mission.key,
+      outcome: "failure",
+      attempt: chapter2State.attempts,
+      details: { phase: progress.phase, wrongCount: wrongSlots.length }
+    });
     phase.slots.forEach((slot) => {
       if (progress.answers[slot.id] === slot.correct) progress.locked[slot.id] = true;
     });
@@ -839,6 +856,13 @@ function checkChapter2Phase() {
     return false;
   }
 
+  window.BPMQuestFirstChapter?.trackLearningEvent?.("answer_checked", {
+    chapterId: "chapter2",
+    missionKey: mission.key,
+    outcome: "success",
+    attempt: chapter2State.attempts,
+    details: { phase: progress.phase }
+  });
   progress.lastWrong = [];
   const isFinalPhase = progress.phase === mission.phases.length - 1;
   if (!isFinalPhase) {
@@ -862,6 +886,13 @@ function checkChapter2Phase() {
   renderChapter2Board(mission, progress);
   const studyMode = isChapter2StudyMode();
   const awarded = completeChapter2Mission(mission);
+  window.BPMQuestFirstChapter?.trackLearningEvent?.("mission_completed", {
+    chapterId: "chapter2",
+    missionKey: mission.key,
+    outcome: "success",
+    attempt: chapter2State.attempts,
+    details: { score: awarded, firstCompletion: awarded > 0 }
+  });
   const currentIndex = CHAPTER2_MISSION_KEYS.indexOf(mission.key);
   const nextKey = CHAPTER2_MISSION_KEYS[currentIndex + 1];
   const nextMission = nextKey ? chapter2Missions[nextKey] : null;
@@ -906,6 +937,12 @@ function beginChapter2Mission(key) {
   chapter2State.activePhase = 0;
   getChapter2MissionProgress(key, { reset: true });
   saveChapter2State();
+  window.BPMQuestFirstChapter?.trackLearningEvent?.("mission_started", {
+    chapterId: "chapter2",
+    missionKey: key,
+    attempt: 1,
+    details: { replay: chapter2State[mission.completionFlag] === true }
+  });
   hideChapter2Feedback();
   showChapter2View("chapter2-mission-view");
   renderChapter2Mission();

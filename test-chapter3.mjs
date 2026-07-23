@@ -15,6 +15,7 @@ const api = context.window.BPMQuestChapter3;
 const assert = (condition, message) => { if (!condition) throw new Error(message); };
 
 assert(source.includes("beginChapter3Mission(button.dataset.c3Zone);"), "Chapter 3 map clicks do not open missions directly");
+assert(source.includes('button.addEventListener("focus", previewMission);'), "Chapter 3 map cards do not refresh the mission preview on keyboard focus");
 assert(api.storageKey === "bpmsoft-quest-chapter3-v1", "Chapter 3 uses an unexpected storage key");
 assert(api.missionKeys.length === 9, "Chapter 3 does not define nine missions");
 assert(api.completionFlags.length === 9, "Chapter 3 does not define nine completion flags");
