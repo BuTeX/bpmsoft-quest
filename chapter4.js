@@ -146,6 +146,7 @@ function hydrateChapter4State(nextState, updatedAt) {
 
 let chapter4State = loadChapter4State();
 let chapter4RunComplete = false;
+let chapter4ActiveHotspotId = "";
 
 if (typeof window !== "undefined") {
   window.BPMQuestChapter4 = {
@@ -510,31 +511,38 @@ function renderChapter4Audit(stage, progress) {
   const image = document.getElementById("chapter4-scene-image");
   image.src = CHAPTER4_MISSION_IMAGES[chapter4State.activeMission];
   const layer = document.getElementById("chapter4-hotspot-layer");
-  const evidence = document.getElementById("chapter4-evidence-list");
   const seen = getChapter4Seen(stage, progress);
+  if (!seen.includes(chapter4ActiveHotspotId)) chapter4ActiveHotspotId = seen[seen.length - 1] || "";
   layer.replaceChildren();
-  evidence.replaceChildren();
 
   stage.hotspots.forEach((spot, index) => {
     const found = seen.includes(spot.id);
+    const active = chapter4ActiveHotspotId === spot.id;
+    const marker = document.createElement("div");
+    marker.className = `c4-hotspot-marker${found ? " is-found" : ""}${active ? " is-active" : ""}${spot.x < 25 ? " is-left" : spot.x > 75 ? " is-right" : ""}`;
+    marker.style.setProperty("--x", `${spot.x}%`);
+    marker.style.setProperty("--y", `${spot.y}%`);
+
     const button = document.createElement("button");
     button.type = "button";
     button.className = `c4-hotspot${found ? " is-found" : ""}`;
-    button.style.setProperty("--x", `${spot.x}%`);
-    button.style.setProperty("--y", `${spot.y}%`);
     button.dataset.c4Hotspot = spot.id;
-    button.setAttribute("aria-label", `${found ? "Найденный факт" : "Осмотреть"}: ${spot.label}`);
-    button.innerHTML = `<span>${found ? "✓" : index + 1}</span><strong>${spot.label}</strong>`;
+    button.setAttribute("aria-label", `${found ? "Показать найденный факт" : "Осмотреть"} ${index + 1}: ${spot.label}`);
+    button.innerHTML = `<span>${index + 1}${found ? '<i aria-hidden="true">✓</i>' : ""}</span><strong>${spot.label}</strong>`;
     button.disabled = chapter4RunComplete;
     button.addEventListener("click", () => inspectChapter4Hotspot(spot.id));
-    layer.append(button);
+    marker.append(button);
 
-    const item = document.createElement("li");
-    item.className = found ? "is-found" : "";
-    item.innerHTML = found
-      ? `<span>Факт ${index + 1}</span><strong>${spot.fact}</strong>`
-      : `<span>Наблюдение ${index + 1}</span><strong>Осмотрите отмеченную область панорамы</strong>`;
-    evidence.append(item);
+    if (found) {
+      const fact = document.createElement("div");
+      fact.id = `chapter4-fact-${stage.id}-${spot.id}`;
+      fact.className = `c4-hotspot-fact${active ? " is-active" : ""}`;
+      fact.setAttribute("role", "note");
+      fact.innerHTML = `<span>Факт ${index + 1}</span><p>${spot.fact}</p>`;
+      button.setAttribute("aria-describedby", fact.id);
+      marker.append(fact);
+    }
+    layer.append(marker);
   });
 
   const progressLabel = document.getElementById("chapter4-audit-progress");
@@ -548,6 +556,7 @@ function inspectChapter4Hotspot(spotId) {
   const progress = getChapter4MissionProgress(mission.key);
   const stage = mission.stages[progress.stage];
   if (!stage.hotspots.some((spot) => spot.id === spotId)) return;
+  chapter4ActiveHotspotId = spotId;
   const seen = new Set(getChapter4Seen(stage, progress));
   seen.add(spotId);
   progress.seen[stage.id] = [...seen];
