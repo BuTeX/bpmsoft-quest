@@ -31,6 +31,9 @@ test("critical player journey loads all maps and protects modal focus", async ({
   });
 
   await page.goto("/academy.html");
+  await expect(page.locator("html")).toHaveClass(/visual-update/);
+  const primaryHeaderHeight = await page.locator(".topbar").evaluate((element) => element.getBoundingClientRect().height);
+  expect(primaryHeaderHeight).toBeLessThanOrEqual(132);
   await expect(page.locator("#player-access-modal")).toBeVisible();
   await page.getByRole("tab", { name: "Регистрация" }).click();
   await page.locator("#player-name").fill("E2E Аналитик");
@@ -75,8 +78,7 @@ test("critical player journey loads all maps and protects modal focus", async ({
   await page.goto("/update");
   await expect(page.locator("html")).toHaveClass(/visual-update/);
   await expect(page.locator("#player-profile")).toBeVisible();
-  const updateHeaderHeight = await page.locator(".topbar").evaluate((element) => element.getBoundingClientRect().height);
-  expect(updateHeaderHeight).toBeLessThanOrEqual(132);
+  await expect(page.locator("#map-title")).toHaveText("Все задания Академии");
 
   expect(unexpectedResponses).toEqual([]);
 });

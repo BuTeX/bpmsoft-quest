@@ -1,6 +1,6 @@
 /*
- * Alternate visual treatment available only at /update.
- * The original /academy.html appearance remains unchanged.
+ * Primary visual treatment, promoted from the former /update preview.
+ * It reuses the production DOM and all gameplay logic.
  */
 
 html.visual-update {

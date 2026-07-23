@@ -17,6 +17,7 @@ BPMSoft Quest — практический веб-тренажёр по функ
 ## Документация
 
 - [`docs/CONTENT_AND_MISSION_RULES.md`](docs/CONTENT_AND_MISSION_RULES.md) — канон мира и обязательные правила текстов;
+- [`TODO.md`](TODO.md) — следующие визуальные направления: живой мир и кинематографичный HUD;
 - [`docs/SESSION_HANDOFF.md`](docs/SESSION_HANDOFF.md) — продолжение работы в новой сессии;
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — устройство приложения и правила расширения;
 - [`docs/ROADMAP.md`](docs/ROADMAP.md) — завершённые и следующие этапы;
@@ -45,8 +46,8 @@ npm start
 
 Приложение будет доступно на `http://localhost:4173`.
 
-- `http://localhost:4173/academy.html` — исходный интерфейс;
-- `http://localhost:4173/update` — альтернативный визуальный вариант для сравнения.
+- `http://localhost:4173/academy.html` — основной интерфейс Академии;
+- `http://localhost:4173/update` — совместимый алиас на тот же интерфейс.
 
 С `DATABASE_URL` аккаунты, серверные сессии, события и прогресс пяти карт сохраняются в PostgreSQL. При старте сервер последовательно применяет версионированные миграции из [`db/migrations`](db/migrations); отдельно их можно запустить командой `npm run db:migrate`. [`db/schema.sql`](db/schema.sql) остаётся актуальным снимком схемы для ревью. Без `DATABASE_URL` сервер использует временное хранилище в памяти, поэтому production-запуск должен задавать `REQUIRE_DATABASE=true`. Переменные окружения перечислены в [`.env.example`](.env.example).
 

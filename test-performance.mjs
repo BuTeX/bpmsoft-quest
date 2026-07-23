@@ -9,7 +9,8 @@ const runtimeSources = await Promise.all([
   "chapter3.js",
   "chapter4.js",
   "chapter5.js",
-  "chapter2.css"
+  "chapter2.css",
+  "update.css"
 ].map((name) => readFile(new URL(`./${name}`, import.meta.url), "utf8")));
 
 assert.doesNotMatch(
@@ -43,6 +44,7 @@ const eagerFiles = [
   "chapter3.css",
   "chapter4.css",
   "chapter5.css",
+  "update.css",
   "assets/good-program-logo-color.png",
   "assets/fonts/unbounded-light.ttf",
   "assets/fonts/unbounded-regular.ttf",
@@ -53,7 +55,7 @@ const eagerBytes = (await Promise.all(eagerFiles.map(async (name) => (
 ).size))).reduce((sum, size) => sum + size, 0);
 assert.ok(eagerBytes < 1.6 * 1024 * 1024, `Eager shell budget exceeded: ${eagerBytes} bytes`);
 
-const updateStylesBytes = (await stat(new URL("./update.css", import.meta.url))).size;
-assert.ok(updateStylesBytes < 40 * 1024, `Update visual layer is too large: ${updateStylesBytes} bytes`);
+const primaryVisualStylesBytes = (await stat(new URL("./update.css", import.meta.url))).size;
+assert.ok(primaryVisualStylesBytes < 40 * 1024, `Primary visual layer is too large: ${primaryVisualStylesBytes} bytes`);
 
 console.log(`Performance budget: ${(eagerBytes / 1024 / 1024).toFixed(2)} MB eager shell, advanced chapters deferred`);

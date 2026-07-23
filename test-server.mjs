@@ -55,12 +55,14 @@ test("static application is served with security headers", async () => {
   assert.equal(academy.status, 200);
   const academyHtml = await academy.text();
   assert.match(academyHtml, /player-access-modal/);
-  assert.doesNotMatch(academyHtml, /update\.css|visual-update/);
+  assert.match(academyHtml, /update\.css/);
+  assert.match(academyHtml, /class="visual-update"/);
   const update = await fetch(`${baseUrl}/update`);
   assert.equal(update.status, 200);
   const updateHtml = await update.text();
   assert.match(updateHtml, /update\.css/);
   assert.match(updateHtml, /class="visual-update"/);
+  assert.equal(updateHtml, academyHtml);
   const updateSlash = await fetch(`${baseUrl}/update/`, { redirect: "manual" });
   assert.equal(updateSlash.status, 308);
   assert.equal(updateSlash.headers.get("location"), "/update");
