@@ -1,0 +1,748 @@
+/*
+ * Alternate visual treatment available only at /update.
+ * The original /academy.html appearance remains unchanged.
+ */
+
+html.visual-update {
+  --update-radius-sm: 10px;
+  --update-radius-md: 16px;
+  --update-radius-lg: 24px;
+  --update-shadow-sm: 0 8px 24px rgba(27, 11, 59, 0.09);
+  --update-font-body: Inter, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+html.visual-update body {
+  font-family: var(--update-font-body);
+  font-size: 14px;
+  line-height: 1.55;
+  text-rendering: optimizeLegibility;
+}
+
+html.visual-update h1,
+html.visual-update h2,
+html.visual-update h3,
+html.visual-update .brand,
+html.visual-update .eyebrow,
+html.visual-update .quest-number,
+html.visual-update .panel-heading,
+html.visual-update .chapter-switcher,
+html.visual-update .primary-action,
+html.visual-update .secondary-action,
+html.visual-update .zone-index,
+html.visual-update .node-pin,
+html.visual-update .level-seal,
+html.visual-update .level-hint-bank,
+html.visual-update .attempt-badge {
+  font-family: "Unbounded", ui-sans-serif, system-ui, sans-serif;
+}
+
+html.visual-update p,
+html.visual-update small,
+html.visual-update dd,
+html.visual-update dt,
+html.visual-update input {
+  letter-spacing: 0;
+}
+
+/* Compact, balanced application header */
+
+html.visual-update .topbar {
+  display: grid !important;
+  min-height: 92px;
+  grid-template-columns: minmax(250px, 278px) minmax(365px, 1fr) minmax(520px, auto);
+  gap: 18px;
+  align-items: center;
+  padding: 10px clamp(18px, 2.2vw, 34px);
+  border-bottom-width: 2px;
+  background-color: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 8px 30px rgba(27, 11, 59, 0.07);
+  backdrop-filter: blur(18px);
+}
+
+html.visual-update .topbar .brand {
+  order: initial !important;
+  width: auto;
+  min-width: 0;
+  gap: 10px;
+}
+
+html.visual-update .company-logo-wrap {
+  min-width: 0;
+  padding: 6px 8px;
+  border-radius: var(--update-radius-sm);
+}
+
+html.visual-update .company-logo {
+  width: 142px;
+}
+
+html.visual-update .brand-kicker {
+  margin-bottom: 2px;
+  font-size: 8px;
+}
+
+html.visual-update .brand h1 {
+  font-size: 16px;
+  white-space: nowrap;
+}
+
+html.visual-update body .chapter-switcher {
+  order: initial !important;
+  justify-self: center;
+  width: min(100%, 440px);
+  min-width: 0;
+  margin: 0 !important;
+  padding: 4px;
+  border-color: rgba(27, 11, 59, 0.12);
+  border-radius: 14px;
+  background: rgba(237, 232, 245, 0.7);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.8);
+}
+
+html.visual-update .chapter-switcher button {
+  min-width: 0;
+  min-height: 38px;
+  flex: 1;
+  padding: 6px 8px;
+  border-radius: 10px;
+  font-size: 8px;
+  line-height: 1.25;
+  transition: color 160ms ease, background 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+html.visual-update .chapter-switcher button:hover:not(:disabled) {
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+html.visual-update .chapter-switcher button.is-active {
+  box-shadow: 0 6px 16px rgba(120, 86, 255, 0.22);
+  transform: translateY(-1px);
+}
+
+html.visual-update .topbar .player-stats {
+  order: initial !important;
+  display: grid;
+  width: auto !important;
+  min-width: 0;
+  flex: none !important;
+  grid-template-columns: minmax(112px, 132px) auto auto auto minmax(120px, 160px) auto;
+  gap: 8px;
+}
+
+html.visual-update .player-profile-action {
+  min-width: 0;
+  min-height: 44px;
+  padding: 6px 10px;
+  border-radius: var(--update-radius-sm);
+  background: rgba(246, 243, 250, 0.9);
+}
+
+html.visual-update .player-profile-action strong {
+  font-family: "Unbounded", ui-sans-serif, system-ui, sans-serif;
+}
+
+html.visual-update .admin-action,
+html.visual-update .admin-analytics-link {
+  min-height: 38px;
+  align-content: center;
+  padding: 7px 10px;
+  border-radius: var(--update-radius-sm);
+  font-family: var(--update-font-body);
+  font-size: 9px;
+  transform: none;
+}
+
+html.visual-update .level-seal {
+  gap: 0;
+}
+
+html.visual-update .level-seal > span {
+  position: absolute;
+  overflow: hidden;
+  width: 1px;
+  height: 1px;
+  clip: rect(0 0 0 0);
+}
+
+html.visual-update .level-seal strong {
+  width: 38px;
+  height: 38px;
+  box-shadow: 0 7px 18px rgba(120, 86, 255, 0.2);
+}
+
+html.visual-update .level-hint-bank {
+  min-width: 56px;
+  min-height: 44px;
+  padding: 6px 8px;
+  border-radius: var(--update-radius-sm);
+}
+
+html.visual-update .level-hint-bank span {
+  font-size: 8px;
+}
+
+html.visual-update .level-hint-bank strong {
+  font-size: 16px;
+}
+
+html.visual-update .stat-line {
+  gap: 8px;
+  margin-bottom: 5px;
+  font-family: var(--update-font-body);
+  font-size: 10px;
+}
+
+html.visual-update .stat-line span,
+html.visual-update .energy-stat > span {
+  font-size: 9px;
+}
+
+html.visual-update .progress-track {
+  height: 6px;
+  border-radius: 999px;
+}
+
+html.visual-update .energy-stat {
+  gap: 7px;
+}
+
+html.visual-update .energy-rune {
+  width: 11px;
+  height: 16px;
+}
+
+html.visual-update body.theme-sky .topbar {
+  background: rgba(23, 8, 52, 0.94);
+  box-shadow: 0 8px 32px rgba(3, 0, 12, 0.34);
+}
+
+html.visual-update body.theme-sky .company-logo-wrap {
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 4px 18px rgba(3, 0, 12, 0.22);
+}
+
+/* Refined controls and visual hierarchy */
+
+html.visual-update .primary-action,
+html.visual-update .secondary-action {
+  min-height: 44px;
+  border-radius: var(--update-radius-sm);
+  transition: border-color 160ms ease, background 160ms ease, color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+html.visual-update .primary-action:hover,
+html.visual-update .secondary-action:hover {
+  transform: translateY(-1px);
+}
+
+html.visual-update .primary-action {
+  box-shadow: 0 9px 22px rgba(254, 85, 0, 0.2);
+}
+
+html.visual-update .secondary-action {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+html.visual-update button:focus-visible,
+html.visual-update a:focus-visible,
+html.visual-update input:focus-visible {
+  outline-width: 2px;
+  outline-offset: 3px;
+}
+
+html.visual-update .zone-list button,
+html.visual-update .c2-zone-list button,
+html.visual-update .c3-zone-list button,
+html.visual-update .c4-zone-list button,
+html.visual-update .c5-zone-list button {
+  border-radius: var(--update-radius-sm);
+}
+
+html.visual-update .zone-list button strong,
+html.visual-update .c2-zone-list button strong,
+html.visual-update .c3-zone-list button strong,
+html.visual-update .c4-zone-list button strong,
+html.visual-update .c5-zone-list button strong {
+  line-height: 1.25;
+}
+
+html.visual-update .zone-list button small,
+html.visual-update .c2-zone-list button small,
+html.visual-update .c3-zone-list button small,
+html.visual-update .c4-zone-list button small,
+html.visual-update .c5-zone-list button small,
+html.visual-update .brief-copy > p,
+html.visual-update .c2-brief-copy > p,
+html.visual-update .c3-brief-copy > p,
+html.visual-update .c4-brief-copy > p,
+html.visual-update .c5-brief-copy > p {
+  font-family: var(--update-font-body);
+  line-height: 1.5;
+}
+
+html.visual-update .map-node,
+html.visual-update .c2-map-node,
+html.visual-update .c3-map-node,
+html.visual-update .c4-map-node,
+html.visual-update .c5-map-node {
+  border-radius: 11px;
+  box-shadow: 0 10px 28px rgba(13, 5, 31, 0.28);
+  backdrop-filter: blur(10px);
+  transition: filter 160ms ease, opacity 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+html.visual-update .map-node:hover:not(:disabled),
+html.visual-update .c2-map-node:hover:not(:disabled),
+html.visual-update .c3-map-node:hover:not(:disabled),
+html.visual-update .c4-map-node:hover:not(:disabled),
+html.visual-update .c5-map-node:hover:not(:disabled) {
+  box-shadow: 0 14px 34px rgba(13, 5, 31, 0.38);
+  filter: brightness(1.06);
+}
+
+html.visual-update .quest-brief,
+html.visual-update .c2-quest-brief,
+html.visual-update .c3-quest-brief,
+html.visual-update .c4-quest-brief,
+html.visual-update .c5-quest-brief,
+html.visual-update .codex-panel,
+html.visual-update .c2-codex-panel,
+html.visual-update .c3-codex-panel,
+html.visual-update .c4-codex-panel,
+html.visual-update .c5-codex-panel {
+  box-shadow: var(--update-shadow-sm);
+}
+
+html.visual-update .brief-copy h2,
+html.visual-update .c2-brief-copy h2,
+html.visual-update .c3-brief-copy h2,
+html.visual-update .c4-brief-copy h2,
+html.visual-update .c5-brief-copy h2 {
+  line-height: 1.18;
+  text-wrap: balance;
+}
+
+/* Cleaner login, registration and profile surfaces */
+
+html.visual-update .player-access-modal,
+html.visual-update .admin-modal,
+html.visual-update .mission-intro,
+html.visual-update .c2-prologue,
+html.visual-update .c3-overlay,
+html.visual-update .c4-overlay,
+html.visual-update .c5-overlay {
+  backdrop-filter: blur(18px);
+}
+
+html.visual-update .player-access-dialog {
+  width: min(100%, 760px);
+  padding: clamp(24px, 3vw, 34px);
+  border-top-width: 4px;
+  border-radius: var(--update-radius-lg);
+  box-shadow: 0 34px 100px rgba(6, 2, 18, 0.5);
+}
+
+html.visual-update .player-auth-tabs {
+  margin-bottom: 18px;
+  border-radius: 12px;
+}
+
+html.visual-update .player-auth-tabs button {
+  min-height: 38px;
+  border-radius: 9px;
+}
+
+html.visual-update .player-access-heading > h2 {
+  margin-bottom: 9px;
+  font-size: clamp(26px, 3.6vw, 36px);
+}
+
+html.visual-update .player-access-heading > p:not(.eyebrow) {
+  margin-bottom: 20px;
+  font-family: var(--update-font-body);
+  font-size: 14px;
+}
+
+html.visual-update .player-name-field {
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+html.visual-update .player-name-field > span,
+html.visual-update .player-mode-fieldset legend {
+  font-family: var(--update-font-body);
+  font-size: 12px;
+}
+
+html.visual-update .player-name-field input {
+  min-height: 46px;
+  border-radius: var(--update-radius-sm);
+  font-family: var(--update-font-body);
+  font-size: 14px;
+}
+
+html.visual-update .player-inline-action {
+  margin: -8px 0 16px auto;
+  font-family: var(--update-font-body);
+  font-size: 11px;
+}
+
+html.visual-update .player-mode-card {
+  min-height: 112px;
+}
+
+html.visual-update .player-mode-card-copy {
+  padding: 16px;
+  border-radius: 12px;
+}
+
+html.visual-update .player-mode-card-copy strong {
+  font-family: "Unbounded", ui-sans-serif, system-ui, sans-serif;
+  font-size: 13px;
+}
+
+html.visual-update .player-mode-card-copy small {
+  font-family: var(--update-font-body);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+html.visual-update .player-account-actions {
+  padding: 16px;
+  border-radius: 14px;
+}
+
+html.visual-update .player-account-actions > div {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+html.visual-update .player-account-actions .secondary-action {
+  width: 100%;
+  justify-content: center;
+  font-family: var(--update-font-body);
+  font-size: 11px;
+}
+
+html.visual-update .player-account-actions .danger-action {
+  grid-column: 2;
+  background: rgba(168, 43, 58, 0.04);
+}
+
+html.visual-update .player-auth-security {
+  margin-top: 14px;
+  font-family: var(--update-font-body);
+  line-height: 1.45;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+html.visual-update .player-access-actions {
+  margin-top: 20px;
+}
+
+html.visual-update .admin-dialog,
+html.visual-update .mission-intro-dialog,
+html.visual-update .c2-prologue-dialog,
+html.visual-update .c3-overlay-dialog,
+html.visual-update .c4-overlay-dialog,
+html.visual-update .c5-overlay-dialog {
+  border-radius: var(--update-radius-lg);
+}
+
+html.visual-update .mission-intro-content,
+html.visual-update .c2-prologue-content,
+html.visual-update .c3-overlay-content,
+html.visual-update .c5-overlay-content {
+  padding: clamp(28px, 4vw, 46px);
+}
+
+html.visual-update .mission-intro-copy,
+html.visual-update .c2-prologue-copy,
+html.visual-update .c3-overlay-copy,
+html.visual-update .c4-overlay-copy,
+html.visual-update .c5-overlay-copy {
+  font-family: var(--update-font-body);
+  line-height: 1.65;
+}
+
+html.visual-update .c3-overlay-actions,
+html.visual-update .c4-overlay-actions,
+html.visual-update .c5-overlay-actions,
+html.visual-update .c2-prologue-actions,
+html.visual-update .mission-intro-actions {
+  gap: 12px;
+}
+
+/* Make the content viewport benefit from the compact header. */
+
+html.visual-update .map-layout,
+html.visual-update .mission-layout,
+html.visual-update .c2-map-layout,
+html.visual-update .c3-map-layout,
+html.visual-update .c4-map-layout,
+html.visual-update .c5-map-layout {
+  min-height: calc(100vh - 92px);
+}
+
+@media (max-width: 1180px) {
+  html.visual-update .topbar {
+    min-height: 128px;
+    grid-template-areas:
+      "brand stats"
+      "switch switch";
+    grid-template-columns: minmax(240px, 290px) minmax(0, 1fr);
+    gap: 8px 18px;
+  }
+
+  html.visual-update .topbar .brand {
+    grid-area: brand;
+  }
+
+  html.visual-update body .chapter-switcher {
+    grid-area: switch;
+    width: min(100%, 680px);
+  }
+
+  html.visual-update .topbar .player-stats {
+    grid-area: stats;
+    justify-self: end;
+    grid-template-columns: minmax(110px, 132px) auto auto minmax(110px, 150px) auto;
+  }
+
+  html.visual-update .level-hint-bank {
+    display: none;
+  }
+
+  html.visual-update .map-layout,
+  html.visual-update .mission-layout,
+  html.visual-update .c2-map-layout,
+  html.visual-update .c3-map-layout,
+  html.visual-update .c4-map-layout,
+  html.visual-update .c5-map-layout {
+    min-height: calc(100vh - 128px);
+  }
+}
+
+@media (max-width: 820px) {
+  html.visual-update .topbar {
+    min-height: 0;
+    grid-template-areas:
+      "brand"
+      "stats"
+      "switch";
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+    padding: 10px 14px 12px;
+  }
+
+  html.visual-update .topbar .brand {
+    width: 100%;
+  }
+
+  html.visual-update .company-logo {
+    width: 136px;
+  }
+
+  html.visual-update .brand-kicker {
+    font-size: 7px;
+  }
+
+  html.visual-update .brand h1 {
+    font-size: 15px;
+  }
+
+  html.visual-update .topbar .player-stats {
+    width: 100% !important;
+    justify-self: stretch;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto auto;
+    gap: 6px;
+  }
+
+  html.visual-update .player-profile-action {
+    grid-column: 1 / 3;
+    grid-row: 1;
+    justify-self: stretch;
+  }
+
+  html.visual-update .admin-action,
+  html.visual-update .admin-analytics-link {
+    grid-column: 3 / 5;
+    grid-row: 1;
+    justify-self: stretch;
+    text-align: center;
+  }
+
+  html.visual-update .level-seal {
+    grid-column: 1;
+    grid-row: 2;
+    justify-self: start;
+  }
+
+  html.visual-update .level-hint-bank {
+    display: grid;
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: start;
+  }
+
+  html.visual-update .energy-stat {
+    grid-column: 3 / 5;
+    grid-row: 2;
+    justify-self: end;
+  }
+
+  html.visual-update .xp-stat {
+    grid-column: 1 / -1;
+    grid-row: 3;
+  }
+
+  html.visual-update body .chapter-switcher {
+    width: 100%;
+    max-width: none;
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+
+  html.visual-update .chapter-switcher button {
+    min-width: 68px;
+    min-height: 42px;
+    padding: 5px;
+    font-size: 7.5px;
+  }
+
+  html.visual-update .zone-journal,
+  html.visual-update .c2-zone-journal,
+  html.visual-update .c3-zone-journal,
+  html.visual-update .c4-zone-journal,
+  html.visual-update .c5-zone-journal {
+    overflow: hidden;
+    padding: 18px 14px;
+  }
+
+  html.visual-update .zone-list,
+  html.visual-update .c2-zone-list,
+  html.visual-update .c3-zone-list,
+  html.visual-update .c4-zone-list,
+  html.visual-update .c5-zone-list {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 2px 0 8px;
+    scroll-snap-type: x proximity;
+    scrollbar-width: thin;
+  }
+
+  html.visual-update .zone-list li,
+  html.visual-update .c2-zone-list li,
+  html.visual-update .c3-zone-list li,
+  html.visual-update .c4-zone-list li,
+  html.visual-update .c5-zone-list li {
+    min-width: 158px;
+    flex: 0 0 158px;
+    scroll-snap-align: start;
+  }
+
+  html.visual-update .zone-list button,
+  html.visual-update .c2-zone-list button,
+  html.visual-update .c3-zone-list button,
+  html.visual-update .c4-zone-list button,
+  html.visual-update .c5-zone-list button {
+    min-height: 62px;
+  }
+
+  html.visual-update .zone-list button > span:last-child {
+    display: block;
+  }
+
+  html.visual-update .player-access-dialog {
+    margin: 0;
+  }
+
+  html.visual-update .map-layout,
+  html.visual-update .mission-layout,
+  html.visual-update .c2-map-layout,
+  html.visual-update .c3-map-layout,
+  html.visual-update .c4-map-layout,
+  html.visual-update .c5-map-layout {
+    min-height: 0;
+  }
+}
+
+@media (max-width: 560px) {
+  html.visual-update .topbar {
+    gap: 8px;
+  }
+
+  html.visual-update .company-logo-wrap {
+    padding-left: 0;
+  }
+
+  html.visual-update .company-logo {
+    width: 126px;
+  }
+
+  html.visual-update .brand {
+    gap: 6px;
+  }
+
+  html.visual-update .brand h1 {
+    white-space: normal;
+  }
+
+  html.visual-update .player-profile-action strong,
+  html.visual-update .player-profile-action span {
+    max-width: 130px;
+  }
+
+  html.visual-update .admin-action,
+  html.visual-update .admin-analytics-link {
+    padding-inline: 7px;
+    font-size: 8px;
+  }
+
+  html.visual-update .energy-stat > span {
+    display: none;
+  }
+
+  html.visual-update .player-mode-fieldset {
+    gap: 8px;
+  }
+
+  html.visual-update .player-mode-card-copy {
+    padding: 14px;
+  }
+
+  html.visual-update .player-account-actions > div {
+    grid-template-columns: 1fr;
+  }
+
+  html.visual-update .player-account-actions .danger-action {
+    grid-column: auto;
+  }
+
+  html.visual-update .player-access-actions {
+    gap: 8px;
+  }
+
+  html.visual-update .mission-intro-content,
+  html.visual-update .c2-prologue-content,
+  html.visual-update .c3-overlay-content,
+  html.visual-update .c5-overlay-content {
+    padding: 22px 18px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.visual-update .chapter-switcher button,
+  html.visual-update .primary-action,
+  html.visual-update .secondary-action,
+  html.visual-update .map-node,
+  html.visual-update .c2-map-node,
+  html.visual-update .c3-map-node,
+  html.visual-update .c4-map-node,
+  html.visual-update .c5-map-node {
+    transition: none;
+  }
+}

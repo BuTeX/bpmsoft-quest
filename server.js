@@ -32,6 +32,7 @@ const publicRootFiles = new Set([
   "admin.css",
   "admin.js",
   "app.js",
+  "update.css",
   "styles.css",
   "chapter2.css",
   "chapter2-missions.js",
@@ -1229,7 +1230,18 @@ async function serveStatic(request, response, pathname) {
     return;
   }
 
-  const relativePath = decodedPath === "/" ? "index.html" : decodedPath.replace(/^\/+/, "");
+  const requestedPath = decodedPath.replace(/^\/+/, "");
+  const isUpdateVariant = requestedPath === "update";
+  if (decodedPath === "/update/") {
+    response.writeHead(308, { Location: "/update" });
+    response.end();
+    return;
+  }
+  const relativePath = decodedPath === "/"
+    ? "index.html"
+    : isUpdateVariant
+      ? "index.html"
+      : requestedPath;
   if (relativePath.split("/").some((segment) => segment.startsWith("."))) {
     json(response, 404, { error: "Not found" });
     return;
@@ -1247,6 +1259,23 @@ async function serveStatic(request, response, pathname) {
   }
 
   try {
+    if (relativePath === "index.html" && isUpdateVariant) {
+      const template = await readFile(filePath, "utf8");
+      const body = template
+        .replace("<html lang=\"ru\">", "<html lang=\"ru\" class=\"visual-update\">")
+        .replace(
+          "</head>",
+          "  <link rel=\"stylesheet\" href=\"/update.css?v=20260723-polish-1\">\n</head>"
+        );
+      response.writeHead(200, {
+        "Content-Type": "text/html; charset=utf-8",
+        "Cache-Control": "no-store",
+        "Content-Length": Buffer.byteLength(body)
+      });
+      if (request.method === "HEAD") response.end();
+      else response.end(body);
+      return;
+    }
     const fileStats = await stat(filePath);
     if (!fileStats.isFile()) throw new Error("Not a file");
 
