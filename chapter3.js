@@ -364,7 +364,7 @@ function initializeChapter3Map() {
   document.getElementById("chapter3-reset-progress")?.addEventListener("click", resetChapter3Progress);
   document.querySelectorAll("[data-c3-zone]").forEach((button) => {
     button.addEventListener("click", () => {
-      if (!button.disabled) renderChapter3Brief(button.dataset.c3Zone);
+      if (!button.disabled) beginChapter3Mission(button.dataset.c3Zone);
     });
   });
   document.getElementById("chapter3-start-mission")?.addEventListener("click", (event) => {

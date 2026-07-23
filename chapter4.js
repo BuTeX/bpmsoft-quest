@@ -885,7 +885,7 @@ function initializeChapter4() {
   document.getElementById("chapter4-reset-progress")?.addEventListener("click", resetChapter4Progress);
   document.querySelectorAll("[data-c4-zone]").forEach((button) => {
     button.addEventListener("click", () => {
-      if (!button.disabled) renderChapter4Brief(button.dataset.c4Zone);
+      if (!button.disabled) beginChapter4Mission(button.dataset.c4Zone);
     });
   });
   document.getElementById("chapter4-start-mission")?.addEventListener("click", (event) => beginChapter4Mission(event.currentTarget.dataset.c4Mission));

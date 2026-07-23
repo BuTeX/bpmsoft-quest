@@ -494,7 +494,7 @@ function initializeChapter2Map() {
   document.querySelectorAll("[data-c2-zone]").forEach((button) => {
     button.addEventListener("click", () => {
       if (button.disabled) return;
-      renderChapter2Brief(button.dataset.c2Zone);
+      beginChapter2Mission(button.dataset.c2Zone);
     });
   });
   document.getElementById("chapter2-start-mission")?.addEventListener("click", (event) => {

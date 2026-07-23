@@ -12,6 +12,11 @@ assert.match(source, /diagnosisSelectionPending/, "Chapter 5 still auto-selects 
 assert.match(source, /confirmedControlIds/, "Chapter 5 does not preserve confirmed rule choices");
 assert.match(source, /buildFeedbackDetails/, "Chapter 5 causal feedback is missing");
 assert.match(source, /showNextContextHint/, "Chapter 5 contextual hint ladder is missing");
+assert.equal(
+  source.match(/button\.addEventListener\("click", \(\) => beginMission\(key\)\);/g)?.length,
+  2,
+  "Chapter 5 map and list clicks do not both open missions directly"
+);
 assert.match(html, /chapter5-task-contract-title/, "Chapter 5 acceptance conditions are missing");
 assert.match(html, /chapter5-configuration-panel" class="c5-configuration-panel is-locked"/, "Chapter 5 rules are not progressively disclosed");
 assert.match(html, /chapter5-feedback-chain/, "Chapter 5 causal chain has no UI target");

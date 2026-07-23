@@ -253,7 +253,7 @@ function buildMap() {
     button.type = "button";
     button.dataset.c5Zone = key;
     button.innerHTML = `<span>${mission.number}</span><strong>${mission.zone}<small>${mission.title}</small></strong>`;
-    button.addEventListener("click", () => renderBrief(key));
+    button.addEventListener("click", () => beginMission(key));
     item.append(button);
     return item;
   }));
@@ -266,8 +266,8 @@ function buildMap() {
     button.dataset.c5Zone = key;
     button.style.setProperty("--x", `${MAP_POSITIONS[index][0]}%`);
     button.style.setProperty("--y", `${MAP_POSITIONS[index][1]}%`);
-    button.innerHTML = `<span>${mission.number}</span><strong>${index === 8 ? "Приёмка" : mission.zone.replace("Центр ", "")}</strong>`;
-    button.addEventListener("click", () => renderBrief(key));
+    button.innerHTML = `<span>${mission.number}</span><strong>${mission.mapLabel}</strong>`;
+    button.addEventListener("click", () => beginMission(key));
     return button;
   }));
 }

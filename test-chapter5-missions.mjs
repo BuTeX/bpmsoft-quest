@@ -5,11 +5,17 @@ import { evaluateRound, replayToTick, validateRound } from "./chapter5-simulatio
 assert.equal(goodAviaMissionKeys.length, 9, "Chapter 5 must contain nine missions");
 assert.equal(goodAviaRounds.length, 19, "Chapter 5 must contain nineteen deterministic rounds");
 assert.equal(goodAviaMissions.crisis.rounds.length, 3, "The final crisis mission must contain three rounds");
+assert.deepEqual(
+  goodAviaMissionKeys.map((key) => goodAviaMissions[key].mapLabel),
+  ["Расписание", "Пересадки", "Багаж", "Сбои рейсов", "Перебронирование", "Партнёры", "Интеграции", "Прогнозирование", "Приёмка мегахаба"],
+  "Chapter 5 map labels are not the approved concise task names"
+);
 
 let expectedNumber = 37;
 for (const key of goodAviaMissionKeys) {
   const mission = goodAviaMissions[key];
   assert.equal(mission.number, expectedNumber, `${key}: unexpected mission number`);
+  assert.match(mission.mapLabel, /^[А-ЯЁA-Z]/, `${key}: map label must start with an uppercase letter`);
   assert.match(mission.sourceUrl, /^https:\/\/edu\.bpmsoft\.ru\/baza-znaniy\//, `${key}: official BPMSoft source is missing`);
   assert.equal(mission.codex.length, 3, `${key}: expected three codex terms`);
   assert.equal(mission.score, key === "crisis" ? 160 : 80, `${key}: unexpected XP reward`);

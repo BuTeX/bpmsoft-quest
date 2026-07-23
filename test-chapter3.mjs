@@ -8,11 +8,13 @@ const localStorage = {
 };
 
 const context = vm.createContext({ console, localStorage, window: {} });
-vm.runInContext(fs.readFileSync(new URL("./chapter3.js", import.meta.url), "utf8"), context);
+const source = fs.readFileSync(new URL("./chapter3.js", import.meta.url), "utf8");
+vm.runInContext(source, context);
 
 const api = context.window.BPMQuestChapter3;
 const assert = (condition, message) => { if (!condition) throw new Error(message); };
 
+assert(source.includes("beginChapter3Mission(button.dataset.c3Zone);"), "Chapter 3 map clicks do not open missions directly");
 assert(api.storageKey === "bpmsoft-quest-chapter3-v1", "Chapter 3 uses an unexpected storage key");
 assert(api.missionKeys.length === 9, "Chapter 3 does not define nine missions");
 assert(api.completionFlags.length === 9, "Chapter 3 does not define nine completion flags");

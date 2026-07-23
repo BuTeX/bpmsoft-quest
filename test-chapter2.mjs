@@ -25,6 +25,7 @@ const assert = (condition, message) => {
   if (!condition) throw new Error(message);
 };
 
+assert(source.includes("beginChapter2Mission(button.dataset.c2Zone);"), "Chapter 2 map clicks do not open missions directly");
 assert(api.storageKey === "bpmsoft-quest-chapter2-v1", "Chapter 2 uses an unexpected storage key");
 assert(api.missionKeys.length === 9, "Chapter 2 does not define nine missions");
 assert(api.completionFlags.length === 9, "Chapter 2 does not define nine completion flags");
