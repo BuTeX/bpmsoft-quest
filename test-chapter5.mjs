@@ -4,9 +4,18 @@ import { MemoryAccountStore } from "./account-store.js";
 import { sanitizeChapter5ProgressState } from "./server.js";
 
 const source = fs.readFileSync(new URL("./chapter5.js", import.meta.url), "utf8");
+const html = fs.readFileSync(new URL("./index.html", import.meta.url), "utf8");
 assert.match(source, /bpmsoft-quest-chapter5-v1/, "Chapter 5 uses an unexpected storage key");
 assert.match(source, /scheduleChapter5ProgressSync/, "Chapter 5 does not sync account progress");
 assert.match(source, /theme-sky/, "Chapter 5 does not activate its sky theme");
+assert.match(source, /diagnosisSelectionPending/, "Chapter 5 still auto-selects the final symptom after baseline");
+assert.match(source, /confirmedControlIds/, "Chapter 5 does not preserve confirmed rule choices");
+assert.match(source, /buildFeedbackDetails/, "Chapter 5 causal feedback is missing");
+assert.match(source, /showNextContextHint/, "Chapter 5 contextual hint ladder is missing");
+assert.match(html, /chapter5-task-contract-title/, "Chapter 5 acceptance conditions are missing");
+assert.match(html, /chapter5-configuration-panel" class="c5-configuration-panel is-locked"/, "Chapter 5 rules are not progressively disclosed");
+assert.match(html, /chapter5-feedback-chain/, "Chapter 5 causal chain has no UI target");
+assert.match(html, /chapter5-context-hint-action/, "Chapter 5 contextual hints have no UI action");
 
 const sanitized = sanitizeChapter5ProgressState({
   energy: 99,

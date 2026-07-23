@@ -301,6 +301,7 @@ function renderChapter2Stats() {
     cell.setAttribute("aria-hidden", "true");
     energyRunes.append(cell);
   }
+  window.BPMQuestFirstChapter?.refreshLevelHints?.();
 }
 
 function setChapterSwitcherState(activeChapter) {
@@ -569,6 +570,16 @@ function isChapter2AdminActive() {
   return window.BPMQuestFirstChapter?.isAdminActive?.() === true;
 }
 
+function getChapter2HintContext(mission, phase, slot) {
+  return `c2:${mission.key}:${phase.id}:${slot.id}`;
+}
+
+function isChapter2AnswerRevealed(mission, phase, slot) {
+  return window.BPMQuestFirstChapter?.isLevelHintRevealed?.(
+    getChapter2HintContext(mission, phase, slot)
+  ) === true;
+}
+
 function renderChapter2MissionIntro(mission, mode = "first-visit") {
   const intro = document.getElementById("chapter2-mission-intro");
   if (!intro) return;
@@ -680,13 +691,18 @@ function renderChapter2Board(mission, progress) {
     const slotElement = document.createElement("article");
     slotElement.className = `c2-slot${selected ? " is-answered" : ""}${locked ? " is-locked" : ""}${wrong ? " is-wrong" : ""}`;
     slotElement.innerHTML = `<span class="c2-slot-label">${slot.label}</span><p class="c2-slot-prompt">${slot.prompt}</p>`;
+    const hintButton = window.BPMQuestFirstChapter?.createLevelHintButton?.(
+      getChapter2HintContext(mission, phase, slot),
+      () => renderChapter2Board(mission, progress)
+    );
+    if (hintButton) slotElement.append(hintButton);
     const optionsElement = document.createElement("div");
     optionsElement.className = "c2-options";
 
     getChapter2OrderedOptions(mission, phase, slot, progress).forEach((option) => {
       const button = document.createElement("button");
       button.type = "button";
-      button.className = `c2-answer${selected === option.id ? " is-selected" : ""}${isChapter2AdminActive() && option.id === slot.correct ? " is-admin-correct" : ""}`;
+      button.className = `c2-answer${selected === option.id ? " is-selected" : ""}${(isChapter2AdminActive() || isChapter2AnswerRevealed(mission, phase, slot)) && option.id === slot.correct ? " is-admin-correct" : ""}`;
       button.disabled = locked || chapter2RunComplete;
       button.dataset.option = option.id;
       button.innerHTML = `<strong>${option.name}</strong><small>${option.note}</small>`;

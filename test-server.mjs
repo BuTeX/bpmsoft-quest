@@ -159,9 +159,11 @@ test("account progress requires an authenticated session", async () => {
 test("progress sanitizer keeps only known mission intros", () => {
   const state = sanitizeProgressState({
     energy: 2,
-    introSeen: ["interface", "unknown", "data", "interface"]
+    introSeen: ["interface", "unknown", "data", "interface"],
+    revealedLevelHints: ["c1:integration:answer:0", "bad value", "c1:integration:answer:0"]
   });
   assert.deepEqual(state.introSeen, ["interface", "data"]);
+  assert.deepEqual(state.revealedLevelHints, ["c1:integration:answer:0"]);
 });
 
 test("chapter 2 sanitizer enforces canonical completion order", () => {

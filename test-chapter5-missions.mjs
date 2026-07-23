@@ -19,6 +19,12 @@ for (const key of goodAviaMissionKeys) {
 for (const round of goodAviaRounds) {
   assert.deepEqual(validateRound(round), { valid: true, errors: [] }, `${round.id}: invalid simulation contract`);
   const accepted = round.solution.acceptedConfigurations[0];
+  assert.ok(Array.isArray(round.guidance?.confirmedControls), `${round.id}: progressive disclosure guidance is missing`);
+  for (const id of round.guidance.confirmedControls) {
+    const control = round.controls.find((item) => item.id === id);
+    assert.ok(control, `${round.id}: confirmed control ${id} does not exist`);
+    assert.equal(control.defaultValue, accepted[id], `${round.id}: confirmed control ${id} is not accepted`);
+  }
   const finalIndex = round.ticks.length - 1;
   const baseline = replayToTick(round, {}, finalIndex);
   const baselineAgain = replayToTick(round, {}, finalIndex);
@@ -38,6 +44,7 @@ for (const round of goodAviaRounds) {
 }
 
 assert.equal(goodAviaMissions.schedule.rounds[0].id, "37A", "The validated vertical prototype must remain the first production round");
+assert.ok(goodAviaMissions.schedule.rounds.every((round) => round.guidance.confirmedControls.length === 1), "Mission 37 must keep one rule pre-confirmed in each onboarding round");
 assert.equal(goodAviaMissions.crisis.rounds.at(-1).ticks.length, 6, "The final acceptance must keep its six-tick correlation scenario");
 
 console.log("Chapter 5 missions 37–45, nineteen deterministic rounds and acceptance outcomes: OK");

@@ -218,6 +218,7 @@ function renderChapter4Stats() {
     cell.setAttribute("aria-hidden", "true");
     energyRunes.append(cell);
   }
+  window.BPMQuestFirstChapter?.refreshLevelHints?.();
 }
 
 function setChapter4SwitcherState(activeChapter) {
@@ -573,6 +574,8 @@ function renderChapter4Decision(stage, progress) {
   const slots = document.getElementById("chapter4-chain-slots");
   const deck = document.getElementById("chapter4-card-deck");
   const choiceGuide = document.getElementById("chapter4-choice-guide");
+  const hintContext = `c4:${chapter4State.activeMission}:${stage.id}:${activeRole}`;
+  const answerRevealed = window.BPMQuestFirstChapter?.isLevelHintRevealed?.(hintContext) === true;
   slots.replaceChildren();
   deck.replaceChildren();
 
@@ -600,7 +603,7 @@ function renderChapter4Decision(stage, progress) {
     const selected = getChapter4Placement(stage, progress, card.role) === card.id;
     const button = document.createElement("button");
     button.type = "button";
-    button.className = `c4-decision-card${selected ? " is-used" : ""}${window.BPMQuestFirstChapter?.isAdminActive?.() && card.correct ? " is-admin-correct" : ""}`;
+    button.className = `c4-decision-card${selected ? " is-used" : ""}${(window.BPMQuestFirstChapter?.isAdminActive?.() || answerRevealed) && card.correct ? " is-admin-correct" : ""}`;
     button.disabled = chapter4RunComplete;
     button.dataset.c4Card = card.id;
     button.innerHTML = `<span>Вариант ${index + 1}</span><strong>${card.name}</strong><small>${card.note}</small>`;
@@ -617,6 +620,11 @@ function renderChapter4Decision(stage, progress) {
     const [label, hint] = CHAPTER4_SLOT_LABELS[activeRole];
     const tutorial = chapter4State.activeMission === "migration" ? `<small>${CHAPTER4_TUTORIAL_COPY[activeRole]}</small>` : "";
     choiceGuide.innerHTML = `<span>${label}</span><strong>${hint}. Выберите один из двух вариантов.</strong>${tutorial}`;
+    const hintButton = window.BPMQuestFirstChapter?.createLevelHintButton?.(
+      hintContext,
+      () => renderChapter4Decision(stage, progress)
+    );
+    if (hintButton) choiceGuide.append(hintButton);
   }
   renderChapter4TaskGuide(stage, progress);
 }

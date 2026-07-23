@@ -1,4 +1,4 @@
-import { goodAviaMissionKeys, goodAviaMissions } from "./chapter5-missions.js?v=20260721-good-avia-2";
+import { goodAviaMissionKeys, goodAviaMissions } from "./chapter5-missions.js?v=20260723-c5-ux-1";
 import { createRuntime, getCurrentSnapshot, reduceRuntime } from "./chapter5-simulation.js";
 
 const STORAGE_KEY = "bpmsoft-quest-chapter5-v1";
@@ -141,6 +141,9 @@ let activeProgress = null;
 let activeRound = null;
 let runtime = null;
 let autoTimer = null;
+let contextHintLevel = 0;
+let diagnosisSelectionPending = false;
+let confirmedControlIds = new Set();
 
 const elements = {
   mapView: document.getElementById("chapter5-map-view"),
@@ -156,6 +159,7 @@ const elements = {
   timeline: document.getElementById("chapter5-timeline"),
   controls: document.getElementById("chapter5-controls-grid"),
   journal: document.getElementById("chapter5-journal-list"),
+  configuration: document.getElementById("chapter5-configuration-panel"),
   feedback: document.getElementById("chapter5-feedback"),
   announcer: document.getElementById("app-announcer") || document.body
 };
@@ -237,6 +241,7 @@ function renderStats() {
     cell.setAttribute("aria-hidden", "true");
     return cell;
   }));
+  window.BPMQuestFirstChapter?.refreshLevelHints?.();
 }
 
 function buildMap() {
@@ -366,7 +371,14 @@ function renderMissionIntro(mission, mode = "first") {
   document.getElementById("chapter5-mission-intro-number").textContent = String(mission.number);
   document.getElementById("chapter5-mission-intro-kicker").textContent = `Операционный запрос · ${mission.zone}`;
   document.getElementById("chapter5-mission-intro-title").textContent = mission.introTitle;
-  document.getElementById("chapter5-mission-intro-copy").innerHTML = `<p>${mission.copy}</p><p>${mission.lore}</p>`;
+  document.getElementById("chapter5-mission-intro-copy").innerHTML = `
+    <p>${mission.copy}</p>
+    <p>${mission.lore}</p>
+    <div class="c5-intro-acceptance">
+      <strong>Что считается решением</strong>
+      <p>Найдите первое неверное решение системы, измените доступные правила и повторите тот же поток без запрещённых последствий.</p>
+    </div>
+  `;
   document.getElementById("chapter5-mission-intro-start").textContent = mode === "review" ? "Вернуться к двойнику" : "Запустить двойник";
   elements.missionIntro.hidden = false;
   document.body.classList.add("has-mission-intro");
@@ -401,9 +413,13 @@ function setupRound() {
   activeProgress = getMissionProgress(activeMission.key);
   activeRound = activeMission.rounds[activeProgress.round];
   runtime = createRuntime(activeRound);
+  contextHintLevel = 0;
+  diagnosisSelectionPending = false;
+  confirmedControlIds = new Set(activeRound.guidance?.confirmedControls || []);
   hideFeedback();
   buildTimeline();
   buildControls();
+  buildCheckpointHint();
   renderMission();
 }
 
@@ -445,9 +461,18 @@ function buildControls() {
     const card = document.createElement("div");
     card.className = "c5-control-card";
     card.dataset.controlId = control.id;
+    const hintContext = `c5:${activeMission.key}:${activeRound.id}:${control.id}`;
+    const acceptedValue = activeRound.solution.acceptedConfigurations[0]?.[control.id];
+    const acceptedOption = control.options.find((option) => option.value === acceptedValue);
+    const heading = document.createElement("div");
+    heading.className = "c5-control-heading";
     const label = document.createElement("label");
     label.htmlFor = `c5-control-${activeRound.id}-${control.id}`;
     label.textContent = control.label;
+    const status = document.createElement("span");
+    status.className = "c5-control-status";
+    status.textContent = "Изменяемое";
+    heading.append(label, status);
     const select = document.createElement("select");
     select.id = label.htmlFor;
     select.dataset.controlId = control.id;
@@ -461,18 +486,107 @@ function buildControls() {
     select.disabled = true;
     const help = document.createElement("p");
     help.textContent = control.options.find((option) => option.value === select.value)?.help || "";
+    const hintAnswer = document.createElement("p");
+    hintAnswer.className = "c5-level-hint-answer";
+    hintAnswer.textContent = acceptedOption ? `Правильный ответ: ${acceptedOption.label}` : "";
+    const revealHintAnswer = () => {
+      const revealed = window.BPMQuestFirstChapter?.isLevelHintRevealed?.(hintContext) === true;
+      card.classList.toggle("is-level-hint-revealed", revealed);
+      hintAnswer.hidden = !revealed;
+    };
+    const hintButton = window.BPMQuestFirstChapter?.createLevelHintButton?.(
+      hintContext,
+      revealHintAnswer
+    );
     select.addEventListener("change", () => {
       help.textContent = control.options.find((option) => option.value === select.value)?.help || "";
       dispatch({ type: "SET_CONTROL", controlId: control.id, value: select.value });
     });
-    card.append(label, select, help);
+    revealHintAnswer();
+    card.append(heading, select, help);
+    if (hintButton) card.append(hintButton);
+    card.append(hintAnswer);
     return card;
   }));
+}
+
+function firstDivergenceIndex() {
+  return Math.max(0, activeRound.ticks.findIndex(
+    (tick) => tick.id === activeRound.solution.firstDivergenceTickId
+  ));
+}
+
+function buildCheckpointHint() {
+  const slot = document.getElementById("chapter5-checkpoint-hint-slot");
+  const answer = document.getElementById("chapter5-checkpoint-hint-answer");
+  if (!slot || !answer) return;
+  slot.replaceChildren();
+  const divergence = activeRound.ticks[firstDivergenceIndex()];
+  answer.textContent = `Правильный checkpoint: ${divergence.id} — ${divergence.title}.`;
+  const contextId = `c5:${activeMission.key}:${activeRound.id}:checkpoint`;
+  const refresh = () => renderContextHints();
+  const button = window.BPMQuestFirstChapter?.createLevelHintButton?.(
+    contextId,
+    refresh,
+    "Показать checkpoint"
+  );
+  if (button) slot.append(button);
+}
+
+function renderContextHints() {
+  const copy = document.getElementById("chapter5-context-hint");
+  const action = document.getElementById("chapter5-context-hint-action");
+  const slot = document.getElementById("chapter5-checkpoint-hint-slot");
+  const answer = document.getElementById("chapter5-checkpoint-hint-answer");
+  if (!copy || !action || !slot || !answer) return;
+
+  const editableLabels = activeRound.controls
+    .filter((control) => !confirmedControlIds.has(control.id))
+    .map((control) => control.label.toLowerCase());
+  const fallbackLabels = editableLabels.slice(0, 2).join(" и ");
+  const hintCopies = [
+    "Ищите не самый заметный итог, а первый такт, в котором система сама изменила состояние вопреки уже подтверждённому факту.",
+    `Сравните две выделенные записи журнала: что было доказано до решения системы? Затем проверьте ${fallbackLabels || "доступные правила"}.`
+  ];
+
+  copy.hidden = contextHintLevel === 0;
+  copy.textContent = contextHintLevel ? hintCopies[Math.min(contextHintLevel, 2) - 1] : "";
+  action.hidden = contextHintLevel >= 2;
+  action.textContent = contextHintLevel === 0 ? "Подсказка 1 из 2" : "Подсказка 2 из 2";
+  slot.hidden = contextHintLevel < 2;
+
+  const contextId = `c5:${activeMission.key}:${activeRound.id}:checkpoint`;
+  const revealed = window.BPMQuestFirstChapter?.isLevelHintRevealed?.(contextId) === true;
+  answer.hidden = !revealed;
+  applyHintFocus();
+}
+
+function showNextContextHint() {
+  if (contextHintLevel >= 2) return;
+  contextHintLevel += 1;
+  renderContextHints();
+}
+
+function applyHintFocus() {
+  const focus = contextHintLevel >= 2;
+  const divergenceIndex = firstDivergenceIndex();
+  const focusIds = new Set([
+    activeRound.ticks[Math.max(0, divergenceIndex - 1)]?.id,
+    activeRound.ticks[divergenceIndex]?.id
+  ]);
+  elements.timeline.querySelectorAll(".c5-tick-button").forEach((button) => {
+    const tickId = activeRound.ticks[Number(button.dataset.tickIndex)]?.id;
+    button.classList.toggle("is-hint-focus", focus && focusIds.has(tickId));
+  });
+  elements.journal.querySelectorAll(".c5-journal-entry").forEach((item) => {
+    item.classList.toggle("is-hint-focus", focus && focusIds.has(item.dataset.tickId));
+  });
 }
 
 function dispatch(action) {
   clearAutoTimer();
   const previousStatus = runtime.status;
+  const baselineWasComplete = runtime.baselineCompleted;
   try {
     runtime = reduceRuntime(activeRound, runtime, action);
   } catch (error) {
@@ -481,9 +595,20 @@ function dispatch(action) {
     return;
   }
 
+  if (action.type === "START_BASELINE" || action.type === "REPLAY_BASELINE") {
+    diagnosisSelectionPending = false;
+  }
+  if (!baselineWasComplete && runtime.baselineCompleted && runtime.runKind === "baseline") {
+    diagnosisSelectionPending = true;
+  }
+  if (action.type === "SELECT_CHECKPOINT") diagnosisSelectionPending = false;
+
   if (runtime.status === "failed" && previousStatus !== "failed") {
     state.energy = Math.max(0, state.energy - 1);
     state.attempts += 1;
+    Object.entries(runtime.verification?.controls || {}).forEach(([id, result]) => {
+      if (result === "correct") confirmedControlIds.add(id);
+    });
     activeProgress.lastWrong = [
       ...(runtime.verification?.checkpointCorrect ? [] : ["checkpoint"]),
       ...Object.entries(runtime.verification?.controls || {}).filter(([, value]) => value === "incorrect").map(([id]) => id)
@@ -505,7 +630,10 @@ function dispatch(action) {
 function seek(index) {
   if (!runtime || runtime.runKind !== "baseline" || !["paused", "diagnosing", "configured"].includes(runtime.status)) return;
   const max = runtime.baselineCompleted ? activeRound.ticks.length - 1 : runtime.maxBaselineTickIndex;
-  if (index <= max) dispatch({ type: "SEEK", tickIndex: index });
+  if (index <= max) {
+    diagnosisSelectionPending = false;
+    dispatch({ type: "SEEK", tickIndex: index });
+  }
 }
 
 function currentPhase() {
@@ -582,10 +710,90 @@ function renderJournal(snapshot) {
   elements.journal.replaceChildren(...entries.map((entry) => {
     const item = document.createElement("li");
     item.className = `c5-journal-entry is-${entry.level || "info"}`;
+    item.dataset.tickId = entry.tickId;
     item.innerHTML = `<time>${entry.tickId}</time><span>${entry.text}</span>`;
     return item;
   }));
   document.getElementById("chapter5-journal-empty").hidden = entries.length > 0;
+}
+
+function renderTaskContract() {
+  document.getElementById("chapter5-contract-observe")?.classList.toggle(
+    "is-complete",
+    runtime.baselineCompleted
+  );
+  document.getElementById("chapter5-contract-diagnose")?.classList.toggle(
+    "is-complete",
+    Boolean(runtime.selectedCheckpointId)
+  );
+  document.getElementById("chapter5-contract-verify")?.classList.toggle(
+    "is-complete",
+    runtime.status === "passed"
+  );
+}
+
+function renderActionGuide() {
+  const title = document.getElementById("chapter5-action-title");
+  const copy = document.getElementById("chapter5-action-copy");
+  const jump = document.getElementById("chapter5-action-jump");
+  if (!title || !copy || !jump) return;
+
+  const guides = {
+    idle: ["Запустите исходный сценарий", "Посмотрите весь поток событий до конца. Настройки пока закрыты.", "#chapter5-start-run", "К сценарию"],
+    running: ["Наблюдайте за фактами", "Следите, когда подтверждённое состояние впервые меняется неверно.", "#chapter5-twin-scene", "К сцене"],
+    paused: ["Сценарий на паузе", runtime.runKind === "verification"
+      ? "Продолжите тот же контрольный поток, когда будете готовы."
+      : "Сравните сцену и текущую запись журнала.", "#chapter5-twin-scene", "К сцене"],
+    diagnosing: [diagnosisSelectionPending ? "Выберите такт на шкале" : "Отметьте первое расхождение",
+      diagnosisSelectionPending
+        ? "Финальный симптом не выбран автоматически: откройте любой такт и найдите первое неверное решение."
+        : "Если это первое неверное решение системы, подтвердите выбранный такт.",
+      "#chapter5-timeline", "К шкале"],
+    configured: ["Настройте доступные правила", "Подтверждённые параметры зафиксированы. Измените оставшиеся и повторите тот же поток.", "#chapter5-configuration-panel", "К правилам"],
+    verifying: ["Идёт контрольный прогон", "Входные события совпадают с исходным сценарием; меняются только правила обработки.", "#chapter5-twin-scene", "К сцене"],
+    failed: ["Разберите причинную цепочку", "Посмотрите, какой такт и какие правила подтверждены, затем исправьте только оставшееся.", "#chapter5-feedback", "К разбору"],
+    passed: ["Устойчивость подтверждена", "Первое расхождение устранено, запрещённых промежуточных последствий нет.", "#chapter5-feedback", "К результату"]
+  };
+  const [titleText, copyText, target, label] = guides[runtime.status] || guides.idle;
+  title.textContent = titleText;
+  copy.textContent = copyText;
+  jump.dataset.target = target;
+  jump.textContent = label;
+}
+
+function renderConfiguration() {
+  const unlocked = Boolean(runtime.selectedCheckpointId);
+  elements.configuration?.classList.toggle("is-locked", !unlocked);
+  const summary = document.getElementById("chapter5-configuration-summary");
+  if (!summary) return;
+  const editableCount = activeRound.controls.filter((control) => !confirmedControlIds.has(control.id)).length;
+  summary.textContent = unlocked
+    ? confirmedControlIds.size
+      ? `${confirmedControlIds.size} подтверждено · измените ${editableCount}`
+      : `Измените ${editableCount} ${editableCount === 1 ? "правило" : "правила"}`
+    : "Откроются после выбора checkpoint.";
+}
+
+function renderControls() {
+  const canConfigure = runtime.status === "configured";
+  elements.controls.querySelectorAll(".c5-control-card").forEach((card) => {
+    const id = card.dataset.controlId;
+    const confirmed = confirmedControlIds.has(id);
+    const select = card.querySelector("select");
+    const status = card.querySelector(".c5-control-status");
+    card.classList.toggle("is-confirmed", confirmed);
+    if (select) {
+      select.disabled = !canConfigure || confirmed;
+      select.value = runtime.controlValues[id];
+    }
+    if (status) {
+      status.textContent = confirmed
+        ? activeRound.guidance?.confirmedControls?.includes(id)
+          ? "Уже верно"
+          : "Подтверждено"
+        : "Изменяемое";
+    }
+  });
 }
 
 function renderRuntime() {
@@ -609,10 +817,13 @@ function renderRuntime() {
   document.getElementById("chapter5-phase-chip").textContent = labels[runtime.status];
   document.getElementById("chapter5-attempt-badge").textContent = `Устойчивость ${state.energy} / 4`;
   document.getElementById("chapter5-run-kind").textContent = runtime.runKind === "verification" ? "Контрольный прогон" : "Исходный прогон";
+  renderTaskContract();
+  renderActionGuide();
+  renderConfiguration();
 
   elements.timeline.querySelectorAll("button").forEach((button) => {
     const index = Number(button.dataset.tickIndex);
-    button.classList.toggle("is-current", index === runtime.tickIndex);
+    button.classList.toggle("is-current", !diagnosisSelectionPending && index === runtime.tickIndex);
     button.classList.toggle("is-visited", index <= (runtime.runKind === "baseline" ? runtime.maxBaselineTickIndex : runtime.tickIndex));
     button.classList.toggle("is-selected", activeRound.ticks[index]?.id === runtime.selectedCheckpointId);
     button.disabled = runtime.runKind !== "baseline" || !["paused", "diagnosing", "configured"].includes(runtime.status)
@@ -633,14 +844,19 @@ function renderRuntime() {
   next.disabled = !canSeek || runtime.tickIndex >= (runtime.baselineCompleted ? activeRound.ticks.length - 1 : runtime.maxBaselineTickIndex);
 
   const checkpoint = document.getElementById("chapter5-checkpoint");
-  checkpoint.disabled = !runtime.baselineCompleted || !["diagnosing", "configured"].includes(runtime.status);
+  checkpoint.disabled = diagnosisSelectionPending || !runtime.baselineCompleted || !["diagnosing", "configured"].includes(runtime.status);
+  checkpoint.textContent = diagnosisSelectionPending
+    ? "Сначала выберите такт на шкале"
+    : runtime.selectedCheckpointId
+      ? "Изменить отмеченный checkpoint"
+      : "Отметить выбранный такт как первое расхождение";
   document.getElementById("chapter5-checkpoint-output").textContent = runtime.selectedCheckpointId
     ? `Отмечен ${runtime.selectedCheckpointId}: ${activeRound.ticks.find((tick) => tick.id === runtime.selectedCheckpointId)?.title}`
-    : "Первый сбой ещё не отмечен";
-  elements.controls.querySelectorAll("select").forEach((select) => {
-    select.disabled = !["diagnosing", "configured"].includes(runtime.status);
-    select.value = runtime.controlValues[select.dataset.controlId];
-  });
+    : diagnosisSelectionPending
+      ? "Выберите такт — финальный симптом не отмечен автоматически"
+      : "Первое расхождение ещё не отмечено";
+  renderControls();
+  renderContextHints();
   document.getElementById("chapter5-verify-run").disabled = runtime.status !== "configured" || !runtime.selectedCheckpointId;
 }
 
@@ -701,12 +917,49 @@ function showVerificationFeedback(success) {
     kicker: state.energy === 0 ? "Контур потерял устойчивость" : "Контрольный прогон не принят",
     title: verification?.checkpointCorrect ? "Момент найден — исправьте правила" : "Отмечен симптом, а не первое расхождение",
     copy: activeRound.feedback[feedbackKey],
+    details: buildFeedbackDetails(success),
     action: "retry",
     actionLabel: state.energy === 0 ? "Восстановить устойчивость и исправить" : "Вернуться к диагностике"
   });
 }
 
-function showFeedback({ success, kicker, title, copy, score = 0, action, actionLabel }) {
+function buildFeedbackDetails(success = false) {
+  const verification = runtime?.verification;
+  if (!verification || !activeRound) return null;
+  const divergenceIndex = firstDivergenceIndex();
+  const selectedIndex = Math.max(0, activeRound.ticks.findIndex(
+    (tick) => tick.id === runtime.selectedCheckpointId
+  ));
+  const effectIndex = Math.min(
+    activeRound.ticks.length - 1,
+    Math.max(divergenceIndex + 1, selectedIndex > divergenceIndex ? selectedIndex : divergenceIndex + 1)
+  );
+  const divergence = activeRound.ticks[divergenceIndex];
+  const effect = activeRound.ticks[effectIndex];
+  const correctRules = Object.values(verification.controls || {}).filter((value) => value === "correct").length;
+  const totalRules = activeRound.controls.length;
+
+  return {
+    checkpoint: verification.checkpointCorrect
+      ? `Верно: ${divergence.id}`
+      : `Первый сбой: ${divergence.id} · выбран ${runtime.selectedCheckpointId}`,
+    rules: `${correctRules} из ${totalRules} подтверждены${correctRules ? " и зафиксированы" : ""}`,
+    chain: [
+      {
+        tick: `${divergence.id} · первое неверное решение`,
+        text: divergence.title
+      },
+      {
+        tick: `${effect.id} · ${success ? "устойчивый результат" : "последствие"}`,
+        text: success
+          ? activeRound.feedback.passed
+          : effect.title
+      }
+    ]
+  };
+}
+
+function showFeedback({ success, kicker, title, copy, score = 0, details = null, action, actionLabel }) {
   elements.feedback.hidden = false;
   elements.feedback.classList.toggle("is-success", success);
   elements.feedback.classList.toggle("is-error", !success);
@@ -714,15 +967,37 @@ function showFeedback({ success, kicker, title, copy, score = 0, action, actionL
   document.getElementById("chapter5-feedback-title").textContent = title;
   document.getElementById("chapter5-feedback-copy").textContent = copy;
   document.getElementById("chapter5-feedback-score").textContent = String(score);
+  const feedbackDetails = details || (success ? buildFeedbackDetails(true) : null);
+  const summary = document.getElementById("chapter5-feedback-summary");
+  const chain = document.getElementById("chapter5-feedback-chain");
+  summary.replaceChildren();
+  chain.replaceChildren();
+  summary.hidden = !feedbackDetails;
+  chain.hidden = !feedbackDetails;
+  if (feedbackDetails) {
+    const checkpoint = document.createElement("div");
+    checkpoint.innerHTML = `<span>Checkpoint</span><strong>${feedbackDetails.checkpoint}</strong>`;
+    const rules = document.createElement("div");
+    rules.innerHTML = `<span>Правила</span><strong>${feedbackDetails.rules}</strong>`;
+    summary.append(checkpoint, rules);
+    chain.append(...feedbackDetails.chain.map((item) => {
+      const row = document.createElement("li");
+      row.innerHTML = `<strong>${item.tick}</strong>${item.text}`;
+      return row;
+    }));
+  }
   const button = document.getElementById("chapter5-feedback-action");
   button.dataset.action = action;
   button.textContent = actionLabel;
+  elements.feedback.scrollIntoView?.({ behavior: "smooth", block: "nearest" });
 }
 
 function hideFeedback() {
   elements.feedback.hidden = true;
   elements.feedback.classList.remove("is-success", "is-error");
   elements.controls?.querySelectorAll(".c5-control-card").forEach((card) => card.classList.remove("is-correct", "is-incorrect"));
+  document.getElementById("chapter5-feedback-summary")?.replaceChildren();
+  document.getElementById("chapter5-feedback-chain")?.replaceChildren();
 }
 
 function handleFeedbackAction() {
@@ -795,7 +1070,15 @@ function initialize() {
   document.getElementById("chapter5-prev-tick")?.addEventListener("click", () => seek(runtime.tickIndex - 1));
   document.getElementById("chapter5-next-tick")?.addEventListener("click", () => seek(runtime.tickIndex + 1));
   document.getElementById("chapter5-replay-run")?.addEventListener("click", () => dispatch({ type: "REPLAY_BASELINE" }));
-  document.getElementById("chapter5-checkpoint")?.addEventListener("click", () => dispatch({ type: "SELECT_CHECKPOINT", checkpointId: activeRound.ticks[runtime.tickIndex].id }));
+  document.getElementById("chapter5-checkpoint")?.addEventListener("click", () => {
+    dispatch({ type: "SELECT_CHECKPOINT", checkpointId: activeRound.ticks[runtime.tickIndex].id });
+    elements.configuration?.scrollIntoView?.({ behavior: "smooth", block: "nearest" });
+  });
+  document.getElementById("chapter5-context-hint-action")?.addEventListener("click", showNextContextHint);
+  document.getElementById("chapter5-action-jump")?.addEventListener("click", (event) => {
+    const target = event.currentTarget.dataset.target;
+    if (target) document.querySelector(target)?.scrollIntoView?.({ behavior: "smooth", block: "center" });
+  });
   document.getElementById("chapter5-verify-run")?.addEventListener("click", () => dispatch({ type: "START_VERIFICATION" }));
   document.getElementById("chapter5-feedback-action")?.addEventListener("click", handleFeedbackAction);
   document.getElementById("chapter5-finale-map")?.addEventListener("click", () => activateMap());

@@ -653,10 +653,10 @@ body.is-study-mode .player-profile-action {
 
 .player-stats {
   display: grid;
-  grid-template-columns: auto auto auto minmax(180px, 300px) auto;
+  grid-template-columns: auto auto auto auto minmax(180px, 300px) auto;
   align-items: center;
   gap: 16px;
-  width: min(100%, 760px);
+  width: min(100%, 860px);
 }
 
 .level-seal,
@@ -685,6 +685,31 @@ body.is-study-mode .player-profile-action {
   color: #ffffff;
   font-family: "Unbounded", ui-sans-serif, system-ui, sans-serif;
   font-size: 18px;
+}
+
+.level-hint-bank {
+  display: grid;
+  justify-self: start;
+  min-width: 74px;
+  gap: 2px;
+  padding: 7px 10px;
+  border: 1px solid var(--line-soft);
+  border-radius: 6px;
+  background: var(--surface-soft);
+}
+
+.level-hint-bank span {
+  color: var(--ink-muted);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.level-hint-bank strong {
+  color: var(--gold-dark);
+  font-family: "Unbounded", ui-sans-serif, system-ui, sans-serif;
+  font-size: 18px;
+  line-height: 1.1;
 }
 
 .stat-line {
@@ -3058,6 +3083,42 @@ button.solution-slot {
   font-size: 12px;
 }
 
+.level-hint-action {
+  min-height: 38px;
+  padding: 8px 12px;
+  border: 1px solid rgba(174, 123, 19, 0.5);
+  border-radius: 6px;
+  background: rgba(218, 166, 53, 0.12);
+  color: var(--gold-dark);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.level-hint-action:hover:not(:disabled) {
+  border-color: var(--gold-dark);
+  background: rgba(218, 166, 53, 0.2);
+}
+
+.level-hint-action:disabled {
+  cursor: default;
+  opacity: 0.56;
+}
+
+.level-hint-action.is-revealed {
+  border-color: rgba(49, 122, 80, 0.5);
+  background: rgba(49, 122, 80, 0.1);
+  color: var(--moss);
+  opacity: 1;
+}
+
+.level-hint-inline {
+  align-self: flex-start;
+  margin: 8px 0 2px;
+}
+
 .feedback-panel {
   display: grid;
   grid-template-columns: 1fr auto;
@@ -3434,7 +3495,7 @@ button.solution-slot {
   }
 
   .player-stats {
-    grid-template-columns: auto auto auto minmax(180px, 1fr) auto;
+    grid-template-columns: auto auto auto auto minmax(180px, 1fr) auto;
     width: 100%;
   }
 
@@ -3637,6 +3698,11 @@ button.solution-slot {
   .level-seal {
     grid-column: 2;
     grid-row: 1;
+  }
+
+  .level-hint-bank {
+    grid-column: 2;
+    grid-row: 2;
   }
 
   .xp-stat {

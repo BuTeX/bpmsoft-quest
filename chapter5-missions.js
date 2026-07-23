@@ -7,12 +7,13 @@ const commonActors = [
   { id: "passenger", label: "Пассажир", icon: "passenger" }
 ];
 
-function choice(id, label, badValue, badLabel, goodValue, goodLabel, goodHelp) {
+function choice(id, label, badValue, badLabel, goodValue, goodLabel, goodHelp, { confirmed = false } = {}) {
   return {
     id,
     label,
     type: "single-choice",
-    defaultValue: badValue,
+    defaultValue: confirmed ? goodValue : badValue,
+    confirmed,
     options: [
       { value: badValue, label: badLabel, help: "Это правило воспроизводит исходное расхождение." },
       { value: goodValue, label: goodLabel, help: goodHelp }
@@ -125,6 +126,9 @@ function scenarioRound({
       };
     }),
     controls,
+    guidance: {
+      confirmedControls: controls.filter((control) => control.confirmed).map((control) => control.id)
+    },
     solution: {
       firstDivergenceTickId: `T${divergence}`,
       acceptedConfigurations: [accepted],
@@ -157,7 +161,7 @@ const rounds = {
     controls: [
       choice("identity", "Идентичность сегмента", "display-number", "Отображаемый номер", "operation-id", "Стабильный operation ID", "Маркетинговые номера становятся связанными представлениями одной сущности."),
       choice("codeshare", "Хранение код-шеринга", "new-segment", "Новый сегмент", "alias", "Связанный номер", "Партнёрский код хранится как алиас операционного сегмента."),
-      choice("negative-test", "Негативная проверка", "none", "Только успешный поиск", "date-route", "Разные даты и участки", "Тест доказывает, что похожие номера не склеивают разные перелёты.")
+      choice("negative-test", "Негативная проверка", "none", "Только успешный поиск", "date-route", "Разные даты и участки", "Тест доказывает, что похожие номера не склеивают разные перелёты.", { confirmed: true })
     ],
     successHeadline: "Оба номера открывают один операционный сегмент",
     focus: "Идентичность рейса"

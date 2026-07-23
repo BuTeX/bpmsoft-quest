@@ -155,6 +155,9 @@ export const mission37RoundA = Object.freeze({
       ]
     }
   ],
+  guidance: {
+    confirmedControls: ["segment-key"]
+  },
   solution: {
     firstDivergenceTickId: "T3",
     acceptedConfigurations: [

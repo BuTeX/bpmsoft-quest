@@ -870,6 +870,7 @@ const initialState = {
   xp: 0,
   energy: 3,
   level: 1,
+  revealedLevelHints: [],
   selected: [],
   attempts: 1,
   activeMission: "interface",
@@ -951,6 +952,9 @@ const elements = {
   xpGoal: document.getElementById("xp-goal"),
   xpBar: document.getElementById("xp-bar"),
   levelValue: document.getElementById("level-value"),
+  levelHintBank: document.getElementById("level-hint-bank"),
+  levelHintBalance: document.getElementById("level-hint-balance"),
+  useLevelHint: document.getElementById("use-level-hint"),
   energyRunes: document.getElementById("energy-runes"),
   adminAnalytics: document.getElementById("admin-analytics"),
   adminToggle: document.getElementById("admin-toggle"),
@@ -1337,8 +1341,35 @@ function refreshChapter2AdminAnswers() {
   window.BPMQuestChapter4?.refreshAdminHighlights?.();
 }
 
+function getFirstChapterHintContext() {
+  const mission = getMission();
+  const index = mission.mode === "sequence"
+    ? Math.min(selectedCount(), mission.correct.length - 1)
+    : Math.max(0, Number(state.activeSlot) || 0);
+  const step = mission.mode === "blueprint" && state.blueprintBuilt
+    ? "test"
+    : mission.mode === "gateway" && state.gatewayBuilt
+      ? "test"
+      : mission.mode === "classification"
+        ? "requirement"
+        : mission.mode === "blueprint"
+          ? "node"
+          : mission.mode === "quiz" || ["citadel", "dialog"].includes(mission.sceneInteraction)
+            ? "question"
+            : "answer";
+  return `c1:${mission.key}:${step}:${index}`;
+}
+
+function renderFirstChapterHintAction() {
+  if (!elements.useLevelHint) return;
+  elements.useLevelHint.dataset.levelHintId = getFirstChapterHintContext();
+  elements.useLevelHint.dataset.levelHintLabel = "Показать ответ";
+  elements.useLevelHint.hidden = isStudyMode() || state.missionRunComplete;
+  updateLevelHintButton(elements.useLevelHint);
+}
+
 function markAdminAnswer(button, answerId, correctId) {
-  const isCorrect = adminActive && answerId === correctId;
+  const isCorrect = (adminActive || isLevelHintRevealed(getFirstChapterHintContext())) && answerId === correctId;
   button.classList.toggle("is-admin-correct", isCorrect);
 }
 
@@ -1419,6 +1450,13 @@ async function submitAdminDialog(event) {
 function normalizeState(saved) {
   try {
     const merged = saved ? { ...initialState, ...saved } : { ...initialState };
+    merged.revealedLevelHints = Array.isArray(merged.revealedLevelHints)
+      ? [...new Set(merged.revealedLevelHints.filter((id) => (
+        typeof id === "string"
+        && id.length <= 120
+        && /^[a-z0-9:_-]+$/i.test(id)
+      )))].slice(0, 5)
+      : [];
     merged.introSeen = Array.isArray(merged.introSeen)
       ? [...new Set(merged.introSeen.filter((key) => MISSION_KEYS.includes(key)))]
       : [];
@@ -1516,6 +1554,9 @@ function loadState() {
 function getPersistedState(sourceState = state) {
   return {
     energy: sourceState.energy,
+    revealedLevelHints: Array.isArray(sourceState.revealedLevelHints)
+      ? sourceState.revealedLevelHints.slice(0, 5)
+      : [],
     introSeen: Array.isArray(sourceState.introSeen)
       ? sourceState.introSeen.filter((key) => MISSION_KEYS.includes(key))
       : [],
@@ -1616,6 +1657,114 @@ function saveState() {
   scheduleProgressSync(savedState);
 }
 
+function getEarnedPlayerLevel() {
+  const chapter2 = window.BPMQuestChapter2?.getState?.();
+  const chapter3 = window.BPMQuestChapter3?.getState?.();
+  const chapter4 = window.BPMQuestChapter4?.getState?.();
+  const chapter5 = window.BPMQuestChapter5?.getState?.();
+  const milestones = [
+    state.caseMissionComplete === true,
+    state.solutionMissionComplete === true,
+    chapter2?.packageComplete === true,
+    chapter2?.contourComplete === true,
+    chapter3?.slaComplete === true,
+    chapter3?.orbitComplete === true,
+    chapter4?.orderComplete === true,
+    chapter4?.transformationComplete === true,
+    chapter5?.rebookingComplete === true
+  ];
+  let level = 1;
+  for (const reached of milestones) {
+    if (!reached) break;
+    level += 1;
+  }
+  return level;
+}
+
+function getEarnedLevelHintCount() {
+  const chapter2 = window.BPMQuestChapter2?.getState?.();
+  const chapter3 = window.BPMQuestChapter3?.getState?.();
+  const chapter4 = window.BPMQuestChapter4?.getState?.();
+  const chapter5 = window.BPMQuestChapter5?.getState?.();
+  const levelUps = [
+    state.caseMissionComplete === true,
+    chapter2?.packageComplete === true,
+    chapter3?.slaComplete === true,
+    chapter4?.orderComplete === true,
+    chapter5?.rebookingComplete === true
+  ];
+  let earned = 0;
+  for (const reached of levelUps) {
+    if (!reached) break;
+    earned += 1;
+  }
+  return earned;
+}
+
+function isLevelHintRevealed(contextId) {
+  return typeof contextId === "string" && state.revealedLevelHints.includes(contextId);
+}
+
+function getLevelHintBalance() {
+  const earned = getEarnedLevelHintCount();
+  return Math.max(0, earned - state.revealedLevelHints.length);
+}
+
+function updateLevelHintButton(button) {
+  if (!button) return;
+  const contextId = button.dataset.levelHintId || "";
+  const revealed = isLevelHintRevealed(contextId);
+  const balance = getLevelHintBalance();
+  const label = button.dataset.levelHintLabel || "Показать ответ";
+  button.disabled = revealed || balance === 0 || !contextId;
+  button.classList.toggle("is-revealed", revealed);
+  button.textContent = revealed ? "Ответ показан" : balance > 0 ? `${label} · ${balance}` : "Нет подсказок";
+  button.setAttribute(
+    "aria-label",
+    revealed
+      ? "Правильный ответ уже показан"
+      : balance > 0
+        ? `${label}. Останется подсказок после использования: ${balance - 1}`
+        : "Нет доступных подсказок. Новая подсказка появится при повышении уровня."
+  );
+}
+
+function refreshLevelHints() {
+  const balance = getLevelHintBalance();
+  if (elements.levelHintBalance) elements.levelHintBalance.textContent = String(balance);
+  if (elements.levelHintBank) {
+    elements.levelHintBank.hidden = isStudyMode();
+    elements.levelHintBank.title = `Доступно подсказок — ${balance}. Повышение до уровней II, IV, VI, VIII и X даёт ещё одну.`;
+  }
+  document.querySelectorAll?.("[data-level-hint-id]").forEach(updateLevelHintButton);
+}
+
+function useLevelHint(contextId) {
+  if (isStudyMode() || typeof contextId !== "string" || !/^[a-z0-9:_-]+$/i.test(contextId)) return false;
+  if (isLevelHintRevealed(contextId)) return true;
+  if (getLevelHintBalance() < 1) return false;
+  state.revealedLevelHints = [...state.revealedLevelHints, contextId].slice(0, 5);
+  saveState();
+  refreshLevelHints();
+  return true;
+}
+
+function createLevelHintButton(contextId, refresh, label = "Показать ответ") {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "level-hint-action level-hint-inline";
+  button.dataset.levelHintId = contextId;
+  button.dataset.levelHintLabel = label;
+  button.hidden = isStudyMode();
+  updateLevelHintButton(button);
+  button.addEventListener("click", () => {
+    if (!useLevelHint(contextId)) return;
+    updateLevelHintButton(button);
+    if (typeof refresh === "function") refresh();
+  });
+  return button;
+}
+
 async function syncStateFromServer() {
   if (typeof fetch !== "function" || !playerProfile) return;
 
@@ -1640,11 +1789,24 @@ async function syncStateFromServer() {
     } else {
       const remoteState = normalizeState(remoteChapter1.state);
       const remoteRank = getProgressRank(remoteState);
+      const mergedHintUses = [...new Set([
+        ...localChapter1.revealedLevelHints,
+        ...remoteState.revealedLevelHints
+      ])].slice(0, 5);
       if (!isStudyMode() && localChapter1Rank > remoteRank) {
-        await pushAccountProgress("chapter1", localChapter1);
+        state.revealedLevelHints = mergedHintUses;
+        await pushAccountProgress("chapter1", {
+          ...localChapter1,
+          revealedLevelHints: mergedHintUses
+        });
       } else {
+        const remoteHintCount = remoteState.revealedLevelHints.length;
         state = remoteState;
+        state.revealedLevelHints = mergedHintUses;
         writeLocalState(getPersistedState(state), remoteChapter1.updatedAt);
+        if (!isStudyMode() && mergedHintUses.length > remoteHintCount) {
+          await pushAccountProgress("chapter1", getPersistedState(state));
+        }
       }
     }
 
@@ -1828,6 +1990,7 @@ function renderStats() {
   elements.xpBar.style.width = `${Math.min((levelXp / levelGoal) * 100, 100)}%`;
   elements.levelValue.textContent = state.level;
   elements.energyRunes.innerHTML = "";
+  refreshLevelHints();
 
   for (let index = 0; index < 3; index += 1) {
     const rune = document.createElement("span");
@@ -2943,6 +3106,7 @@ function renderBuilder() {
   const dialog = mission.sceneInteraction === "dialog";
   const classification = mission.mode === "classification";
   const blueprint = mission.mode === "blueprint";
+  renderFirstChapterHintAction();
   elements.solutionSlots.innerHTML = "";
   elements.toolPalette.innerHTML = "";
   elements.toolArea.hidden = false;
@@ -4099,6 +4263,9 @@ elements.adminModal.addEventListener("keydown", (event) => {
 elements.backToMap.addEventListener("click", () => showView("map"));
 elements.clearBuild.addEventListener("click", clearBuild);
 elements.checkSolution.addEventListener("click", checkSolution);
+elements.useLevelHint?.addEventListener("click", () => {
+  if (useLevelHint(getFirstChapterHintContext())) renderBuilder();
+});
 elements.resetProgress.addEventListener("click", resetProgress);
 elements.feedbackAction.addEventListener("click", (event) => {
   const action = event.currentTarget.dataset.action;
@@ -4169,6 +4336,13 @@ if (typeof window !== "undefined") {
     scheduleChapter5ProgressSync,
     resetAccountProgress,
     isAdminActive: () => adminActive,
+    getEarnedLevel: getEarnedPlayerLevel,
+    getEarnedLevelHintCount,
+    getLevelHintBalance,
+    isLevelHintRevealed,
+    useLevelHint,
+    createLevelHintButton,
+    refreshLevelHints,
     showMap: () => {
       hideMissionIntro();
       renderAll();

@@ -190,6 +190,13 @@ export function sanitizeProgressState(input) {
 
   const state = {
     energy: Number.isInteger(input.energy) ? Math.max(0, Math.min(input.energy, 3)) : 3,
+    revealedLevelHints: Array.isArray(input.revealedLevelHints)
+      ? [...new Set(input.revealedLevelHints.filter((id) => (
+        typeof id === "string"
+        && id.length <= 120
+        && /^[a-z0-9:_-]+$/i.test(id)
+      )))].slice(0, 5)
+      : [],
     introSeen: Array.isArray(input.introSeen)
       ? [...new Set(input.introSeen.filter((key) => missionKeys.includes(key)))]
       : []

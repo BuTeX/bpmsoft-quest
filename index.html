@@ -9,11 +9,11 @@
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=20260720-1">
   <link rel="icon" type="image/png" sizes="512x512" href="assets/favicon.png?v=20260720-1">
   <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png?v=20260720-1">
-  <link rel="stylesheet" href="styles.css?v=20260721-knowledge-links">
-  <link rel="stylesheet" href="chapter2.css?v=20260721-mobile-switcher">
-  <link rel="stylesheet" href="chapter3.css?v=20260721-finale-visibility">
-  <link rel="stylesheet" href="chapter4.css?v=20260721-workflow-guide-4">
-  <link rel="stylesheet" href="chapter5.css?v=20260721-good-avia-4">
+  <link rel="stylesheet" href="styles.css?v=20260723-level-hints">
+  <link rel="stylesheet" href="chapter2.css?v=20260723-level-hints">
+  <link rel="stylesheet" href="chapter3.css?v=20260723-level-hints">
+  <link rel="stylesheet" href="chapter4.css?v=20260723-level-hints">
+  <link rel="stylesheet" href="chapter5.css?v=20260723-c5-ux-1">
 </head>
 <body>
   <div class="game-shell">
@@ -327,6 +327,10 @@
           <span>Уровень</span>
           <strong id="level-value">1</strong>
         </div>
+        <div id="level-hint-bank" class="level-hint-bank" title="Повышение уровня даёт одну подсказку на правильный ответ">
+          <span>Подсказки</span>
+          <strong id="level-hint-balance">0</strong>
+        </div>
         <div class="xp-stat">
           <div class="stat-line">
             <span>Опыт</span>
@@ -545,6 +549,7 @@
 
             <div class="mission-actions">
               <p id="mission-hint">Выбирайте инструменты в порядке, в котором с ними встретится пользователь.</p>
+              <button id="use-level-hint" class="level-hint-action" type="button">Нет подсказок</button>
               <button id="check-solution" class="primary-action" type="button">Проверить сборку</button>
             </div>
 
@@ -1058,12 +1063,31 @@
             </header>
             <p id="chapter5-round-briefing" class="c5-round-briefing"></p>
 
+            <section class="c5-task-contract" aria-labelledby="chapter5-task-contract-title">
+              <div>
+                <p class="eyebrow">Условия приёмки</p>
+                <h3 id="chapter5-task-contract-title">Первый неверный такт + устойчивые правила + повтор без побочных эффектов</h3>
+                <p>Отмечайте решение системы, которое впервые расходится с подтверждённым фактом. Позднее сообщение пассажиру — уже следствие.</p>
+              </div>
+              <ol class="c5-task-checklist" aria-label="Условия успешного решения">
+                <li id="chapter5-contract-observe"><span aria-hidden="true">1</span>Исходный поток просмотрен</li>
+                <li id="chapter5-contract-diagnose"><span aria-hidden="true">2</span>Первое расхождение отмечено</li>
+                <li id="chapter5-contract-verify"><span aria-hidden="true">3</span>Тот же поток прошёл без нарушений</li>
+              </ol>
+            </section>
+
             <ol class="c5-learning-loop" aria-label="Этапы операционного двойника">
               <li data-c5-phase="observe" class="is-active"><span>1</span>Наблюдать</li>
               <li data-c5-phase="diagnose"><span>2</span>Найти момент</li>
               <li data-c5-phase="configure"><span>3</span>Изменить правила</li>
               <li data-c5-phase="verify"><span>4</span>Повторить</li>
             </ol>
+
+            <div id="chapter5-action-guide" class="c5-action-guide" role="status">
+              <div><span>Сейчас</span><strong id="chapter5-action-title">Запустите исходный сценарий</strong></div>
+              <p id="chapter5-action-copy">Сначала посмотрите весь поток событий — настройки откроются после выбора первого неверного такта.</p>
+              <button id="chapter5-action-jump" class="secondary-action" type="button">К сценарию</button>
+            </div>
 
             <div class="c5-simulation-grid">
               <div class="c5-scene-column">
@@ -1093,6 +1117,15 @@
                   <div class="c5-timeline-heading"><span>Временная шкала</span><output id="chapter5-checkpoint-output">Первый сбой ещё не отмечен</output></div>
                   <div id="chapter5-timeline" class="c5-timeline" role="group" aria-label="Такты сценария"></div>
                   <button id="chapter5-checkpoint" class="c5-marker-button" type="button" disabled>Отметить текущий такт как первое расхождение</button>
+                  <div class="c5-hint-ladder" aria-labelledby="chapter5-hint-title">
+                    <div><strong id="chapter5-hint-title">Нужна подсказка?</strong><span>Сначала направление, затем сравнение фактов</span></div>
+                    <p id="chapter5-context-hint" hidden></p>
+                    <div class="c5-hint-actions">
+                      <button id="chapter5-context-hint-action" class="secondary-action" type="button">Подсказка 1 из 2</button>
+                      <div id="chapter5-checkpoint-hint-slot"></div>
+                    </div>
+                    <p id="chapter5-checkpoint-hint-answer" class="c5-level-hint-answer" hidden></p>
+                  </div>
                 </div>
               </div>
 
@@ -1103,14 +1136,25 @@
               </aside>
             </div>
 
-            <section class="c5-configuration-panel" aria-labelledby="chapter5-configuration-title">
-              <div class="c5-panel-heading"><div><p class="eyebrow">Ограниченная зона изменений</p><h3 id="chapter5-configuration-title">Правила обработки</h3></div><p>Входные события останутся теми же.</p></div>
+            <section id="chapter5-configuration-panel" class="c5-configuration-panel is-locked" aria-labelledby="chapter5-configuration-title">
+              <div class="c5-panel-heading"><div><p class="eyebrow">Ограниченная зона изменений</p><h3 id="chapter5-configuration-title">Правила обработки</h3></div><p id="chapter5-configuration-summary">Откроются после выбора checkpoint.</p></div>
+              <div id="chapter5-configuration-gate" class="c5-configuration-gate">
+                <span aria-hidden="true">2</span>
+                <div><strong>Сначала отметьте первое расхождение</strong><p>После выбора такта здесь откроются только доступные правила. Исходные события не изменятся.</p></div>
+              </div>
               <div id="chapter5-controls-grid" class="c5-controls-grid"></div>
-              <button id="chapter5-verify-run" class="primary-action c5-verify-button" type="button" disabled>Запустить контрольный прогон</button>
+              <p class="c5-verification-promise">Контрольный прогон повторит те же события от T0 до финального такта — без новых или случайных входных данных.</p>
+              <button id="chapter5-verify-run" class="primary-action c5-verify-button" type="button" disabled>Повторить тот же поток и проверить</button>
             </section>
 
             <section id="chapter5-feedback" class="c5-feedback" aria-live="polite" hidden>
-              <div><p id="chapter5-feedback-kicker" class="eyebrow">Результат проверки</p><h3 id="chapter5-feedback-title"></h3><p id="chapter5-feedback-copy"></p></div>
+              <div class="c5-feedback-main">
+                <p id="chapter5-feedback-kicker" class="eyebrow">Результат проверки</p>
+                <h3 id="chapter5-feedback-title"></h3>
+                <p id="chapter5-feedback-copy"></p>
+                <div id="chapter5-feedback-summary" class="c5-feedback-summary" hidden></div>
+                <ol id="chapter5-feedback-chain" class="c5-feedback-chain" aria-label="Причинная цепочка" hidden></ol>
+              </div>
               <div class="c5-feedback-score"><strong id="chapter5-feedback-score">0</strong><span>XP</span></div>
               <button id="chapter5-feedback-action" class="secondary-action" type="button">Продолжить</button>
             </section>
@@ -1140,13 +1184,13 @@
     </main>
   </div>
 
-  <script src="app.js?v=20260721-knowledge-links"></script>
+  <script src="app.js?v=20260723-level-hints"></script>
   <script src="chapter2-missions.js?v=20260721-knowledge-links"></script>
-  <script src="chapter2.js?v=20260721-knowledge-links"></script>
+  <script src="chapter2.js?v=20260723-level-hints"></script>
   <script src="chapter3-missions.js?v=20260721-knowledge-links"></script>
-  <script src="chapter3.js?v=20260721-knowledge-links"></script>
+  <script src="chapter3.js?v=20260723-level-hints"></script>
   <script src="chapter4-missions.js?v=20260721-golden-shelf-2"></script>
-  <script src="chapter4.js?v=20260721-workflow-guide-1"></script>
-  <script type="module" src="chapter5.js?v=20260721-good-avia-2"></script>
+  <script src="chapter4.js?v=20260723-level-hints"></script>
+  <script type="module" src="chapter5.js?v=20260723-c5-ux-1"></script>
 </body>
 </html>

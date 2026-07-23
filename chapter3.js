@@ -204,6 +204,7 @@ function renderChapter3Stats() {
     cell.setAttribute("aria-hidden", "true");
     energyRunes.append(cell);
   }
+  window.BPMQuestFirstChapter?.refreshLevelHints?.();
 }
 
 function setChapter3SwitcherState(activeChapter) {
@@ -419,6 +420,16 @@ function isChapter3AdminActive() {
   return window.BPMQuestFirstChapter?.isAdminActive?.() === true;
 }
 
+function getChapter3HintContext(mission, phase, slot) {
+  return `c3:${mission.key}:${phase.id}:${slot.id}`;
+}
+
+function isChapter3AnswerRevealed(mission, phase, slot) {
+  return window.BPMQuestFirstChapter?.isLevelHintRevealed?.(
+    getChapter3HintContext(mission, phase, slot)
+  ) === true;
+}
+
 function renderChapter3MissionIntro(mission, mode = "first-visit") {
   const intro = document.getElementById("chapter3-mission-intro");
   if (!intro) return;
@@ -517,12 +528,17 @@ function renderChapter3Board(mission, progress) {
     const article = document.createElement("article");
     article.className = `c3-slot${selected ? " is-answered" : ""}${locked ? " is-locked" : ""}${wrong ? " is-wrong" : ""}`;
     article.innerHTML = `<span class="c3-slot-label">${slot.label}</span><p class="c3-slot-prompt">${slot.prompt}</p>`;
+    const hintButton = window.BPMQuestFirstChapter?.createLevelHintButton?.(
+      getChapter3HintContext(mission, phase, slot),
+      () => renderChapter3Board(mission, progress)
+    );
+    if (hintButton) article.append(hintButton);
     const options = document.createElement("div");
     options.className = "c3-options";
     getChapter3OrderedOptions(phase, slot, progress).forEach((option) => {
       const button = document.createElement("button");
       button.type = "button";
-      button.className = `c3-answer${selected === option.id ? " is-selected" : ""}${isChapter3AdminActive() && option.id === slot.correct ? " is-admin-correct" : ""}`;
+      button.className = `c3-answer${selected === option.id ? " is-selected" : ""}${(isChapter3AdminActive() || isChapter3AnswerRevealed(mission, phase, slot)) && option.id === slot.correct ? " is-admin-correct" : ""}`;
       button.disabled = locked || chapter3RunComplete;
       button.dataset.option = option.id;
       button.innerHTML = `<strong>${option.name}</strong><small>${option.note}</small>`;

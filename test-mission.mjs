@@ -124,6 +124,12 @@ const exports = `
     assignNodeTool,
     assignClassification,
     assignBlueprintModule,
+    getEarnedPlayerLevel,
+    getEarnedLevelHintCount,
+    getFirstChapterHintContext,
+    getLevelHintBalance,
+    isLevelHintRevealed,
+    useLevelHint,
     answerQuiz,
     answerGatewayTest,
     answerBlueprintTest
@@ -135,6 +141,11 @@ const api = context.__missionTest;
 const assert = (condition, message) => {
   if (!condition) throw new Error(message);
 };
+
+assert(api.getFirstChapterHintContext() === "c1:interface:answer:0", "The first sequence hint targets the wrong answer");
+api.getState().selected.push("workspace");
+assert(api.getFirstChapterHintContext() === "c1:interface:answer:1", "A sequence hint leaked into the next question");
+api.getState().selected = [];
 
 Object.values(api.missions).forEach((mission) => {
   assert(
@@ -390,6 +401,15 @@ assert(api.getState().caseMissionComplete, "Case Arena did not complete");
 assert(api.getState().xp === 250, `Expected 250 XP after Case Arena, got ${api.getState().xp}`);
 assert(api.getState().level === 2, `Expected level 2 after Case Arena, got ${api.getState().level}`);
 assert(api.getState().arenaComplete, "Case Arena scene did not activate after completion");
+assert(api.getEarnedPlayerLevel() === 2, "Level II was not counted as earned");
+assert(api.getLevelHintBalance() === 1, "Level II did not award one hint");
+assert(api.useLevelHint("c1:integration:answer:0"), "Earned hint could not be used");
+assert(api.isLevelHintRevealed("c1:integration:answer:0"), "Used hint was not persisted as revealed");
+assert(api.getLevelHintBalance() === 0, "Using a hint did not consume its level reward");
+context.window.BPMQuestChapter2 = { getState: () => ({ packageComplete: true }) };
+assert(api.getEarnedLevelHintCount() === 2, "Level IV did not add the next hint reward");
+assert(api.getLevelHintBalance() === 1, "The Level IV reward was not added to the shared hint balance");
+delete context.window.BPMQuestChapter2;
 
 api.beginMission("insight");
 assert(api.getState().activeMission === "case", "Locked Insight Tower was opened");
