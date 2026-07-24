@@ -1,9 +1,4 @@
-/*
- * Desktop viewport contract.
- *
- * Every playable desktop view owns exactly the space below the application
- * header. Mobile keeps the existing document-flow layout and may scroll.
- */
+
 
 @media (min-width: 821px) {
   html.visual-update {
@@ -49,7 +44,7 @@
     overflow: hidden;
   }
 
-  /* The source logo has transparency. Do not put it back into a rounded tile. */
+
   html.visual-update .company-logo-wrap,
   html.visual-update body.theme-sky .company-logo-wrap {
     padding: 0;
@@ -62,7 +57,7 @@
     filter: brightness(0) invert(1);
   }
 
-  /* Keep the header in one compact row on laptop-width desktops. */
+
   html.visual-update .topbar {
     grid-template-columns: minmax(205px, 250px) minmax(180px, 1fr) minmax(390px, auto);
     gap: clamp(8px, 1.1vw, 18px);
@@ -98,7 +93,7 @@
     min-height: 40px;
   }
 
-  /* World hub and the five chapter maps always use one desktop row. */
+
   html.visual-update .world-overview-layout,
   html.visual-update .map-layout,
   html.visual-update .c2-map-layout,
@@ -258,21 +253,52 @@
     margin-top: auto;
   }
 
-  html.visual-update .zone-journal,
-  html.visual-update .c2-zone-journal,
-  html.visual-update .c3-zone-journal,
-  html.visual-update .c4-zone-journal,
-  html.visual-update .c5-zone-journal {
+
+  html.visual-update .world-overview-heading .eyebrow { font-size: clamp(10px, 0.7vw, 13px); }
+  html.visual-update .world-overview-heading h2 { font-size: clamp(27px, 1.8vw, 34px); line-height: 1.08; }
+  html.visual-update .world-overview-heading > p:last-child { font-size: clamp(12px, 0.78vw, 15px); line-height: 1.45; }
+  html.visual-update .world-career-progress span { font-size: clamp(10px, 0.68vw, 13px); }
+  html.visual-update .world-career-progress strong { font-size: clamp(12px, 0.78vw, 15px); }
+  html.visual-update .world-route-list button {
+    grid-template-columns: clamp(34px, 2.4vw, 40px) minmax(0, 1fr) auto;
+    gap: clamp(7px, 0.7vw, 11px);
+  }
+  html.visual-update .world-route-list button > span {
+    width: clamp(34px, 2.4vw, 40px);
+    height: clamp(34px, 2.4vw, 40px);
+    font-size: clamp(11px, 0.72vw, 13px);
+  }
+  html.visual-update .world-route-list button strong { font-size: clamp(12px, 0.82vw, 15px); line-height: 1.2; }
+  html.visual-update .world-route-list button :is(small, em) { font-size: clamp(10px, 0.65vw, 12px); line-height: 1.25; }
+  html.visual-update .world-route-note { font-size: clamp(10px, 0.68vw, 13px); line-height: 1.4; }
+  html.visual-update .world-city-node {
+    min-width: clamp(132px, 9vw, 164px);
+    grid-template-columns: clamp(36px, 2.6vw, 42px) minmax(0, 1fr);
+    gap: clamp(7px, 0.6vw, 10px);
+    padding: clamp(6px, 0.5vw, 8px) clamp(9px, 0.8vw, 13px) clamp(6px, 0.5vw, 8px) clamp(6px, 0.5vw, 8px);
+  }
+  html.visual-update .world-city-node > span {
+    width: clamp(36px, 2.6vw, 42px);
+    height: clamp(36px, 2.6vw, 42px);
+    font-size: clamp(11px, 0.72vw, 13px);
+  }
+  html.visual-update .world-city-node strong { font-size: clamp(12px, 0.82vw, 15px); }
+  html.visual-update .world-city-node small { font-size: clamp(10px, 0.65vw, 12px); }
+  html.visual-update .world-overview-caption { font-size: clamp(10px, 0.68vw, 13px); }
+  html.visual-update .world-chapter-copy h2 { font-size: clamp(24px, 1.7vw, 30px); }
+  html.visual-update #world-chapter-company { font-size: clamp(11px, 0.72vw, 14px); }
+  html.visual-update #world-chapter-description { font-size: clamp(12px, 0.82vw, 15px); line-height: 1.5; }
+  html.visual-update .world-chapter-stats dt { font-size: clamp(10px, 0.65vw, 12px); }
+  html.visual-update .world-chapter-stats dd { font-size: clamp(11px, 0.75vw, 14px); }
+  html.visual-update :is(.world-chapter-unlock, .world-enter-action) { font-size: clamp(11px, 0.75vw, 14px); }
+
+  html.visual-update :is(.zone-journal, .c2-zone-journal, .c3-zone-journal, .c4-zone-journal, .c5-zone-journal) {
     display: flex;
     flex-direction: column;
     padding: clamp(10px, 1.8vh, 20px) clamp(10px, 1.2vw, 18px);
   }
 
-  html.visual-update .panel-heading,
-  html.visual-update .c2-zone-journal .panel-heading,
-  html.visual-update .c3-zone-journal .panel-heading,
-  html.visual-update .c4-zone-journal .panel-heading,
-  html.visual-update .c5-zone-journal .panel-heading {
+  html.visual-update :is(.panel-heading, .c2-zone-journal .panel-heading, .c3-zone-journal .panel-heading, .c4-zone-journal .panel-heading, .c5-zone-journal .panel-heading) {
     margin-bottom: clamp(6px, 1vh, 12px);
   }
 
@@ -282,11 +308,7 @@
     padding: 5px 8px;
   }
 
-  html.visual-update .zone-list,
-  html.visual-update .c2-zone-list,
-  html.visual-update .c3-zone-list,
-  html.visual-update .c4-zone-list,
-  html.visual-update .c5-zone-list {
+  html.visual-update :is(.zone-list, .c2-zone-list, .c3-zone-list, .c4-zone-list, .c5-zone-list) {
     display: grid;
     min-height: 0;
     flex: 1 1 auto;
@@ -295,46 +317,46 @@
     margin: 0;
   }
 
-  html.visual-update .zone-list button,
-  html.visual-update .c2-zone-list button,
-  html.visual-update .c3-zone-list button,
-  html.visual-update .c4-zone-list button,
-  html.visual-update .c5-zone-list button {
+  html.visual-update :is(.zone-list, .c2-zone-list, .c3-zone-list, .c4-zone-list, .c5-zone-list) button {
     height: 100%;
     min-height: 0;
     padding: clamp(3px, 0.7vh, 8px);
   }
 
-  html.visual-update .zone-index,
-  html.visual-update .c2-zone-list button > span,
-  html.visual-update .c3-zone-list button > span,
-  html.visual-update .c4-zone-list button > span,
-  html.visual-update .c5-zone-list button > span {
+  html.visual-update :is(.zone-index, .c2-zone-list button > span, .c3-zone-list button > span, .c4-zone-list button > span, .c5-zone-list button > span) {
     width: clamp(23px, 4.2vh, 32px);
     height: clamp(23px, 4.2vh, 32px);
   }
 
-  html.visual-update .zone-list button strong,
-  html.visual-update .c2-zone-list button strong,
-  html.visual-update .c3-zone-list button strong,
-  html.visual-update .c4-zone-list button strong,
-  html.visual-update .c5-zone-list button strong {
-    font-size: clamp(8px, 1.2vh, 11px);
+  html.visual-update :is(.zone-list, .c2-zone-list, .c3-zone-list, .c4-zone-list, .c5-zone-list) button strong {
+    font-size: clamp(11px, 0.9vw, 14px);
+    line-height: 1.2;
   }
 
-  html.visual-update .zone-list button small,
-  html.visual-update .c2-zone-list button small,
-  html.visual-update .c3-zone-list button small,
-  html.visual-update .c4-zone-list button small,
-  html.visual-update .c5-zone-list button small {
-    font-size: clamp(7px, 1vh, 9px);
+  html.visual-update :is(.zone-list, .c2-zone-list, .c3-zone-list, .c4-zone-list, .c5-zone-list) button small {
+    font-size: clamp(9px, 0.72vw, 11px);
+    line-height: 1.2;
   }
 
-  html.visual-update .quest-brief,
-  html.visual-update .c2-quest-brief,
-  html.visual-update .c3-quest-brief,
-  html.visual-update .c4-quest-brief,
-  html.visual-update .c5-quest-brief {
+  html.visual-update :is(.zone-index, .c2-zone-list button > span, .c3-zone-list button > span, .c4-zone-list button > span, .c5-zone-list button > span) { font-size: clamp(11px, 0.78vw, 13px); }
+
+  html.visual-update :is(.map-node .node-label, .c2-map-node strong, .c3-map-node strong, .c4-map-node strong, .c5-map-node strong) {
+    max-width: 145px;
+    font-size: clamp(11px, 0.86vw, 15px);
+    line-height: 1.2;
+  }
+
+  html.visual-update .map-node { width: max-content; }
+  html.visual-update .map-node .node-label { overflow-wrap: normal; white-space: nowrap; }
+  html.visual-update :is(.c2-map-node, .c3-map-node, .c4-map-node, .c5-map-node) strong { overflow-wrap: normal; word-break: normal; hyphens: none; }
+
+  html.visual-update :is(.node-pin, .c2-map-node > span, .c3-map-node > span, .c4-map-node > span, .c5-map-node > span) { font-size: clamp(11px, 0.76vw, 13px); }
+
+  html.visual-update :is(.c3-map-node, .c4-map-node) { min-width: clamp(124px, 9vw, 150px); }
+  html.visual-update .c5-map-node { min-width: clamp(112px, 8.5vw, 146px); }
+  html.visual-update :is(.map-caption, .c2-map-caption, .c3-map-caption, .c4-map-caption, .c5-map-caption) { font-size: clamp(11px, 0.72vw, 13px); }
+
+  html.visual-update :is(.quest-brief, .c2-quest-brief, .c3-quest-brief, .c4-quest-brief, .c5-quest-brief) {
     display: flex;
     grid-column: auto;
     flex-direction: column;
@@ -343,28 +365,28 @@
     border-top: 0;
   }
 
-  html.visual-update .brief-copy,
-  html.visual-update .c2-brief-copy,
-  html.visual-update .c3-brief-copy,
-  html.visual-update .c4-brief-copy,
-  html.visual-update .c5-brief-copy {
+  html.visual-update :is(.brief-copy, .c2-brief-copy, .c3-brief-copy, .c4-brief-copy, .c5-brief-copy) {
     margin-top: clamp(7px, 1.5vh, 22px);
   }
 
-  html.visual-update .brief-copy h2,
-  html.visual-update .c2-brief-copy h2,
-  html.visual-update .c3-brief-copy h2,
-  html.visual-update .c4-brief-copy h2,
-  html.visual-update .c5-brief-copy h2 {
+  html.visual-update :is(.brief-copy, .c2-brief-copy, .c3-brief-copy, .c4-brief-copy, .c5-brief-copy) h2 {
     margin-bottom: clamp(6px, 1vh, 12px);
-    font-size: clamp(18px, 2.5vh, 24px);
+    font-size: clamp(22px, 1.8vw, 30px);
+    line-height: 1.12;
   }
 
-  html.visual-update .mentor-block,
-  html.visual-update .c2-mentor-block,
-  html.visual-update .c3-mentor-block,
-  html.visual-update .c4-mentor-block,
-  html.visual-update .c5-mentor-block {
+  html.visual-update :is(.brief-copy, .c2-brief-copy, .c3-brief-copy, .c4-brief-copy, .c5-brief-copy) > p:not(.quest-number) {
+    font-size: clamp(12px, 0.86vw, 15px);
+    line-height: 1.48;
+  }
+
+  html.visual-update :is(.quest-number, .quest-brief .eyebrow, .c2-quest-brief .eyebrow, .c3-quest-brief .eyebrow, .c4-quest-brief .eyebrow, .c5-quest-brief .eyebrow) { font-size: clamp(10px, 0.68vw, 13px); }
+
+  html.visual-update .reward-list :is(dt, dd) { font-size: clamp(10px, 0.72vw, 13px); }
+
+  html.visual-update :is(.quest-brief, .c2-quest-brief, .c3-quest-brief, .c4-quest-brief, .c5-quest-brief) > .primary-action { font-size: clamp(11px, 0.76vw, 14px); }
+
+  html.visual-update :is(.mentor-block, .c2-mentor-block, .c3-mentor-block, .c4-mentor-block, .c5-mentor-block) {
     padding-bottom: clamp(8px, 1.4vh, 16px);
   }
 
@@ -372,7 +394,7 @@
     margin-top: clamp(8px, 1.5vh, 18px);
   }
 
-  /* Mission screens keep their rail, workspace and reference panel in one row. */
+
   html.visual-update .mission-layout,
   html.visual-update .c2-mission-layout,
   html.visual-update .c3-mission-layout,
@@ -612,7 +634,7 @@
     font-size: clamp(7px, 1.1vh, 9px);
   }
 
-  /* Chapters 2–4 use the same compact four-row task workspace. */
+
   html.visual-update .c2-workspace,
   html.visual-update .c3-workspace,
   html.visual-update .c4-workspace {
@@ -701,10 +723,7 @@
     padding: clamp(7px, 1.1vh, 12px);
   }
 
-  /*
-   * Chapter IV has an audit panorama and a decision desk at the same time.
-   * Keep them beside each other so neither panel extends below the viewport.
-   */
+
   html.visual-update .c4-workspace {
     grid-template-columns: minmax(0, 1fr) minmax(0, 0.92fr);
     grid-template-rows: auto auto minmax(0, 1fr);
@@ -844,7 +863,7 @@
     margin-top: auto;
   }
 
-  /* The operational twin remains a dashboard, not a long document. */
+
   html.visual-update .c5-workspace {
     display: grid;
     grid-template-columns: minmax(0, 1.62fr) minmax(200px, 0.72fr);
@@ -1107,7 +1126,7 @@
     overflow: hidden;
   }
 
-  /* Completion cards are centered and scaled by available height. */
+
   html.visual-update .finale-view,
   html.visual-update .c2-finale-view,
   html.visual-update .c3-finale-view,
@@ -1134,7 +1153,7 @@
     overflow: hidden;
   }
 
-  /* Desktop overlays should also stay inside the physical screen. */
+
   html.visual-update .world-entry-dialog,
   html.visual-update .mission-intro-dialog,
   html.visual-update .c2-prologue-dialog,
