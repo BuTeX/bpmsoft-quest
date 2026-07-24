@@ -158,6 +158,11 @@ test("critical player journey loads all maps and protects modal focus", async ({
   await expect(page.locator("#chapter5-prologue")).toBeVisible();
   await page.locator("#chapter5-prologue-start").click();
   await expect(page.locator("#chapter-navigation-context")).toContainText("Гуд Авиа");
+  expect(await page.locator(
+    '.c5-world-stage .living-world-effect-contrails .living-world-passage'
+  ).first().evaluate((element) => (
+    new DOMMatrixReadOnly(getComputedStyle(element, "::after").transform).a
+  ))).toBeLessThan(0);
   await page.locator("#show-world-map").click();
   await page.locator('[data-world-row="chapter1"] button').click();
   await page.locator("#world-entry-confirm").click();
