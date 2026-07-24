@@ -42,7 +42,7 @@ const scripts = [...html.matchAll(/<script\b[^>]*src="([^"]+)"/g)].map((match) =
 assert.deepEqual(scripts, [
   "progress-core.js?v=20260723-launch-1",
   "app.js?v=20260724-world-hub-5",
-  "world-live.js?v=20260724-world-hub-2"
+  "world-live.js?v=20260724-world-hub-3"
 ]);
 
 assert.doesNotMatch(

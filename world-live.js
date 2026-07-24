@@ -11,13 +11,13 @@
       selector: ".world-overview-stage",
       theme: "world",
       status: "Маршрут аналитика",
-      effects: ["horizon-light", "regional-weather", "sea-sparkles", "trade-routes", "city-beacons"]
+      effects: ["horizon-light", "regional-weather", "sea-sparkles", "process-elements", "city-beacons"]
     },
     {
       selector: ".world-stage",
       theme: "academy",
       status: "Эфир Академии",
-      effects: ["aurora", "rune-orbits", "stardust", "process-elements", "tower-beacons"]
+      effects: ["aurora", "rune-orbits", "stardust", "comets", "tower-beacons"]
     },
     {
       selector: ".c2-world-stage",
@@ -52,7 +52,7 @@
     ".c4-map-node",
     ".c5-map-node"
   ].join(",");
-  const academyProcessElements = [
+  const worldProcessElements = [
     ["start","primary","30%","-2s","-7deg"],
     ["user-action","secondary","68%","-7s","5deg"],
     ["gateway","tertiary","14%","-12s","-4deg"],
@@ -104,8 +104,8 @@
     }
 
     const passages = markEffect(createElement("living-world-passages", layer), definition.effects[3]);
-    if (definition.theme === "academy") {
-      academyProcessElements.forEach(([kind, className, top, delay, rotation]) => {
+    if (definition.theme === "world") {
+      worldProcessElements.forEach(([kind, className, top, delay, rotation]) => {
         const passage = createElement(`living-world-passage living-world-passage-${className}`, passages);
         passage.dataset.processElement = kind;
         passage.style.cssText = `--passage-top:${top};--passage-delay:${delay};--passage-duration:30s;--passage-rotation:${rotation};--process-icon:url("assets/process-${kind}.svg")`;

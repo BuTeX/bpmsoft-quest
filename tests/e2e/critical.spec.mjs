@@ -187,11 +187,13 @@ test("critical player journey loads all maps and protects modal focus", async ({
     })
   );
   expect(new Set(flyingFigures).size).toBe(6);
-  const academyProcessElements = page.locator('.world-stage [data-process-element]');
-  await expect(academyProcessElements).toHaveCount(6);
-  expect(await academyProcessElements.evaluateAll((elements) =>
+  const worldProcessElements = page.locator('.world-overview-stage [data-process-element]');
+  await expect(worldProcessElements).toHaveCount(6);
+  expect(await worldProcessElements.evaluateAll((elements) =>
     new Set(elements.map((element) => element.getAttribute("data-process-element"))).size
   )).toBe(6);
+  await expect(page.locator(".world-stage [data-process-element]")).toHaveCount(0);
+  await expect(page.locator(".world-stage .living-world-effect-comets .living-world-passage")).toHaveCount(3);
 
   expect(unexpectedResponses).toEqual([]);
 });

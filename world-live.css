@@ -337,8 +337,14 @@ html.living-world-update [data-living-world="academy"] .living-world-effect-star
   box-shadow: 0 0 15px 4px rgba(124, 240, 255, 0.68);
 }
 
-.living-world-effect-process-elements .living-world-passage {
-  width: clamp(68px, 9vw, 126px); background: linear-gradient(90deg, transparent, #7b57e74d, #a4f4ffe0); box-shadow: 0 0 14px 2px #5be5ff6b;
+html .living-world-effect-comets .living-world-passage {
+  width: 144px; height: 36px;
+  background: url("assets/academy-comet.svg") center / contain no-repeat;
+  box-shadow: none;
+}
+
+html .living-world-effect-comets .living-world-passage::after {
+  display: none;
 }
 
 html .living-world-effect-process-elements [data-process-element]::after {
