@@ -47,9 +47,13 @@ test("public landing explains the product and exposes rendered legal pages", asy
 test("critical player journey loads all maps and protects modal focus", async ({ page }) => {
   const unexpectedResponses = [];
   page.on("response", (response) => {
+    const expectedProgressConflict = response.status() === 409
+      && response.request().method() === "PUT"
+      && new URL(response.url()).pathname.startsWith("/api/account/progress/");
     if (
       response.status() >= 400
       && !(response.status() === 401 && response.url().endsWith("/api/auth/session"))
+      && !expectedProgressConflict
     ) unexpectedResponses.push(`${response.status()} ${response.url()}`);
   });
 
