@@ -32,6 +32,8 @@ test("critical player journey loads all maps and protects modal focus", async ({
 
   await page.goto("/academy.html");
   await expect(page.locator("html")).toHaveClass(/visual-update/);
+  await expect(page.locator("html")).not.toHaveClass(/living-world-update/);
+  await expect(page.locator(".living-world-layer")).toHaveCount(0);
   const primaryHeaderHeight = await page.locator(".topbar").evaluate((element) => element.getBoundingClientRect().height);
   expect(primaryHeaderHeight).toBeLessThanOrEqual(132);
   await expect(page.locator("#player-access-modal")).toBeVisible();
@@ -76,9 +78,11 @@ test("critical player journey loads all maps and protects modal focus", async ({
   await expect(page.locator("#map-title")).toHaveText("Все задания Академии");
 
   await page.goto("/update");
-  await expect(page.locator("html")).toHaveClass(/visual-update/);
+  await expect(page.locator("html")).toHaveClass(/living-world-update/);
   await expect(page.locator("#player-profile")).toBeVisible();
   await expect(page.locator("#map-title")).toHaveText("Все задания Академии");
+  await expect(page.locator(".living-world-layer")).toHaveCount(5);
+  await expect(page.locator(".world-stage .living-world-badge")).toBeVisible();
 
   expect(unexpectedResponses).toEqual([]);
 });

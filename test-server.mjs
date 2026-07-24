@@ -57,12 +57,20 @@ test("static application is served with security headers", async () => {
   assert.match(academyHtml, /player-access-modal/);
   assert.match(academyHtml, /update\.css/);
   assert.match(academyHtml, /class="visual-update"/);
+  assert.doesNotMatch(academyHtml, /world-live|living-world-update/);
   const update = await fetch(`${baseUrl}/update`);
   assert.equal(update.status, 200);
   const updateHtml = await update.text();
   assert.match(updateHtml, /update\.css/);
-  assert.match(updateHtml, /class="visual-update"/);
-  assert.equal(updateHtml, academyHtml);
+  assert.match(updateHtml, /class="visual-update living-world-update"/);
+  assert.match(updateHtml, /world-live\.css/);
+  assert.match(updateHtml, /world-live\.js/);
+  assert.notEqual(updateHtml, academyHtml);
+  const livingWorldAssets = await Promise.all([
+    fetch(`${baseUrl}/world-live.css`, { method: "HEAD" }),
+    fetch(`${baseUrl}/world-live.js`, { method: "HEAD" })
+  ]);
+  livingWorldAssets.forEach((asset) => assert.equal(asset.status, 200));
   const updateSlash = await fetch(`${baseUrl}/update/`, { redirect: "manual" });
   assert.equal(updateSlash.status, 308);
   assert.equal(updateSlash.headers.get("location"), "/update");

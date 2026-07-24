@@ -1,0 +1,452 @@
+/*
+ * Experimental living-world layer. This file is injected only for /update.
+ * It never changes mission logic or the primary /academy.html route.
+ */
+
+html.living-world-update {
+  --living-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+html.living-world-update [data-living-world] {
+  --world-accent: #00c1d4;
+  --world-accent-soft: rgba(0, 193, 212, 0.34);
+  --world-particle: #f6f1ff;
+  --world-haze: rgba(120, 86, 255, 0.18);
+  --world-passage-top: 38%;
+  --world-passage-rotation: -8deg;
+  --world-progress: 0%;
+  --world-pan-x: 0px;
+  --world-pan-y: 0px;
+  isolation: isolate;
+}
+
+html.living-world-update [data-living-world="copper"] {
+  --world-accent: #fe5500;
+  --world-accent-soft: rgba(254, 85, 0, 0.42);
+  --world-particle: #ffb348;
+  --world-haze: rgba(67, 29, 8, 0.34);
+  --world-passage-top: 67%;
+  --world-passage-rotation: 6deg;
+}
+
+html.living-world-update [data-living-world="roads"] {
+  --world-accent: #00c1d4;
+  --world-accent-soft: rgba(0, 193, 212, 0.38);
+  --world-particle: #eaffff;
+  --world-haze: rgba(88, 68, 186, 0.16);
+  --world-passage-top: 54%;
+  --world-passage-rotation: -3deg;
+}
+
+html.living-world-update [data-living-world="gold"] {
+  --world-accent: #ffa51e;
+  --world-accent-soft: rgba(255, 165, 30, 0.42);
+  --world-particle: #fff1b7;
+  --world-haze: rgba(255, 191, 73, 0.16);
+  --world-passage-top: 46%;
+  --world-passage-rotation: 4deg;
+}
+
+html.living-world-update [data-living-world="avia"] {
+  --world-accent: #ffffff;
+  --world-accent-soft: rgba(255, 255, 255, 0.5);
+  --world-particle: #ffffff;
+  --world-haze: rgba(0, 193, 212, 0.18);
+  --world-passage-top: 28%;
+  --world-passage-rotation: -10deg;
+}
+
+html.living-world-update [data-living-world] > .world-map,
+html.living-world-update [data-living-world] > .c2-world-map-image,
+html.living-world-update [data-living-world] > .c3-world-map-image,
+html.living-world-update [data-living-world] > .c4-world-map-image,
+html.living-world-update [data-living-world] > .c5-world-map-image {
+  transform: translate3d(var(--world-pan-x), var(--world-pan-y), 0) scale(1.035);
+  transition: transform 900ms var(--living-ease);
+  will-change: transform;
+}
+
+html.living-world-update .living-world-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+html.living-world-update .living-world-sky,
+html.living-world-update .living-world-clouds,
+html.living-world-update .living-world-particles,
+html.living-world-update .living-world-vignette {
+  position: absolute;
+  inset: 0;
+}
+
+html.living-world-update .living-world-sky {
+  background:
+    radial-gradient(circle at 22% 18%, var(--world-accent-soft), transparent 22%),
+    radial-gradient(circle at 76% 72%, var(--world-haze), transparent 28%),
+    linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, 0.08) 48%, transparent 62%);
+  background-size: 100% 100%, 100% 100%, 240% 100%;
+  mix-blend-mode: screen;
+  opacity: 0.64;
+  animation: living-sky-breathe 9s ease-in-out infinite alternate;
+}
+
+html.living-world-update [data-living-world="copper"] .living-world-sky {
+  background:
+    radial-gradient(circle at 52% 58%, rgba(254, 85, 0, 0.3), transparent 18%),
+    linear-gradient(180deg, rgba(28, 19, 12, 0.08), rgba(41, 13, 0, 0.32));
+  mix-blend-mode: color-dodge;
+}
+
+html.living-world-update [data-living-world="gold"] .living-world-sky {
+  background:
+    radial-gradient(circle at 78% 20%, rgba(255, 230, 151, 0.42), transparent 20%),
+    linear-gradient(118deg, transparent 28%, rgba(255, 214, 102, 0.18) 50%, transparent 68%);
+}
+
+html.living-world-update .living-world-cloud {
+  --cloud-delay: 0s;
+  position: absolute;
+  top: 12%;
+  left: -42%;
+  width: 34%;
+  height: 10%;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.3);
+  box-shadow:
+    6vw -1vw 0 rgba(255, 255, 255, 0.18),
+    12vw 1.2vw 0 rgba(255, 255, 255, 0.2),
+    18vw -0.4vw 0 rgba(255, 255, 255, 0.12);
+  filter: blur(14px);
+  opacity: 0;
+  animation: living-cloud-drift 28s linear var(--cloud-delay) infinite;
+}
+
+html.living-world-update .living-world-cloud-2 {
+  top: 44%;
+  width: 26%;
+  height: 7%;
+  animation-duration: 36s;
+}
+
+html.living-world-update .living-world-cloud-3 {
+  top: 72%;
+  width: 38%;
+  height: 8%;
+  animation-duration: 42s;
+}
+
+html.living-world-update [data-living-world="copper"] .living-world-cloud {
+  top: 8%;
+  height: 13%;
+  background: rgba(55, 39, 27, 0.5);
+  box-shadow:
+    5vw -1vw 0 rgba(82, 53, 32, 0.38),
+    12vw 1vw 0 rgba(43, 34, 27, 0.42),
+    18vw -0.5vw 0 rgba(119, 68, 32, 0.24);
+  filter: blur(20px);
+  mix-blend-mode: multiply;
+}
+
+html.living-world-update [data-living-world="avia"] .living-world-cloud {
+  height: 12%;
+  background: rgba(255, 255, 255, 0.5);
+  box-shadow:
+    6vw -1vw 0 rgba(255, 255, 255, 0.36),
+    13vw 1vw 0 rgba(255, 255, 255, 0.32),
+    20vw -0.5vw 0 rgba(255, 255, 255, 0.22);
+  filter: blur(18px);
+}
+
+html.living-world-update .living-world-particle {
+  position: absolute;
+  top: var(--particle-y);
+  left: var(--particle-x);
+  width: var(--particle-size);
+  height: var(--particle-size);
+  border-radius: 50%;
+  background: var(--world-particle);
+  box-shadow: 0 0 10px 2px var(--world-accent-soft);
+  opacity: 0;
+  animation:
+    living-particle-rise var(--particle-duration) ease-in-out var(--particle-delay) infinite,
+    living-particle-glint 3s ease-in-out var(--particle-delay) infinite;
+}
+
+html.living-world-update .living-world-particle-1 {
+  filter: blur(0.5px);
+}
+
+html.living-world-update .living-world-particle-2 {
+  border-radius: 1px;
+  transform: rotate(45deg);
+}
+
+html.living-world-update [data-living-world="copper"] .living-world-particle {
+  animation-name: living-ember-rise, living-particle-glint;
+}
+
+html.living-world-update .living-world-passage {
+  position: absolute;
+  top: var(--world-passage-top);
+  left: -20%;
+  width: 72px;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, var(--world-accent));
+  box-shadow: 0 0 12px var(--world-accent-soft);
+  opacity: 0;
+  transform: rotate(var(--world-passage-rotation));
+  animation: living-passage-cross 15s linear -3s infinite;
+}
+
+html.living-world-update .living-world-passage::after {
+  position: absolute;
+  top: 50%;
+  right: -2px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--world-accent);
+  box-shadow: 0 0 14px 4px var(--world-accent-soft);
+  content: "";
+  transform: translateY(-50%);
+}
+
+html.living-world-update .living-world-passage-secondary {
+  top: calc(var(--world-passage-top) + 23%);
+  width: 42px;
+  animation-delay: -10s;
+  animation-duration: 19s;
+}
+
+html.living-world-update [data-living-world="copper"] .living-world-passage {
+  height: 1px;
+  filter: blur(0.5px);
+}
+
+html.living-world-update [data-living-world="avia"] .living-world-passage {
+  width: 96px;
+  height: 1px;
+}
+
+html.living-world-update .living-world-signal {
+  position: absolute;
+  top: 38%;
+  left: 26%;
+  width: 12px;
+  height: 12px;
+  border: 1px solid var(--world-accent);
+  border-radius: 50%;
+  opacity: 0;
+  animation: living-signal-pulse 11s ease-out -2s infinite;
+}
+
+html.living-world-update .living-world-signal-secondary {
+  top: 69%;
+  left: 74%;
+  animation-delay: -7s;
+  animation-duration: 14s;
+}
+
+html.living-world-update .living-world-vignette {
+  background:
+    linear-gradient(180deg, rgba(8, 2, 29, 0.04), transparent 24%, transparent 72%, rgba(8, 2, 29, 0.24)),
+    radial-gradient(circle at center, transparent 52%, rgba(8, 2, 29, 0.17));
+}
+
+html.living-world-update .living-world-badge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 7;
+  display: grid;
+  grid-template-columns: 8px auto;
+  gap: 2px 8px;
+  min-width: 156px;
+  padding: 8px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 10px;
+  background: rgba(27, 11, 59, 0.72);
+  color: #ffffff;
+  box-shadow: 0 10px 28px rgba(8, 2, 29, 0.2);
+  backdrop-filter: blur(12px);
+  pointer-events: none;
+}
+
+html.living-world-update .living-world-badge-pulse {
+  align-self: center;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--world-accent);
+  box-shadow: 0 0 0 0 var(--world-accent-soft);
+  animation: living-badge-pulse 2.4s ease-out infinite;
+}
+
+html.living-world-update .living-world-badge-copy {
+  overflow: hidden;
+  font-family: "Unbounded", ui-sans-serif, system-ui, sans-serif;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+html.living-world-update .living-world-badge-progress {
+  grid-column: 1 / -1;
+  height: 2px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+html.living-world-update .living-world-badge-progress-fill {
+  display: block;
+  width: var(--world-progress);
+  height: 100%;
+  border-radius: inherit;
+  background: var(--world-accent);
+  box-shadow: 0 0 8px var(--world-accent-soft);
+  transition: width 500ms var(--living-ease);
+}
+
+html.living-world-update [data-living-world] .map-node,
+html.living-world-update [data-living-world] .c2-map-node,
+html.living-world-update [data-living-world] .c3-map-node,
+html.living-world-update [data-living-world] .c4-map-node,
+html.living-world-update [data-living-world] .c5-map-nodes {
+  z-index: 5;
+}
+
+html.living-world-update [data-living-world] .map-caption,
+html.living-world-update [data-living-world] .c2-map-caption,
+html.living-world-update [data-living-world] .c3-map-caption,
+html.living-world-update [data-living-world] .c4-map-caption,
+html.living-world-update [data-living-world] .c5-map-caption {
+  z-index: 6;
+}
+
+html.living-world-update [data-living-world] .is-current:not(:disabled) {
+  animation: living-current-node 2.8s ease-in-out infinite;
+}
+
+html.living-world-update .living-world-layer *,
+html.living-world-update .living-world-badge-pulse,
+html.living-world-update [data-living-world] .is-current:not(:disabled) {
+  animation-play-state: paused;
+}
+
+html.living-world-update [data-living-world].is-world-visible .living-world-layer *,
+html.living-world-update [data-living-world].is-world-visible .living-world-badge-pulse,
+html.living-world-update [data-living-world].is-world-visible .is-current:not(:disabled) {
+  animation-play-state: running;
+}
+
+html.living-world-update.living-world-paused .living-world-layer *,
+html.living-world-update.living-world-paused .living-world-badge-pulse,
+html.living-world-update.living-world-paused [data-living-world] .is-current:not(:disabled) {
+  animation-play-state: paused;
+}
+
+@keyframes living-sky-breathe {
+  0% { opacity: 0.38; background-position: center, center, 0% 0%; }
+  100% { opacity: 0.72; background-position: center, center, 100% 0%; }
+}
+
+@keyframes living-cloud-drift {
+  0% { opacity: 0; transform: translate3d(0, 0, 0) scale(0.9); }
+  12% { opacity: 0.58; }
+  82% { opacity: 0.42; }
+  100% { opacity: 0; transform: translate3d(430%, -18%, 0) scale(1.12); }
+}
+
+@keyframes living-particle-rise {
+  0%, 100% { opacity: 0; transform: translate3d(0, 22px, 0) scale(0.7); }
+  24% { opacity: 0.68; }
+  72% { opacity: 0.3; }
+  90% { opacity: 0; transform: translate3d(12px, -76px, 0) scale(1.1); }
+}
+
+@keyframes living-ember-rise {
+  0%, 100% { opacity: 0; transform: translate3d(0, 28px, 0) scale(0.65); }
+  18% { opacity: 0.88; }
+  78% { opacity: 0.44; }
+  92% { opacity: 0; transform: translate3d(-18px, -110px, 0) scale(1.2); }
+}
+
+@keyframes living-particle-glint {
+  0%, 100% { box-shadow: 0 0 5px 1px var(--world-accent-soft); }
+  50% { box-shadow: 0 0 16px 4px var(--world-accent-soft); }
+}
+
+@keyframes living-passage-cross {
+  0%, 14% { left: -20%; opacity: 0; }
+  18% { opacity: 0.9; }
+  48% { opacity: 0.82; }
+  56%, 100% { left: 112%; opacity: 0; }
+}
+
+@keyframes living-signal-pulse {
+  0%, 72%, 100% { opacity: 0; transform: scale(0.4); }
+  76% { opacity: 0.8; }
+  90% { opacity: 0; transform: scale(7); }
+}
+
+@keyframes living-badge-pulse {
+  0% { box-shadow: 0 0 0 0 var(--world-accent-soft); }
+  70%, 100% { box-shadow: 0 0 0 7px transparent; }
+}
+
+@keyframes living-current-node {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.12); }
+}
+
+@media (max-width: 700px) {
+  html.living-world-update .living-world-badge {
+    top: 10px;
+    left: 10px;
+    min-width: 134px;
+    padding: 7px 8px;
+  }
+
+  html.living-world-update .living-world-badge-copy {
+    font-size: 7px;
+  }
+
+  html.living-world-update .living-world-cloud-3,
+  html.living-world-update .living-world-passage-secondary,
+  html.living-world-update .living-world-signal-secondary {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.living-world-update [data-living-world] > .world-map,
+  html.living-world-update [data-living-world] > .c2-world-map-image,
+  html.living-world-update [data-living-world] > .c3-world-map-image,
+  html.living-world-update [data-living-world] > .c4-world-map-image,
+  html.living-world-update [data-living-world] > .c5-world-map-image {
+    transform: none;
+    transition: none;
+  }
+
+  html.living-world-update .living-world-layer *,
+  html.living-world-update .living-world-badge-pulse,
+  html.living-world-update [data-living-world] .is-current:not(:disabled) {
+    animation: none;
+  }
+
+  html.living-world-update .living-world-cloud,
+  html.living-world-update .living-world-passage,
+  html.living-world-update .living-world-signal,
+  html.living-world-update .living-world-particle {
+    display: none;
+  }
+}

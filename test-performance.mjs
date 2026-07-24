@@ -2,6 +2,11 @@ import assert from "node:assert/strict";
 import { readFile, stat } from "node:fs/promises";
 
 const html = await readFile(new URL("./index.html", import.meta.url), "utf8");
+assert.doesNotMatch(
+  html,
+  /world-live|living-world-update/,
+  "The living-world experiment leaked into the primary academy document"
+);
 const runtimeSources = await Promise.all([
   "index.html",
   "app.js",
@@ -57,5 +62,12 @@ assert.ok(eagerBytes < 1.6 * 1024 * 1024, `Eager shell budget exceeded: ${eagerB
 
 const primaryVisualStylesBytes = (await stat(new URL("./update.css", import.meta.url))).size;
 assert.ok(primaryVisualStylesBytes < 40 * 1024, `Primary visual layer is too large: ${primaryVisualStylesBytes} bytes`);
+
+const livingWorldBytes = (await Promise.all(
+  ["world-live.css", "world-live.js"].map(async (name) => (
+    await stat(new URL(`./${name}`, import.meta.url))
+  ).size)
+)).reduce((sum, size) => sum + size, 0);
+assert.ok(livingWorldBytes < 48 * 1024, `Living-world experiment is too large: ${livingWorldBytes} bytes`);
 
 console.log(`Performance budget: ${(eagerBytes / 1024 / 1024).toFixed(2)} MB eager shell, advanced chapters deferred`);
