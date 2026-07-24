@@ -167,10 +167,18 @@ test("critical player journey loads all maps and protects modal focus", async ({
   await expect(page.locator("html")).toHaveClass(/living-world-update/);
   await expect(page.locator("#player-profile")).toBeVisible();
   await expect(page.locator("#world-map-view")).toBeVisible();
+  await expect(page.locator("#world-chapter-preview")).toHaveAttribute(
+    "src",
+    "assets/optimized/world-overview-map-route-v2.jpg"
+  );
   await expect(page.locator(".world-overview-stage .living-world-badge")).toBeVisible();
   await expect(page.locator(".living-world-layer")).toHaveCount(6);
   await page.locator('[data-world-row="chapter1"] button').click();
   await page.locator("#world-entry-confirm").click();
+  await expect(page.locator("#world-entry-preview")).toHaveAttribute(
+    "src",
+    "assets/optimized/world-map-4k.jpg"
+  );
   await expect(page.locator("#map-title")).toHaveText("Все задания Академии");
   await expect(page.locator(".world-stage .living-world-badge")).toBeVisible();
   await expect(page.locator('.living-world-layer[data-effect-count="5"]')).toHaveCount(6);

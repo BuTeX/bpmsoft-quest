@@ -1548,8 +1548,8 @@ function renderWorldMap() {
         : selected.id === currentChapterId
           ? "Текущий проект"
           : "Доступно";
-  elements.worldChapterPreview.src = selected.preview;
-  elements.worldChapterPreview.alt = selected.previewAlt;
+  elements.worldChapterPreview.src = selected.roman==="I"?"assets/optimized/world-overview-map-route-v2.jpg":selected.preview;
+  elements.worldChapterPreview.alt = "";
   elements.worldChapterSeal.textContent = selected.roman;
   elements.worldChapterKicker.textContent = selected.kicker;
   elements.worldChapterTitle.textContent = selected.title;
