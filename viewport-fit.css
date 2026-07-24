@@ -44,7 +44,6 @@
     overflow: hidden;
   }
 
-
   html.visual-update .company-logo-wrap,
   html.visual-update body.theme-sky .company-logo-wrap {
     padding: 0;
@@ -56,7 +55,6 @@
   html.visual-update body.theme-sky .company-logo {
     filter: brightness(0) invert(1);
   }
-
 
   html.visual-update .topbar {
     grid-template-columns: minmax(205px, 250px) minmax(180px, 1fr) minmax(390px, auto);
@@ -1165,7 +1163,7 @@
   html.visual-update .c5-overlay-dialog,
   html.visual-update .player-access-dialog {
     max-height: calc(100dvh - 24px);
-    overflow: hidden;
+    overflow: hidden auto;
   }
 
   html.visual-update .world-entry-visual,

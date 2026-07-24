@@ -230,3 +230,19 @@ test("mobile login dialog has no horizontal overflow and traps focus", async ({ 
   for (let index = 0; index < 12; index += 1) await page.keyboard.press("Tab");
   expect(await page.evaluate(() => document.querySelector("#player-access-form")?.contains(document.activeElement))).toBe(true);
 });
+
+test("registration submit remains reachable at compact desktop height", async ({ page }) => {
+  await page.setViewportSize({ width: 919, height: 914 });
+  await page.goto("/academy.html");
+  await page.getByRole("tab", { name: "Регистрация" }).click();
+
+  const dialog = page.locator("#player-access-form");
+  const submit = page.getByRole("button", { name: "Создать аккаунт" });
+  await expect(submit).toBeVisible();
+  expect(await dialog.evaluate((element) => getComputedStyle(element).overflowY)).toBe("auto");
+
+  await dialog.hover();
+  await page.mouse.wheel(0, 1200);
+  await expect.poll(() => dialog.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
+  await expect(submit).toBeInViewport();
+});
