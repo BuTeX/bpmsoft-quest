@@ -723,7 +723,7 @@ body.theme-orbit::before {
 .c3-dossier > p {
   margin: 0 0 10px;
   color: var(--c3-violet);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -736,7 +736,7 @@ body.theme-orbit::before {
   margin: 0;
   padding-left: 18px;
   color: #564e67;
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.45;
 }
 
@@ -771,7 +771,7 @@ body.theme-orbit::before {
 
 .c3-slot-label {
   color: var(--c3-violet);
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -781,7 +781,7 @@ body.theme-orbit::before {
   min-height: 48px;
   margin: 8px 0 14px;
   color: var(--c3-ink);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   line-height: 1.45;
 }
@@ -805,13 +805,13 @@ body.theme-orbit::before {
 }
 
 .c3-answer strong {
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.35;
 }
 
 .c3-answer small {
   color: var(--c3-muted);
-  font-size: 8px;
+  font-size: 10px;
   line-height: 1.42;
 }
 
@@ -855,7 +855,7 @@ body.theme-orbit::before {
 .c3-mission-actions p {
   margin: 0;
   color: #665e75;
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .c3-feedback {
@@ -921,14 +921,14 @@ body.theme-orbit::before {
 
 .c3-codex-panel dt {
   color: var(--c3-ink);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
 }
 
 .c3-codex-panel dd {
   margin: 5px 0 0;
   color: #6d657a;
-  font-size: 8px;
+  font-size: 10px;
   line-height: 1.52;
 }
 

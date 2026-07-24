@@ -152,6 +152,40 @@ test("critical player journey loads all maps and protects modal focus", async ({
   await page.locator("#chapter2-back-to-map").click();
   await page.locator("#show-world-map").click();
 
+  await page.setViewportSize({ width: 2048, height: 877 });
+  await page.locator('[data-world-row="chapter3"] button').click();
+  await page.locator("#world-entry-confirm").click();
+  await expect(page.locator("#chapter3-prologue")).toBeVisible();
+  await page.locator("#chapter3-prologue-start").click();
+  await page.locator('[data-c3-zone="contact"]').first().click();
+  await expect(page.locator("#chapter3-mission-intro")).toBeVisible();
+  await page.locator("#chapter3-mission-intro-start").click();
+  await expect(page.locator("#chapter3-mission-view")).toBeVisible();
+  await expectDesktopViewportFit(page, ".c3-mission-layout");
+  await expect(page.locator(".c3-slot .level-hint-action").first()).toBeVisible();
+  await expect(page.locator(".c3-slot .level-hint-action").first()).toHaveText("Нет подсказок");
+  const chapter3FontSizes = await page.evaluate(() => Object.fromEntries(
+    Object.entries({
+      condition: ".c3-dossier li",
+      prompt: ".c3-slot-prompt",
+      answer: ".c3-answer strong",
+      answerNote: ".c3-answer small",
+      codexTerm: ".c3-codex-panel dt",
+      codexDefinition: ".c3-codex-panel dd"
+    }).map(([key, selector]) => [key, parseFloat(getComputedStyle(document.querySelector(selector)).fontSize)])
+  ));
+  expect(chapter3FontSizes).toEqual(expect.objectContaining({
+    condition: 12,
+    answer: 12,
+    answerNote: 10,
+    codexTerm: 11
+  }));
+  expect(chapter3FontSizes.prompt).toBeGreaterThanOrEqual(11);
+  expect(chapter3FontSizes.codexDefinition).toBeGreaterThanOrEqual(10);
+  await page.locator("#chapter3-back-to-map").click();
+  await page.locator("#show-world-map").click();
+  await page.setViewportSize({ width: 1280, height: 720 });
+
   await page.locator('.world-city-node[data-world-chapter="chapter5"]').click();
   await expect(page.locator("#world-entry-title")).toHaveText("Открыть карту — Авиакомпания «Гуд Авиа»?");
   await page.locator("#world-entry-confirm").click();

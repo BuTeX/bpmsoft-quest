@@ -1776,9 +1776,7 @@ function prepareAccountCache(accountId) {
     }
     localStorage.setItem(ACCOUNT_CACHE_ID_KEY, accountId);
     localStorage.removeItem(PLAYER_PROFILE_KEY);
-  } catch {
-    // The authenticated server state remains authoritative when local cache is unavailable.
-  }
+  } catch {}
 }
 
 async function submitPlayerAccess(event) {
@@ -2187,8 +2185,8 @@ function getFirstChapterHintContext() {
 function renderFirstChapterHintAction() {
   if (!elements.useLevelHint) return;
   elements.useLevelHint.dataset.levelHintId = getFirstChapterHintContext();
-  elements.useLevelHint.dataset.levelHintLabel = "Показать ответ";
-  elements.useLevelHint.hidden = isStudyMode() || state.missionRunComplete;
+  elements.useLevelHint.dataset.levelHintLabel = "Использовать подсказку";
+  elements.useLevelHint.hidden = state.missionRunComplete;
   updateLevelHintButton(elements.useLevelHint);
 }
 
@@ -2719,7 +2717,7 @@ function updateLevelHintButton(button) {
   const contextId = button.dataset.levelHintId || "";
   const revealed = isLevelHintRevealed(contextId);
   const balance = getLevelHintBalance();
-  const label = button.dataset.levelHintLabel || "Показать ответ";
+  const label = button.dataset.levelHintLabel || "Использовать подсказку";
   button.disabled = revealed || balance === 0 || !contextId;
   button.classList.toggle("is-revealed", revealed);
   button.textContent = revealed ? "Ответ показан" : balance > 0 ? `${label} · ${balance}` : "Нет подсказок";
@@ -2737,14 +2735,14 @@ function refreshLevelHints() {
   const balance = getLevelHintBalance();
   if (elements.levelHintBalance) elements.levelHintBalance.textContent = String(balance);
   if (elements.levelHintBank) {
-    elements.levelHintBank.hidden = isStudyMode();
+    elements.levelHintBank.hidden = false;
     elements.levelHintBank.title = `Доступно подсказок — ${balance}. Повышение до уровней II, IV, VI, VIII и X даёт ещё одну.`;
   }
   document.querySelectorAll?.("[data-level-hint-id]").forEach(updateLevelHintButton);
 }
 
 function useLevelHint(contextId) {
-  if (isStudyMode() || typeof contextId !== "string" || !/^[a-z0-9:_-]+$/i.test(contextId)) return false;
+  if (typeof contextId !== "string" || !/^[a-z0-9:_-]+$/i.test(contextId)) return false;
   if (isLevelHintRevealed(contextId)) return true;
   if (getLevelHintBalance() < 1) return false;
   state.revealedLevelHints = [...state.revealedLevelHints, contextId].slice(0, 5);
@@ -2763,13 +2761,12 @@ function useLevelHint(contextId) {
   return true;
 }
 
-function createLevelHintButton(contextId, refresh, label = "Показать ответ") {
+function createLevelHintButton(contextId, refresh, label = "Использовать подсказку") {
   const button = document.createElement("button");
   button.type = "button";
   button.className = "level-hint-action level-hint-inline";
   button.dataset.levelHintId = contextId;
   button.dataset.levelHintLabel = label;
-  button.hidden = isStudyMode();
   updateLevelHintButton(button);
   button.addEventListener("click", () => {
     if (!useLevelHint(contextId)) return;

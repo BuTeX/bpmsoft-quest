@@ -571,7 +571,7 @@
   }
 
   html.visual-update .mission-actions p {
-    font-size: clamp(9px, 1.3vh, 11px);
+    font-size: clamp(10px, 1.4vh, 12px);
   }
 
   html.visual-update .feedback-panel,
@@ -618,7 +618,7 @@
   html.visual-update .c4-codex-panel dd,
   html.visual-update .c5-codex-panel dd {
     margin-top: 2px;
-    font-size: clamp(7px, 1.1vh, 10px);
+    font-size: clamp(10px, 1.3vh, 12px);
     line-height: 1.35;
   }
 
@@ -629,7 +629,7 @@
   html.visual-update .c5-codex-panel .source-note {
     margin-top: clamp(6px, 1vh, 12px);
     padding: clamp(6px, 1vh, 10px);
-    font-size: clamp(7px, 1.1vh, 9px);
+    font-size: clamp(10px, 1.3vh, 12px);
   }
 
 
@@ -680,7 +680,7 @@
   html.visual-update .c3-board-instruction,
   html.visual-update .c4-board-instruction {
     margin: clamp(4px, 0.7vh, 8px) 0;
-    font-size: clamp(8px, 1.2vh, 10px);
+    font-size: clamp(11px, 1.4vh, 13px);
     line-height: 1.35;
   }
 
@@ -712,7 +712,7 @@
   html.visual-update .c4-slot-prompt {
     min-height: 0;
     margin: clamp(4px, 0.7vh, 8px) 0;
-    font-size: clamp(8px, 1.2vh, 10px);
+    font-size: clamp(11px, 1.4vh, 13px);
     line-height: 1.3;
   }
 

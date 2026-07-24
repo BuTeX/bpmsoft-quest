@@ -134,6 +134,7 @@ const exports = `
     getLevelHintBalance,
     isLevelHintRevealed,
     useLevelHint,
+    createLevelHintButton,
     answerQuiz,
     answerGatewayTest,
     answerBlueprintTest
@@ -429,6 +430,18 @@ assert(api.getLevelHintBalance() === 0, "Using a hint did not consume its level 
 context.window.BPMQuestChapter2 = { getState: () => ({ packageComplete: true }) };
 assert(api.getEarnedLevelHintCount() === 2, "Level IV did not add the next hint reward");
 assert(api.getLevelHintBalance() === 1, "The Level IV reward was not added to the shared hint balance");
+api.setPlayerProfile({ id: "hint-study-test", displayName: "Подсказка", mode: "study" });
+let studyHintRefreshes = 0;
+const studyHintButton = api.createLevelHintButton("c3:contact:identity:record", () => {
+  studyHintRefreshes += 1;
+});
+assert(!studyHintButton.hidden, "Study mode hid the inline hint action");
+assert(studyHintButton.textContent === "Использовать подсказку · 1", "Hint action has an unclear label");
+studyHintButton.listeners.click[0]();
+assert(api.isLevelHintRevealed("c3:contact:identity:record"), "Study mode could not use an earned hint");
+assert(studyHintButton.textContent === "Ответ показан", "Used study hint did not update its label");
+assert(studyHintRefreshes === 1, "Using a study hint did not refresh the active task");
+api.setPlayerProfile(null);
 delete context.window.BPMQuestChapter2;
 
 api.beginMission("insight");
