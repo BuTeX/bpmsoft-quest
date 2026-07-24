@@ -150,8 +150,8 @@
       const renderParallax = () => {
         stage.style.setProperty("--world-pan-x", `${targetX.toFixed(2)}px`);
         stage.style.setProperty("--world-pan-y", `${targetY.toFixed(2)}px`);
-        stage.style.setProperty("--world-depth-x", `${(-targetX * 0.48).toFixed(2)}px`);
-        stage.style.setProperty("--world-depth-y", `${(-targetY * 0.48).toFixed(2)}px`);
+        stage.style.setProperty("--world-depth-x", `${(-targetX * 0.32).toFixed(2)}px`);
+        stage.style.setProperty("--world-depth-y", `${(-targetY * 0.32).toFixed(2)}px`);
         frame = 0;
       };
 
@@ -161,8 +161,8 @@
 
       stage.addEventListener("pointermove", (event) => {
         const bounds = stage.getBoundingClientRect();
-        targetX = ((event.clientX - bounds.left) / bounds.width - 0.5) * -44;
-        targetY = ((event.clientY - bounds.top) / bounds.height - 0.5) * -30;
+        targetX = ((event.clientX - bounds.left) / bounds.width - 0.5) * -14;
+        targetY = ((event.clientY - bounds.top) / bounds.height - 0.5) * -9;
         requestParallaxFrame();
       });
       stage.addEventListener("pointerleave", () => {

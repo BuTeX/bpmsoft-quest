@@ -2,11 +2,9 @@ import assert from "node:assert/strict";
 import { readFile, stat } from "node:fs/promises";
 
 const html = await readFile(new URL("./index.html", import.meta.url), "utf8");
-assert.doesNotMatch(
-  html,
-  /world-live|living-world-update/,
-  "The living-world experiment leaked into the primary academy document"
-);
+assert.match(html, /class="visual-update living-world-update"/);
+assert.match(html, /world-live\.css/);
+assert.match(html, /world-live\.js/);
 const runtimeSources = await Promise.all([
   "index.html",
   "app.js",
@@ -15,7 +13,9 @@ const runtimeSources = await Promise.all([
   "chapter4.js",
   "chapter5.js",
   "chapter2.css",
-  "update.css"
+  "update.css",
+  "world-live.css",
+  "world-live.js"
 ].map((name) => readFile(new URL(`./${name}`, import.meta.url), "utf8")));
 
 assert.doesNotMatch(
@@ -38,7 +38,8 @@ imageTags
 const scripts = [...html.matchAll(/<script\b[^>]*src="([^"]+)"/g)].map((match) => match[1]);
 assert.deepEqual(scripts, [
   "progress-core.js?v=20260723-launch-1",
-  "app.js?v=20260724-xp-hud-1"
+  "app.js?v=20260724-xp-hud-1",
+  "world-live.js?v=20260724-living-world-main-4"
 ]);
 
 const eagerFiles = [
@@ -50,6 +51,8 @@ const eagerFiles = [
   "chapter4.css",
   "chapter5.css",
   "update.css",
+  "world-live.css",
+  "world-live.js",
   "assets/good-program-logo-color.png",
   "assets/fonts/unbounded-light.ttf",
   "assets/fonts/unbounded-regular.ttf",
@@ -68,6 +71,6 @@ const livingWorldBytes = (await Promise.all(
     await stat(new URL(`./${name}`, import.meta.url))
   ).size)
 )).reduce((sum, size) => sum + size, 0);
-assert.ok(livingWorldBytes < 48 * 1024, `Living-world experiment is too large: ${livingWorldBytes} bytes`);
+assert.ok(livingWorldBytes < 48 * 1024, `Living-world production layer is too large: ${livingWorldBytes} bytes`);
 
-console.log(`Performance budget: ${(eagerBytes / 1024 / 1024).toFixed(2)} MB eager shell, advanced chapters deferred`);
+console.log(`Performance budget: ${(eagerBytes / 1024 / 1024).toFixed(2)} MB eager shell including the living world`);

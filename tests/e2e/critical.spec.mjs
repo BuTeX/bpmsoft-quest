@@ -32,8 +32,8 @@ test("critical player journey loads all maps and protects modal focus", async ({
 
   await page.goto("/academy.html");
   await expect(page.locator("html")).toHaveClass(/visual-update/);
-  await expect(page.locator("html")).not.toHaveClass(/living-world-update/);
-  await expect(page.locator(".living-world-layer")).toHaveCount(0);
+  await expect(page.locator("html")).toHaveClass(/living-world-update/);
+  await expect(page.locator(".living-world-layer")).toHaveCount(5);
   const primaryHeaderHeight = await page.locator(".topbar").evaluate((element) => element.getBoundingClientRect().height);
   expect(primaryHeaderHeight).toBeLessThanOrEqual(132);
   await expect(page.locator("#player-access-modal")).toBeVisible();
@@ -89,6 +89,14 @@ test("critical player journey loads all maps and protects modal focus", async ({
   );
   expect(new Set(cityEffectSets).size).toBe(5);
   expect(cityEffectSets.every((effects) => effects?.split(" ").length === 5)).toBe(true);
+  const flyingFigures = await page.locator("[data-living-world]").evaluateAll((stages) =>
+    stages.map((stage) => {
+      const passage = stage.querySelector(".living-world-passage-primary");
+      const style = passage ? getComputedStyle(passage, "::after") : null;
+      return style ? `${style.clipPath}|${style.borderRadius}|${style.backgroundImage}` : "";
+    })
+  );
+  expect(new Set(flyingFigures).size).toBe(5);
 
   expect(unexpectedResponses).toEqual([]);
 });

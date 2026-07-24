@@ -1797,7 +1797,6 @@ async function serveStatic(request, response, pathname) {
   }
 
   const requestedPath = decodedPath.replace(/^\/+/, "");
-  const isLivingWorldVariant = requestedPath === "update";
   if (decodedPath === "/update/") {
     response.writeHead(308, { Location: "/update" });
     response.end();
@@ -1825,30 +1824,6 @@ async function serveStatic(request, response, pathname) {
   }
 
   try {
-    if (relativePath === "index.html" && isLivingWorldVariant) {
-      const template = await readFile(filePath, "utf8");
-      const body = template
-        .replace(
-          '<html lang="ru" class="visual-update">',
-          '<html lang="ru" class="visual-update living-world-update">'
-        )
-        .replace(
-          "</head>",
-          '  <link rel="stylesheet" href="/world-live.css?v=20260724-city-effects-2">\n</head>'
-        )
-        .replace(
-          "</body>",
-          '  <script src="/world-live.js?v=20260724-city-effects-2"></script>\n</body>'
-        );
-      response.writeHead(200, {
-        "Content-Type": "text/html; charset=utf-8",
-        "Cache-Control": "no-store",
-        "Content-Length": Buffer.byteLength(body)
-      });
-      if (request.method === "HEAD") response.end();
-      else response.end(body);
-      return;
-    }
     if (relativePath === "privacy.html" || relativePath === "terms.html") {
       const template = await readFile(path.resolve(ROOT_DIR, relativePath), "utf8");
       const legalValues = {
