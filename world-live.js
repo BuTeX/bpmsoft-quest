@@ -53,12 +53,14 @@
     ".c5-map-node"
   ].join(",");
   const worldProcessElements = [
-    ["start","primary","30%","-2s","-7deg"],
-    ["user-action","secondary","68%","-7s","5deg"],
-    ["gateway","tertiary","14%","-12s","-4deg"],
-    ["system-action","quaternary","49%","-17s","3deg"],
-    ["intermediate","quinary","81%","-22s","-3deg"],
-    ["finish","senary","39%","-27s","6deg"]
+    ["start","30%","-2s","-7deg"],
+    ["user-action","68%","-7s","5deg"],
+    ["gateway","18%","-5s","-4deg"],
+    ["system-action","49%","-17s","3deg"],
+    ["gateway","57%","-15s","4deg"],
+    ["intermediate","81%","-22s","-3deg"],
+    ["finish","39%","-27s","6deg"],
+    ["gateway","76%","-25s","-5deg"]
   ];
 
   function createElement(className, parent, text = "") {
@@ -105,8 +107,8 @@
 
     const passages = markEffect(createElement("living-world-passages", layer), definition.effects[3]);
     if (definition.theme === "world") {
-      worldProcessElements.forEach(([kind, className, top, delay, rotation]) => {
-        const passage = createElement(`living-world-passage living-world-passage-${className}`, passages);
+      worldProcessElements.forEach(([kind, top, delay, rotation]) => {
+        const passage = createElement("living-world-passage", passages);
         passage.dataset.processElement = kind;
         passage.style.cssText = `--passage-top:${top};--passage-delay:${delay};--passage-duration:30s;--passage-rotation:${rotation};--process-icon:url("assets/process-${kind}.svg")`;
       });

@@ -181,17 +181,18 @@ test("critical player journey loads all maps and protects modal focus", async ({
   expect(cityEffectSets.every((effects) => effects?.split(" ").length === 5)).toBe(true);
   const flyingFigures = await page.locator("[data-living-world]").evaluateAll((stages) =>
     stages.map((stage) => {
-      const passage = stage.querySelector(".living-world-passage-primary");
+      const passage = stage.querySelector(".living-world-passage");
       const style = passage ? getComputedStyle(passage, "::after") : null;
       return style ? `${style.clipPath}|${style.borderRadius}|${style.backgroundImage}` : "";
     })
   );
   expect(new Set(flyingFigures).size).toBe(6);
   const worldProcessElements = page.locator('.world-overview-stage [data-process-element]');
-  await expect(worldProcessElements).toHaveCount(6);
+  await expect(worldProcessElements).toHaveCount(8);
   expect(await worldProcessElements.evaluateAll((elements) =>
     new Set(elements.map((element) => element.getAttribute("data-process-element"))).size
   )).toBe(6);
+  await expect(page.locator('.world-overview-stage [data-process-element="gateway"]')).toHaveCount(3);
   expect(await worldProcessElements.evaluateAll((elements) =>
     elements.every((element) => getComputedStyle(element, "::after").boxShadow === "none")
   )).toBe(true);
