@@ -123,6 +123,31 @@ test("critical player journey loads all maps and protects modal focus", async ({
   for (const chapter of ["chapter1", "chapter2", "chapter3", "chapter4", "chapter5"]) {
     await expect(page.locator(`[data-world-row="${chapter}"] button`)).toHaveAttribute("aria-disabled", "false");
   }
+
+  await page.locator('[data-world-row="chapter2"] button').click();
+  await page.locator("#world-entry-confirm").click();
+  await expect(page.locator("#chapter2-prologue")).toBeVisible();
+  await page.locator("#chapter2-prologue-start").click();
+  await page.locator('[data-c2-zone="portal"]').first().click();
+  await expect(page.locator("#chapter2-mission-intro")).toBeVisible();
+  await page.locator("#chapter2-mission-intro-start").click();
+  await expect(page.locator("#chapter2-mission-view")).toBeVisible();
+  await expectDesktopViewportFit(page, ".c2-mission-layout");
+  const chapter2Board = page.locator("#chapter2-board");
+  await expect(chapter2Board).toHaveCSS("overflow-y", "auto");
+  const chapter2BoardMetrics = await chapter2Board.evaluate((board) => ({
+    clientHeight: board.clientHeight,
+    scrollHeight: board.scrollHeight
+  }));
+  expect(chapter2BoardMetrics.scrollHeight).toBeGreaterThan(chapter2BoardMetrics.clientHeight);
+  await chapter2Board.evaluate((board) => {
+    board.scrollTop = board.scrollHeight;
+  });
+  expect(await chapter2Board.evaluate((board) => board.scrollTop)).toBeGreaterThan(0);
+  await expect(page.locator(".c2-slot:last-child .c2-answer:last-child")).toBeInViewport();
+  await page.locator("#chapter2-back-to-map").click();
+  await page.locator("#show-world-map").click();
+
   await page.locator('.world-city-node[data-world-chapter="chapter5"]').click();
   await expect(page.locator("#world-entry-title")).toHaveText("Открыть карту — Авиакомпания «Гуд Авиа»?");
   await page.locator("#world-entry-confirm").click();
