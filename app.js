@@ -900,7 +900,7 @@ function loadAdvancedChapters() {
     await loadApplicationScript("chapter3.js?v=20260723-city-navigation-1");
     await loadApplicationScript("chapter4-missions.js?v=20260721-golden-shelf-2");
     await loadApplicationScript("chapter4.js?v=20260723-city-navigation-1");
-    await loadApplicationScript("chapter5.js?v=20260723-city-navigation-1", true);
+    await loadApplicationScript("chapter5.js?v=20260724-xp-hud-1", true);
   })().catch((error) => {
     advancedChaptersPromise = null;
     throw error;

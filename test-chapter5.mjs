@@ -13,6 +13,11 @@ assert.match(source, /confirmedControlIds/, "Chapter 5 does not preserve confirm
 assert.match(source, /buildFeedbackDetails/, "Chapter 5 causal feedback is missing");
 assert.match(source, /showNextContextHint/, "Chapter 5 contextual hint ladder is missing");
 assert.match(source, /setChapterNavigation\?\.\(activeChapter\)/, "Chapter 5 does not use the shared city navigation");
+assert.match(
+  source,
+  /function completeMission\(mission\)[\s\S]*?saveState\(\);\s+renderStats\(\);\s+renderMap\(\);/,
+  "Chapter 5 does not refresh the XP HUD immediately after awarding a mission"
+);
 assert.equal(
   source.match(/button\.addEventListener\("click", \(\) => beginMission\(key\)\);/g)?.length,
   2,

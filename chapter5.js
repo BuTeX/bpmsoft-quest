@@ -927,6 +927,7 @@ function completeMission(mission) {
   if (mission.key === "crisis") state.achievementGranted = true;
   state = normalizeState(state);
   saveState();
+  renderStats();
   renderMap();
   return alreadyComplete ? 0 : mission.score;
 }
