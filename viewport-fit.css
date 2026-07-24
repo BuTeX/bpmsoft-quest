@@ -1,0 +1,1335 @@
+/*
+ * Desktop viewport contract.
+ *
+ * Every playable desktop view owns exactly the space below the application
+ * header. Mobile keeps the existing document-flow layout and may scroll.
+ */
+
+@media (min-width: 821px) {
+  html.visual-update {
+    --app-header-height: 80px;
+    height: 100%;
+    max-height: 100dvh;
+    overflow: hidden;
+  }
+
+  html.visual-update body {
+    height: 100%;
+    min-height: 0;
+    max-height: 100dvh;
+    overflow: hidden;
+  }
+
+  html.visual-update .game-shell {
+    display: grid;
+    height: 100dvh;
+    min-height: 0;
+    grid-template-rows: var(--app-header-height) minmax(0, 1fr);
+    overflow: hidden;
+  }
+
+  html.visual-update .topbar {
+    z-index: 30;
+    width: 100%;
+    height: var(--app-header-height);
+    min-height: var(--app-header-height);
+    padding-block: 7px;
+  }
+
+  html.visual-update main {
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  html.visual-update .view.is-active {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  /* The source logo has transparency. Do not put it back into a rounded tile. */
+  html.visual-update .company-logo-wrap,
+  html.visual-update body.theme-sky .company-logo-wrap {
+    padding: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  html.visual-update body.theme-sky .company-logo {
+    filter: brightness(0) invert(1);
+  }
+
+  /* Keep the header in one compact row on laptop-width desktops. */
+  html.visual-update .topbar {
+    grid-template-columns: minmax(205px, 250px) minmax(180px, 1fr) minmax(390px, auto);
+    gap: clamp(8px, 1.1vw, 18px);
+    padding-inline: clamp(12px, 1.8vw, 30px);
+  }
+
+  html.visual-update .topbar .brand {
+    grid-template-columns: clamp(88px, 8vw, 116px) minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  html.visual-update .brand h1 {
+    font-size: clamp(11px, 1vw, 15px);
+  }
+
+  html.visual-update .topbar .player-stats {
+    grid-template-columns: minmax(92px, 126px) auto auto auto minmax(90px, 145px) auto;
+    gap: 6px;
+  }
+
+  html.visual-update .player-profile-action {
+    min-height: 40px;
+    padding-block: 4px;
+  }
+
+  html.visual-update .admin-action,
+  html.visual-update .admin-analytics-link {
+    min-height: 36px;
+    padding: 6px 8px;
+  }
+
+  html.visual-update .level-hint-bank {
+    min-height: 40px;
+  }
+
+  /* World hub and the five chapter maps always use one desktop row. */
+  html.visual-update .world-overview-layout,
+  html.visual-update .map-layout,
+  html.visual-update .c2-map-layout,
+  html.visual-update .c3-map-layout,
+  html.visual-update .c4-map-layout,
+  html.visual-update .c5-map-layout {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    grid-template-rows: minmax(0, 1fr);
+    overflow: hidden;
+  }
+
+  html.visual-update .world-overview-layout {
+    grid-template-columns: clamp(190px, 12vw, 230px) minmax(0, 1fr) clamp(250px, 17vw, 310px);
+  }
+
+  html.visual-update .map-layout,
+  html.visual-update .c2-map-layout,
+  html.visual-update .c3-map-layout,
+  html.visual-update .c4-map-layout {
+    grid-template-columns: clamp(180px, 12.5vw, 244px) minmax(0, 1fr) clamp(245px, 17vw, 322px);
+    gap: 0;
+    padding: 0;
+  }
+
+  html.visual-update .c5-map-layout {
+    grid-template-columns: clamp(180px, 13vw, 230px) minmax(0, 1fr) clamp(245px, 17vw, 300px);
+    gap: clamp(8px, 1vw, 14px);
+    padding: clamp(8px, 1vw, 14px);
+  }
+
+  html.visual-update .world-route-panel,
+  html.visual-update .world-chapter-brief,
+  html.visual-update .zone-journal,
+  html.visual-update .c2-zone-journal,
+  html.visual-update .c3-zone-journal,
+  html.visual-update .c4-zone-journal,
+  html.visual-update .c5-zone-journal,
+  html.visual-update .quest-brief,
+  html.visual-update .c2-quest-brief,
+  html.visual-update .c3-quest-brief,
+  html.visual-update .c4-quest-brief,
+  html.visual-update .c5-quest-brief {
+    min-width: 0;
+    min-height: 0;
+    align-self: stretch;
+    overflow: hidden;
+  }
+
+  html.visual-update .world-route-panel,
+  html.visual-update .zone-journal,
+  html.visual-update .c2-zone-journal,
+  html.visual-update .c3-zone-journal,
+  html.visual-update .c4-zone-journal,
+  html.visual-update .c5-zone-journal {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  html.visual-update .world-overview-stage,
+  html.visual-update .world-stage,
+  html.visual-update .c2-world-stage,
+  html.visual-update .c3-world-stage,
+  html.visual-update .c4-world-stage,
+  html.visual-update .c5-world-stage {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  html.visual-update .world-chapter-brief,
+  html.visual-update .quest-brief,
+  html.visual-update .c2-quest-brief,
+  html.visual-update .c3-quest-brief,
+  html.visual-update .c4-quest-brief,
+  html.visual-update .c5-quest-brief {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  html.visual-update .world-overview-stage,
+  html.visual-update .world-stage,
+  html.visual-update .c2-world-stage,
+  html.visual-update .c3-world-stage,
+  html.visual-update .c4-world-stage,
+  html.visual-update .c5-world-stage {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    align-self: stretch;
+    aspect-ratio: auto;
+    overflow: hidden;
+  }
+
+  html.visual-update .world-overview-image,
+  html.visual-update .world-map,
+  html.visual-update .c2-world-map-image,
+  html.visual-update .c3-world-map-image,
+  html.visual-update .c4-world-map-image,
+  html.visual-update .c5-world-map-image {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    object-fit: cover;
+  }
+
+  html.visual-update .world-route-panel {
+    gap: clamp(8px, 1.4vh, 16px);
+    padding: clamp(12px, 2vh, 22px) 14px;
+  }
+
+  html.visual-update .world-route-note {
+    margin-top: 0;
+    padding: 8px 10px;
+  }
+
+  html.visual-update .world-route-list {
+    min-height: 0;
+    flex: 1 1 auto;
+    grid-template-rows: repeat(5, minmax(0, 1fr));
+    gap: clamp(3px, 0.8vh, 8px);
+  }
+
+  html.visual-update .world-route-list button {
+    height: 100%;
+    min-height: 0;
+    padding: clamp(4px, 0.8vh, 8px);
+  }
+
+  html.visual-update .world-route-list li:not(:last-child)::after {
+    display: none;
+  }
+
+  html.visual-update .world-chapter-brief {
+    display: flex;
+    grid-template-columns: none;
+    align-items: stretch;
+    flex-direction: column;
+    gap: clamp(8px, 1.4vh, 18px);
+    padding: clamp(12px, 2vh, 22px);
+  }
+
+  html.visual-update .world-preview-frame {
+    flex: 0 1 25vh;
+    min-height: 90px;
+    max-height: 190px;
+    aspect-ratio: auto;
+  }
+
+  html.visual-update .world-chapter-copy {
+    gap: clamp(5px, 0.8vh, 9px);
+  }
+
+  html.visual-update .world-enter-action {
+    grid-column: auto;
+    width: 100%;
+    margin-top: auto;
+  }
+
+  html.visual-update .zone-journal,
+  html.visual-update .c2-zone-journal,
+  html.visual-update .c3-zone-journal,
+  html.visual-update .c4-zone-journal,
+  html.visual-update .c5-zone-journal {
+    display: flex;
+    flex-direction: column;
+    padding: clamp(10px, 1.8vh, 20px) clamp(10px, 1.2vw, 18px);
+  }
+
+  html.visual-update .panel-heading,
+  html.visual-update .c2-zone-journal .panel-heading,
+  html.visual-update .c3-zone-journal .panel-heading,
+  html.visual-update .c4-zone-journal .panel-heading,
+  html.visual-update .c5-zone-journal .panel-heading {
+    margin-bottom: clamp(6px, 1vh, 12px);
+  }
+
+  html.visual-update .world-return-action {
+    min-height: 30px;
+    margin: 0 0 clamp(5px, 0.9vh, 10px);
+    padding: 5px 8px;
+  }
+
+  html.visual-update .zone-list,
+  html.visual-update .c2-zone-list,
+  html.visual-update .c3-zone-list,
+  html.visual-update .c4-zone-list,
+  html.visual-update .c5-zone-list {
+    display: grid;
+    min-height: 0;
+    flex: 1 1 auto;
+    grid-template-rows: repeat(9, minmax(0, 1fr));
+    gap: clamp(2px, 0.55vh, 6px);
+    margin: 0;
+  }
+
+  html.visual-update .zone-list button,
+  html.visual-update .c2-zone-list button,
+  html.visual-update .c3-zone-list button,
+  html.visual-update .c4-zone-list button,
+  html.visual-update .c5-zone-list button {
+    height: 100%;
+    min-height: 0;
+    padding: clamp(3px, 0.7vh, 8px);
+  }
+
+  html.visual-update .zone-index,
+  html.visual-update .c2-zone-list button > span,
+  html.visual-update .c3-zone-list button > span,
+  html.visual-update .c4-zone-list button > span,
+  html.visual-update .c5-zone-list button > span {
+    width: clamp(23px, 4.2vh, 32px);
+    height: clamp(23px, 4.2vh, 32px);
+  }
+
+  html.visual-update .zone-list button strong,
+  html.visual-update .c2-zone-list button strong,
+  html.visual-update .c3-zone-list button strong,
+  html.visual-update .c4-zone-list button strong,
+  html.visual-update .c5-zone-list button strong {
+    font-size: clamp(8px, 1.2vh, 11px);
+  }
+
+  html.visual-update .zone-list button small,
+  html.visual-update .c2-zone-list button small,
+  html.visual-update .c3-zone-list button small,
+  html.visual-update .c4-zone-list button small,
+  html.visual-update .c5-zone-list button small {
+    font-size: clamp(7px, 1vh, 9px);
+  }
+
+  html.visual-update .quest-brief,
+  html.visual-update .c2-quest-brief,
+  html.visual-update .c3-quest-brief,
+  html.visual-update .c4-quest-brief,
+  html.visual-update .c5-quest-brief {
+    display: flex;
+    grid-column: auto;
+    flex-direction: column;
+    gap: clamp(7px, 1.3vh, 16px);
+    padding: clamp(12px, 2vh, 22px);
+    border-top: 0;
+  }
+
+  html.visual-update .brief-copy,
+  html.visual-update .c2-brief-copy,
+  html.visual-update .c3-brief-copy,
+  html.visual-update .c4-brief-copy,
+  html.visual-update .c5-brief-copy {
+    margin-top: clamp(7px, 1.5vh, 22px);
+  }
+
+  html.visual-update .brief-copy h2,
+  html.visual-update .c2-brief-copy h2,
+  html.visual-update .c3-brief-copy h2,
+  html.visual-update .c4-brief-copy h2,
+  html.visual-update .c5-brief-copy h2 {
+    margin-bottom: clamp(6px, 1vh, 12px);
+    font-size: clamp(18px, 2.5vh, 24px);
+  }
+
+  html.visual-update .mentor-block,
+  html.visual-update .c2-mentor-block,
+  html.visual-update .c3-mentor-block,
+  html.visual-update .c4-mentor-block,
+  html.visual-update .c5-mentor-block {
+    padding-bottom: clamp(8px, 1.4vh, 16px);
+  }
+
+  html.visual-update .reward-list {
+    margin-top: clamp(8px, 1.5vh, 18px);
+  }
+
+  /* Mission screens keep their rail, workspace and reference panel in one row. */
+  html.visual-update .mission-layout,
+  html.visual-update .c2-mission-layout,
+  html.visual-update .c3-mission-layout,
+  html.visual-update .c4-mission-layout,
+  html.visual-update .c5-mission-layout {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    grid-template-columns: clamp(150px, 11.5vw, 218px) minmax(0, 1fr) clamp(210px, 15.5vw, 294px);
+    grid-template-rows: minmax(0, 1fr);
+    gap: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  html.visual-update .c5-mission-layout {
+    gap: 10px;
+    padding: 10px;
+  }
+
+  html.visual-update .mission-rail,
+  html.visual-update .c2-mission-rail,
+  html.visual-update .c3-mission-rail,
+  html.visual-update .c4-mission-rail,
+  html.visual-update .c5-mission-rail,
+  html.visual-update .codex-panel,
+  html.visual-update .c2-codex-panel,
+  html.visual-update .c3-codex-panel,
+  html.visual-update .c4-codex-panel,
+  html.visual-update .c5-codex-panel {
+    position: static;
+    min-width: 0;
+    min-height: 0;
+    align-self: stretch;
+    padding: clamp(10px, 1.8vh, 18px) clamp(10px, 1.1vw, 18px);
+    overflow: hidden;
+  }
+
+  html.visual-update .mission-rail,
+  html.visual-update .c2-mission-rail,
+  html.visual-update .c3-mission-rail,
+  html.visual-update .c4-mission-rail,
+  html.visual-update .c5-mission-rail {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  html.visual-update .mission-workspace,
+  html.visual-update .c2-workspace,
+  html.visual-update .c3-workspace,
+  html.visual-update .c4-workspace,
+  html.visual-update .c5-workspace {
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  html.visual-update .mission-workspace,
+  html.visual-update .c2-workspace,
+  html.visual-update .c3-workspace,
+  html.visual-update .c4-workspace,
+  html.visual-update .c5-workspace {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  html.visual-update .codex-panel,
+  html.visual-update .c2-codex-panel,
+  html.visual-update .c3-codex-panel,
+  html.visual-update .c4-codex-panel,
+  html.visual-update .c5-codex-panel {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  html.visual-update .mission-workspace {
+    display: grid;
+    grid-template-rows: auto minmax(125px, 27vh) auto auto auto;
+    align-content: start;
+    gap: clamp(6px, 1vh, 10px);
+    padding: clamp(10px, 1.8vh, 18px) clamp(12px, 1.8vw, 28px);
+  }
+
+  html.visual-update .mission-header {
+    min-height: 0;
+    margin-bottom: 0;
+  }
+
+  html.visual-update .mission-header h2 {
+    font-size: clamp(18px, 2.8vh, 25px);
+  }
+
+  html.visual-update .scene-banner,
+  html.visual-update .mission-workspace.is-interface-mission .scene-banner,
+  html.visual-update .mission-workspace.is-data-mission .scene-banner,
+  html.visual-update .mission-workspace.is-access-mission .scene-banner,
+  html.visual-update .mission-workspace.is-engine-mission .scene-banner,
+  html.visual-update .mission-workspace.is-arena-mission .scene-banner,
+  html.visual-update .mission-workspace.is-harbor-mission .scene-banner,
+  html.visual-update .mission-workspace.is-dialog-mission .scene-banner,
+  html.visual-update .mission-workspace.is-classification-mission .scene-banner,
+  html.visual-update .mission-workspace.is-blueprint-mission .scene-banner {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    aspect-ratio: auto;
+  }
+
+  html.visual-update .build-area,
+  html.visual-update .tool-area,
+  html.visual-update .mission-workspace.is-interface-mission .build-area,
+  html.visual-update .mission-workspace.is-data-mission .tool-area,
+  html.visual-update .mission-workspace.is-access-mission .tool-area,
+  html.visual-update .mission-workspace.is-engine-mission .tool-area,
+  html.visual-update .mission-workspace.is-arena-mission .tool-area,
+  html.visual-update .mission-workspace.is-harbor-mission .tool-area,
+  html.visual-update .mission-workspace.is-dialog-mission .tool-area {
+    min-height: 0;
+    margin: 0;
+    padding: clamp(7px, 1vh, 12px);
+  }
+
+  html.visual-update .section-title {
+    min-height: 0;
+    margin-bottom: clamp(5px, 0.8vh, 9px);
+  }
+
+  html.visual-update .section-title h3 {
+    font-size: clamp(11px, 1.6vh, 15px);
+  }
+
+  html.visual-update .solution-slots,
+  html.visual-update .tool-palette {
+    gap: clamp(4px, 0.7vh, 8px);
+  }
+
+  html.visual-update .solution-slot,
+  html.visual-update .matching-slot,
+  html.visual-update .classification-requirement,
+  html.visual-update .classification-basket,
+  html.visual-update .blueprint-node,
+  html.visual-update .blueprint-tool,
+  html.visual-update .tool-card,
+  html.visual-update .quiz-answer,
+  html.visual-update .dialog-answer,
+  html.visual-update .access-seal,
+  html.visual-update .engine-module,
+  html.visual-update .node-tool {
+    min-height: clamp(48px, 8.5vh, 70px);
+    padding: clamp(6px, 0.9vh, 10px);
+  }
+
+  html.visual-update .solution-slot small,
+  html.visual-update .tool-card small {
+    font-size: clamp(8px, 1.2vh, 10px);
+    line-height: 1.25;
+  }
+
+  html.visual-update .solution-slot .slot-prompt {
+    min-height: 0;
+    font-size: clamp(9px, 1.5vh, 12px);
+    line-height: 1.25;
+  }
+
+  html.visual-update .quiz-question,
+  html.visual-update .blueprint-question {
+    min-height: clamp(68px, 12vh, 110px);
+    padding: clamp(10px, 1.8vh, 20px);
+  }
+
+  html.visual-update .mission-actions {
+    min-height: 0;
+    margin-top: 0;
+    padding-top: clamp(6px, 1vh, 10px);
+  }
+
+  html.visual-update .mission-actions p {
+    font-size: clamp(9px, 1.3vh, 11px);
+  }
+
+  html.visual-update .feedback-panel,
+  html.visual-update .c2-feedback,
+  html.visual-update .c3-feedback,
+  html.visual-update .c4-feedback,
+  html.visual-update .c5-feedback {
+    max-height: 100%;
+    margin-top: 0;
+    padding: clamp(10px, 1.5vh, 16px);
+    overflow: hidden;
+  }
+
+  html.visual-update .codex-panel h2,
+  html.visual-update .c2-codex-panel h2,
+  html.visual-update .c3-codex-panel h2,
+  html.visual-update .c4-codex-panel h2,
+  html.visual-update .c5-codex-panel h2 {
+    margin: 5px 0 clamp(7px, 1.2vh, 14px);
+    font-size: clamp(15px, 2.2vh, 20px);
+  }
+
+  html.visual-update .codex-panel dl,
+  html.visual-update .c2-codex-panel dl,
+  html.visual-update .c3-codex-panel dl,
+  html.visual-update .c4-codex-panel dl,
+  html.visual-update .c5-codex-panel dl {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: clamp(3px, 0.7vh, 8px);
+  }
+
+  html.visual-update .codex-panel dl div,
+  html.visual-update .c2-codex-panel dl div,
+  html.visual-update .c3-codex-panel dl > div,
+  html.visual-update .c4-codex-panel dl > div,
+  html.visual-update .c5-codex-panel dl > div {
+    padding: clamp(4px, 0.8vh, 9px) 0;
+  }
+
+  html.visual-update .codex-panel dd,
+  html.visual-update .c2-codex-panel dd,
+  html.visual-update .c3-codex-panel dd,
+  html.visual-update .c4-codex-panel dd,
+  html.visual-update .c5-codex-panel dd {
+    margin-top: 2px;
+    font-size: clamp(7px, 1.1vh, 10px);
+    line-height: 1.35;
+  }
+
+  html.visual-update .source-note,
+  html.visual-update .c2-codex-panel .source-note,
+  html.visual-update .c3-codex-panel .source-note,
+  html.visual-update .c4-codex-panel .source-note,
+  html.visual-update .c5-codex-panel .source-note {
+    margin-top: clamp(6px, 1vh, 12px);
+    padding: clamp(6px, 1vh, 10px);
+    font-size: clamp(7px, 1.1vh, 9px);
+  }
+
+  /* Chapters 2–4 use the same compact four-row task workspace. */
+  html.visual-update .c2-workspace,
+  html.visual-update .c3-workspace,
+  html.visual-update .c4-workspace {
+    display: grid;
+    grid-template-rows: auto minmax(105px, 22vh) minmax(0, 1fr) auto;
+    gap: clamp(6px, 1vh, 10px);
+    padding: clamp(10px, 1.6vh, 16px);
+  }
+
+  html.visual-update .c2-mission-header,
+  html.visual-update .c3-mission-header,
+  html.visual-update .c4-mission-header {
+    min-height: 0;
+    margin-bottom: 0;
+  }
+
+  html.visual-update .c2-mission-header h2,
+  html.visual-update .c3-mission-header h2,
+  html.visual-update .c4-mission-header h2 {
+    font-size: clamp(18px, 2.8vh, 27px);
+  }
+
+  html.visual-update .c2-scene,
+  html.visual-update .c3-scene,
+  html.visual-update .c4-scene {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    aspect-ratio: auto;
+  }
+
+  html.visual-update .c2-board,
+  html.visual-update .c3-board,
+  html.visual-update .c4-board {
+    min-height: 0;
+    margin-top: 0;
+    padding: clamp(8px, 1.3vh, 14px);
+    overflow: hidden;
+  }
+
+  html.visual-update .c2-board-instruction,
+  html.visual-update .c3-board-instruction,
+  html.visual-update .c4-board-instruction {
+    margin: clamp(4px, 0.7vh, 8px) 0;
+    font-size: clamp(8px, 1.2vh, 10px);
+    line-height: 1.35;
+  }
+
+  html.visual-update .c2-board-conditions,
+  html.visual-update .c3-dossier,
+  html.visual-update .c4-dossier {
+    margin-bottom: clamp(5px, 0.8vh, 10px);
+    padding: clamp(6px, 1vh, 10px);
+  }
+
+  html.visual-update .c2-slot-grid,
+  html.visual-update .c3-slot-grid,
+  html.visual-update .c4-slot-grid {
+    gap: clamp(5px, 0.8vh, 10px);
+  }
+
+  html.visual-update .c2-slot,
+  html.visual-update .c3-slot,
+  html.visual-update .c4-slot,
+  html.visual-update .c2-answer,
+  html.visual-update .c3-answer,
+  html.visual-update .c4-answer {
+    min-height: 0;
+    padding: clamp(5px, 0.8vh, 9px);
+  }
+
+  html.visual-update .c2-slot-prompt,
+  html.visual-update .c3-slot-prompt,
+  html.visual-update .c4-slot-prompt {
+    min-height: 0;
+    margin: clamp(4px, 0.7vh, 8px) 0;
+    font-size: clamp(8px, 1.2vh, 10px);
+    line-height: 1.3;
+  }
+
+  html.visual-update .c2-mission-actions,
+  html.visual-update .c3-mission-actions,
+  html.visual-update .c4-mission-actions {
+    min-height: 0;
+    margin: 0;
+    padding: clamp(7px, 1.1vh, 12px);
+  }
+
+  /*
+   * Chapter IV has an audit panorama and a decision desk at the same time.
+   * Keep them beside each other so neither panel extends below the viewport.
+   */
+  html.visual-update .c4-workspace {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.92fr);
+    grid-template-rows: auto auto minmax(0, 1fr);
+  }
+
+  html.visual-update .c4-mission-header,
+  html.visual-update .c4-task-guide {
+    grid-column: 1 / -1;
+  }
+
+  html.visual-update .c4-task-guide {
+    margin: 0;
+    padding: clamp(6px, 1vh, 10px);
+    border-radius: 14px;
+  }
+
+  html.visual-update .c4-task-guide ol {
+    gap: 4px;
+  }
+
+  html.visual-update .c4-task-guide li {
+    grid-template-columns: 22px minmax(0, 1fr);
+    gap: 5px;
+    padding: 4px;
+  }
+
+  html.visual-update .c4-task-guide li > span {
+    width: 22px;
+    height: 22px;
+  }
+
+  html.visual-update .c4-task-guide > p {
+    margin: 5px 4px 0;
+    font-size: clamp(8px, 1.15vh, 10px);
+    line-height: 1.3;
+  }
+
+  html.visual-update .c4-audit-panel,
+  html.visual-update .c4-decision-panel {
+    grid-row: 3;
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+    margin: 0;
+    padding: clamp(8px, 1.25vh, 13px);
+    overflow: hidden;
+    border-radius: 18px;
+  }
+
+  html.visual-update .c4-audit-panel {
+    grid-column: 1;
+    display: grid;
+    grid-template-rows: auto auto minmax(0, 1fr);
+  }
+
+  html.visual-update .c4-decision-panel {
+    grid-column: 2;
+    display: flex;
+    flex-direction: column;
+  }
+
+  html.visual-update .c4-stage-heading {
+    gap: 8px;
+  }
+
+  html.visual-update .c4-stage-heading h3 {
+    margin-top: 3px;
+    font-size: clamp(14px, 2.2vh, 20px);
+  }
+
+  html.visual-update .c4-stage-heading > strong,
+  html.visual-update .c4-stage-heading > span {
+    padding: 5px 7px;
+    font-size: clamp(7px, 1vh, 9px);
+  }
+
+  html.visual-update .c4-stage-instruction {
+    margin: clamp(4px, 0.7vh, 7px) 0;
+    font-size: clamp(8px, 1.15vh, 10px);
+    line-height: 1.35;
+  }
+
+  html.visual-update .c4-audit-image {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    aspect-ratio: auto;
+    border-radius: 14px;
+  }
+
+  html.visual-update .c4-decision-lock {
+    margin: 6px 0;
+    padding: 7px 9px;
+    font-size: clamp(8px, 1.1vh, 10px);
+    line-height: 1.35;
+  }
+
+  html.visual-update .c4-chain-slots {
+    gap: 6px;
+    margin: 7px 0;
+  }
+
+  html.visual-update .c4-chain-slot {
+    gap: 3px;
+    min-height: 70px;
+    padding: 7px;
+    border-radius: 12px;
+  }
+
+  html.visual-update .c4-chain-slot:not(:last-child)::after {
+    right: -16px;
+    width: 22px;
+    font-size: 15px;
+  }
+
+  html.visual-update .c4-choice-guide {
+    gap: 3px;
+    margin: 2px 0 6px;
+    padding: 7px 9px;
+    border-radius: 12px;
+  }
+
+  html.visual-update .c4-card-deck {
+    min-height: 0;
+    gap: 6px;
+    overflow: hidden;
+  }
+
+  html.visual-update .c4-decision-card {
+    gap: 3px;
+    min-height: 0;
+    padding: 7px;
+    border-radius: 11px;
+  }
+
+  html.visual-update .c4-mission-actions {
+    margin-top: auto;
+  }
+
+  /* The operational twin remains a dashboard, not a long document. */
+  html.visual-update .c5-workspace {
+    display: grid;
+    grid-template-columns: minmax(0, 1.62fr) minmax(200px, 0.72fr);
+    grid-template-rows: auto auto auto auto minmax(0, 1fr) auto;
+    gap: clamp(4px, 0.7vh, 8px);
+    padding: clamp(8px, 1.2vh, 12px);
+  }
+
+  html.visual-update .c5-mission-header,
+  html.visual-update .c5-round-briefing,
+  html.visual-update .c5-action-guide {
+    grid-column: 1 / -1;
+  }
+
+  html.visual-update .c5-mission-header {
+    grid-row: 1;
+  }
+
+  html.visual-update .c5-round-briefing {
+    grid-row: 2;
+  }
+
+  html.visual-update .c5-mission-header,
+  html.visual-update .c5-round-briefing,
+  html.visual-update .c5-task-contract,
+  html.visual-update .c5-learning-loop,
+  html.visual-update .c5-action-guide {
+    margin: 0;
+  }
+
+  html.visual-update .c5-round-briefing {
+    font-size: clamp(8px, 1.25vh, 11px);
+    line-height: 1.3;
+  }
+
+  html.visual-update .c5-task-contract {
+    grid-column: 1;
+    grid-row: 3;
+    display: block;
+    min-height: 0;
+    padding: clamp(6px, 1vh, 10px);
+  }
+
+  html.visual-update .c5-task-contract h3 {
+    margin: 1px 0 3px;
+    font-size: clamp(9px, 1.3vh, 12px);
+  }
+
+  html.visual-update .c5-task-contract > div > p:last-child,
+  html.visual-update .c5-task-checklist li {
+    font-size: clamp(7px, 1vh, 9px);
+    line-height: 1.25;
+  }
+
+  html.visual-update .c5-task-checklist {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 4px;
+    margin-top: 5px;
+  }
+
+  html.visual-update .c5-learning-loop {
+    grid-column: 2;
+    grid-row: 3;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-self: stretch;
+    gap: 5px;
+  }
+
+  html.visual-update .c5-learning-loop li {
+    min-height: 30px;
+    padding: 4px 7px;
+    font-size: clamp(7px, 1vh, 9px);
+  }
+
+  html.visual-update .c5-action-guide {
+    grid-row: 4;
+    position: static;
+    min-height: 0;
+    grid-template-columns: minmax(150px, auto) minmax(0, 1fr) auto;
+    gap: 7px;
+    padding: 6px 8px;
+  }
+
+  html.visual-update .c5-simulation-grid {
+    display: contents;
+  }
+
+  html.visual-update .c5-scene-column {
+    grid-column: 1;
+    grid-row: 5;
+    display: grid;
+    min-height: 0;
+    height: 100%;
+    grid-template-rows: minmax(110px, 1fr) auto auto;
+    padding: 7px;
+  }
+
+  html.visual-update .c5-journal-panel {
+    grid-column: 2;
+    grid-row: 5;
+    height: 100%;
+  }
+
+  html.visual-update .c5-twin-scene {
+    height: 100%;
+    min-height: 0;
+  }
+
+  html.visual-update .c5-hub-node {
+    top: 50%;
+    width: min(360px, calc(100% - 34px));
+    min-height: 0;
+    max-height: calc(100% - 30px);
+    padding: clamp(5px, 0.8vh, 8px);
+    border-radius: 24px;
+    transform: translate(-50%, -50%);
+  }
+
+  html.visual-update .c5-hub-node > strong {
+    margin: 3px 0;
+    font-size: clamp(10px, 1.7vh, 14px);
+    line-height: 1.2;
+  }
+
+  html.visual-update .c5-hub-node > small {
+    font-size: clamp(7px, 1vh, 9px);
+    line-height: 1.25;
+  }
+
+  html.visual-update .c5-hub-node > b {
+    margin-top: 4px;
+    padding: 3px 6px;
+    font-size: 7px;
+  }
+
+  html.visual-update .c5-event-token {
+    right: 10px;
+    bottom: 10px;
+    width: 36px;
+    height: 36px;
+  }
+
+  html.visual-update .c5-scene-caption {
+    right: 8px;
+    bottom: 6px;
+    left: 8px;
+    gap: 5px;
+    font-size: 8px;
+  }
+
+  html.visual-update .c5-transport {
+    gap: 5px;
+    padding-top: 6px;
+  }
+
+  html.visual-update .c5-transport .primary-action,
+  html.visual-update .c5-transport .secondary-action,
+  html.visual-update .c5-icon-button {
+    min-height: 32px;
+    height: 32px;
+    padding: 5px 8px;
+  }
+
+  html.visual-update .c5-timeline-panel {
+    min-height: 0;
+    padding: 5px 2px 2px;
+  }
+
+  html.visual-update .c5-timeline {
+    gap: 4px;
+    margin-top: 5px;
+  }
+
+  html.visual-update .c5-tick-button {
+    min-height: 40px;
+  }
+
+  html.visual-update .c5-marker-button {
+    min-height: 30px;
+    margin-top: 5px;
+  }
+
+  html.visual-update .c5-hint-ladder {
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 5px;
+    margin-top: 5px;
+    padding: 5px;
+  }
+
+  html.visual-update .c5-hint-ladder > div:first-child {
+    display: block;
+  }
+
+  html.visual-update .c5-hint-ladder > div:first-child span {
+    display: none;
+  }
+
+  html.visual-update .c5-hint-ladder > p {
+    grid-column: 1 / -1;
+    line-height: 1.25;
+  }
+
+  html.visual-update .c5-hint-actions {
+    justify-content: flex-end;
+  }
+
+  html.visual-update .c5-journal-panel {
+    min-height: 0;
+    padding: 8px;
+    overflow: hidden;
+  }
+
+  html.visual-update .c5-configuration-panel {
+    grid-column: 1 / -1;
+    grid-row: 6;
+    min-height: 0;
+    margin: 0;
+    padding: clamp(7px, 1vh, 10px);
+  }
+
+  html.visual-update .c5-configuration-gate {
+    min-height: 0;
+    margin-top: 4px;
+    padding: 6px 8px;
+  }
+
+  html.visual-update .c5-controls-grid {
+    gap: 6px;
+    margin-top: 6px;
+  }
+
+  html.visual-update .c5-control-card {
+    gap: 4px;
+    padding: 7px;
+  }
+
+  html.visual-update .c5-control-card p {
+    min-height: 0;
+    font-size: 8px;
+    line-height: 1.25;
+  }
+
+  html.visual-update .c5-control-card select {
+    min-height: 32px;
+  }
+
+  html.visual-update .c5-verification-promise {
+    margin: 5px 0;
+    font-size: 8px;
+    line-height: 1.25;
+  }
+
+  html.visual-update .c5-feedback:not([hidden]) {
+    grid-column: 1 / -1;
+    grid-row: 5 / 7;
+    z-index: 5;
+    max-height: 100%;
+    margin: 0;
+    overflow: hidden;
+  }
+
+  /* Completion cards are centered and scaled by available height. */
+  html.visual-update .finale-view,
+  html.visual-update .c2-finale-view,
+  html.visual-update .c3-finale-view,
+  html.visual-update .c4-finale-view,
+  html.visual-update .c5-finale-view,
+  html.visual-update .finale-view.is-active,
+  html.visual-update .c2-finale-view.is-active,
+  html.visual-update .c3-finale-view.is-active,
+  html.visual-update .c4-finale-view.is-active,
+  html.visual-update .c5-finale-view.is-active {
+    height: 100%;
+    min-height: 0;
+    padding: clamp(10px, 2vh, 22px);
+    overflow: hidden;
+  }
+
+  html.visual-update .finale-card,
+  html.visual-update .c2-finale-card,
+  html.visual-update .c3-finale-card,
+  html.visual-update .c4-finale-card,
+  html.visual-update .c5-finale-card {
+    max-height: 100%;
+    padding: clamp(18px, 3.5vh, 38px);
+    overflow: hidden;
+  }
+
+  /* Desktop overlays should also stay inside the physical screen. */
+  html.visual-update .world-entry-dialog,
+  html.visual-update .mission-intro-dialog,
+  html.visual-update .c2-prologue-dialog,
+  html.visual-update .c3-overlay-dialog,
+  html.visual-update .c4-overlay-dialog,
+  html.visual-update .c5-overlay-dialog,
+  html.visual-update .player-access-dialog {
+    max-height: calc(100dvh - 24px);
+    overflow: hidden;
+  }
+
+  html.visual-update .world-entry-visual,
+  html.visual-update .mission-intro-visual,
+  html.visual-update .c2-prologue-visual,
+  html.visual-update .c3-overlay-visual,
+  html.visual-update .c4-overlay-visual,
+  html.visual-update .c5-overlay-visual {
+    min-height: 0;
+  }
+
+  html.visual-update .world-entry-content,
+  html.visual-update .mission-intro-content,
+  html.visual-update .c2-prologue-content,
+  html.visual-update .c3-overlay-content,
+  html.visual-update .c4-overlay-content,
+  html.visual-update .c5-overlay-content {
+    min-height: 0;
+    padding: clamp(18px, 3.5vh, 34px);
+    overflow: hidden;
+  }
+}
+
+@media (min-width: 821px) and (max-width: 1180px) {
+  html.visual-update {
+    --app-header-height: 76px;
+  }
+
+  html.visual-update .topbar {
+    grid-template-areas: none;
+    grid-template-columns: 164px minmax(145px, 1fr) minmax(376px, auto);
+    gap: 8px;
+    padding-inline: 10px;
+  }
+
+  html.visual-update .topbar .brand,
+  html.visual-update body .chapter-switcher,
+  html.visual-update .topbar .player-stats {
+    grid-area: auto;
+  }
+
+  html.visual-update .topbar .brand {
+    grid-template-columns: 74px minmax(0, 1fr);
+  }
+
+  html.visual-update .brand-kicker {
+    font-size: 6px;
+  }
+
+  html.visual-update .brand h1 {
+    font-size: 10px;
+  }
+
+  html.visual-update body .chapter-switcher {
+    width: 100%;
+  }
+
+  html.visual-update .topbar .player-stats {
+    grid-template-columns: minmax(80px, 105px) auto auto minmax(76px, 106px) auto;
+  }
+
+  html.visual-update .level-hint-bank {
+    display: none;
+  }
+
+  html.visual-update .energy-stat > span {
+    display: none;
+  }
+
+  html.visual-update .admin-action,
+  html.visual-update .admin-analytics-link {
+    padding-inline: 6px;
+    font-size: 7px;
+  }
+
+  html.visual-update .world-overview-layout {
+    grid-template-columns: 180px minmax(0, 1fr) 238px;
+  }
+
+  html.visual-update .map-layout,
+  html.visual-update .c2-map-layout,
+  html.visual-update .c3-map-layout,
+  html.visual-update .c4-map-layout,
+  html.visual-update .c5-map-layout {
+    grid-template-columns: 170px minmax(0, 1fr) 230px;
+  }
+
+  html.visual-update .mission-layout,
+  html.visual-update .c2-mission-layout,
+  html.visual-update .c3-mission-layout,
+  html.visual-update .c4-mission-layout,
+  html.visual-update .c5-mission-layout {
+    grid-template-columns: 145px minmax(0, 1fr) 205px;
+  }
+
+  html.visual-update .mentor-portrait,
+  html.visual-update .c2-mentor-portrait,
+  html.visual-update .c3-mentor-portrait,
+  html.visual-update .c4-mentor-portrait,
+  html.visual-update .c5-mentor-portrait {
+    width: 42px;
+    height: 42px;
+    flex-basis: 42px;
+  }
+
+  html.visual-update .reward-list,
+  html.visual-update .source-note {
+    display: none;
+  }
+}
+
+@media (min-width: 821px) and (max-height: 760px) {
+  html.visual-update {
+    --app-header-height: 72px;
+  }
+
+  html.visual-update .world-overview-heading > p:last-child,
+  html.visual-update .world-route-note,
+  html.visual-update .brief-copy > p:not(.quest-number),
+  html.visual-update .c2-brief-copy > p:not(.quest-number),
+  html.visual-update .c3-brief-copy > p:not(.quest-number),
+  html.visual-update .c4-brief-copy > p:not(.quest-number),
+  html.visual-update .c5-brief-copy > p:not(.quest-number),
+  html.visual-update .reward-list,
+  html.visual-update .lore-note,
+  html.visual-update .c2-lore-note,
+  html.visual-update .c3-lore-note,
+  html.visual-update .c4-lore-note,
+  html.visual-update .c5-lore-note,
+  html.visual-update .source-note {
+    display: none;
+  }
+
+  html.visual-update .world-preview-frame {
+    max-height: 132px;
+  }
+
+  html.visual-update .scene-copy {
+    padding: 18px 14px 10px;
+  }
+
+  html.visual-update .scene-copy p {
+    font-size: 10px;
+    line-height: 1.25;
+  }
+
+  html.visual-update .mission-steps,
+  html.visual-update .c2-phase-list,
+  html.visual-update .c3-phase-list,
+  html.visual-update .c4-phase-list,
+  html.visual-update .c5-round-list {
+    gap: 5px;
+    margin: 8px 0;
+  }
+
+  html.visual-update .chapter-stamp,
+  html.visual-update .c2-chapter-stamp,
+  html.visual-update .c3-chapter-stamp,
+  html.visual-update .c4-chapter-stamp,
+  html.visual-update .c5-chapter-stamp {
+    min-height: 62px;
+    margin: 8px 0;
+    padding: 7px;
+  }
+
+  html.visual-update .chapter-stamp strong,
+  html.visual-update .c2-chapter-stamp strong,
+  html.visual-update .c3-chapter-stamp strong,
+  html.visual-update .c4-chapter-stamp strong,
+  html.visual-update .c5-chapter-stamp strong {
+    font-size: 26px;
+  }
+
+  html.visual-update .c5-task-contract > div > p:last-child,
+  html.visual-update .c5-task-checklist,
+  html.visual-update .c5-action-guide p,
+  html.visual-update .c5-hint-ladder > div:first-child span,
+  html.visual-update .c5-verification-promise {
+    display: none;
+  }
+
+  html.visual-update .c5-task-contract {
+    display: block;
+  }
+
+  html.visual-update .c5-task-contract h3 {
+    margin: 0;
+  }
+}

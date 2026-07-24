@@ -5,6 +5,29 @@ const account = {
   password: "e2e-account-password"
 };
 
+async function expectDesktopViewportFit(page, selector) {
+  const metrics = await page.locator(selector).evaluate((element) => {
+    const rect = element.getBoundingClientRect();
+    return {
+      documentOverflow: document.documentElement.scrollHeight - window.innerHeight,
+      horizontalOverflow: document.documentElement.scrollWidth - window.innerWidth,
+      top: rect.top,
+      right: rect.right,
+      bottom: rect.bottom,
+      left: rect.left,
+      viewportWidth: window.innerWidth,
+      viewportHeight: window.innerHeight
+    };
+  });
+
+  expect(metrics.documentOverflow).toBeLessThanOrEqual(1);
+  expect(metrics.horizontalOverflow).toBeLessThanOrEqual(1);
+  expect(metrics.top).toBeGreaterThanOrEqual(-1);
+  expect(metrics.left).toBeGreaterThanOrEqual(-1);
+  expect(metrics.right).toBeLessThanOrEqual(metrics.viewportWidth + 1);
+  expect(metrics.bottom).toBeLessThanOrEqual(metrics.viewportHeight + 1);
+}
+
 test("public landing explains the product and exposes rendered legal pages", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
@@ -60,6 +83,17 @@ test("critical player journey loads all maps and protects modal focus", async ({
   await expect(page.locator('[data-world-row="chapter2"]')).toHaveClass(/is-locked/);
   await expect(page.locator("script[src^='chapter4.js']")).toHaveCount(1);
   await expect(page.locator("script[src^='chapter5.js']")).toHaveCount(1);
+  await expect(page).toHaveTitle("Академия Гуд Программ | BPMSoft Quest");
+
+  for (const viewport of [
+    { width: 1920, height: 720 },
+    { width: 1440, height: 800 },
+    { width: 1024, height: 768 }
+  ]) {
+    await page.setViewportSize(viewport);
+    await expectDesktopViewportFit(page, ".world-overview-layout");
+  }
+  await page.setViewportSize({ width: 1280, height: 720 });
 
   await page.locator('[data-world-row="chapter1"] button').click();
   await expect(page.locator("#world-entry-modal")).toBeHidden();
@@ -69,10 +103,15 @@ test("critical player journey loads all maps and protects modal focus", async ({
   await expect(page.locator("main")).toHaveAttribute("inert", "");
   await page.locator("#world-entry-confirm").click();
   await expect(page.locator("#map-title")).toHaveText("Базовый курс");
+  await expectDesktopViewportFit(page, ".map-layout");
   await page.locator('[data-zone="interface"]').first().click();
   await expect(page.locator("#mission-intro")).toBeVisible();
   await expect(page.locator("main")).toHaveAttribute("inert", "");
-  await page.keyboard.press("Escape");
+  await page.locator("#mission-intro-start").click();
+  await expect(page.locator("#mission-view")).toBeVisible();
+  await expectDesktopViewportFit(page, ".mission-layout");
+  await expect(page.locator(".mission-actions")).toBeInViewport();
+  await page.locator("#back-to-map").click();
   await expect(page.locator("#mission-intro")).toBeHidden();
 
   await page.locator("#player-profile").click();

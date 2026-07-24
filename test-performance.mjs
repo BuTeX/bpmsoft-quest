@@ -5,6 +5,7 @@ const html = await readFile(new URL("./index.html", import.meta.url), "utf8");
 assert.match(html, /class="visual-update living-world-update"/);
 assert.match(html, /world-live\.css/);
 assert.match(html, /world-live\.js/);
+assert.match(html, /viewport-fit\.css/);
 const runtimeSources = await Promise.all([
   "index.html",
   "app.js",
@@ -15,6 +16,7 @@ const runtimeSources = await Promise.all([
   "chapter2.css",
   "world-overview.css",
   "update.css",
+  "viewport-fit.css",
   "world-live.css",
   "world-live.js"
 ].map((name) => readFile(new URL(`./${name}`, import.meta.url), "utf8")));
@@ -39,7 +41,7 @@ imageTags
 const scripts = [...html.matchAll(/<script\b[^>]*src="([^"]+)"/g)].map((match) => match[1]);
 assert.deepEqual(scripts, [
   "progress-core.js?v=20260723-launch-1",
-  "app.js?v=20260724-world-hub-3",
+  "app.js?v=20260724-world-hub-4",
   "world-live.js?v=20260724-world-hub-2"
 ]);
 
@@ -59,6 +61,7 @@ const eagerFiles = [
   "chapter5.css",
   "update.css",
   "world-overview.css",
+  "viewport-fit.css",
   "world-live.css",
   "world-live.js",
   "assets/good-program-logo-color.png",
@@ -73,6 +76,9 @@ assert.ok(eagerBytes < 1.6 * 1024 * 1024, `Eager shell budget exceeded: ${eagerB
 
 const primaryVisualStylesBytes = (await stat(new URL("./update.css", import.meta.url))).size;
 assert.ok(primaryVisualStylesBytes < 40 * 1024, `Primary visual layer is too large: ${primaryVisualStylesBytes} bytes`);
+
+const viewportFitBytes = (await stat(new URL("./viewport-fit.css", import.meta.url))).size;
+assert.ok(viewportFitBytes < 48 * 1024, `Desktop viewport layer is too large: ${viewportFitBytes} bytes`);
 
 const livingWorldBytes = (await Promise.all(
   ["world-live.css", "world-live.js"].map(async (name) => (

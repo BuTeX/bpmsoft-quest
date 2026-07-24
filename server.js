@@ -46,6 +46,7 @@ const publicRootFiles = new Set([
   "world-overview.css",
   "world-live.css",
   "world-live.js",
+  "viewport-fit.css",
   "styles.css",
   "chapter2.css",
   "chapter2-missions.js",

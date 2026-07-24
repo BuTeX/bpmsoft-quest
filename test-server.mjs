@@ -59,6 +59,7 @@ test("static application is served with security headers", async () => {
   assert.match(academyHtml, /class="visual-update living-world-update"/);
   assert.match(academyHtml, /world-live\.css/);
   assert.match(academyHtml, /world-overview\.css/);
+  assert.match(academyHtml, /viewport-fit\.css/);
   assert.match(academyHtml, /world-overview-map-route-v2\.jpg/);
   assert.match(academyHtml, /world-live\.js/);
   const update = await fetch(`${baseUrl}/update`);
@@ -73,7 +74,8 @@ test("static application is served with security headers", async () => {
     fetch(`${baseUrl}/world-overview.css`, { method: "HEAD" }),
     fetch(`${baseUrl}/assets/optimized/world-overview-map-route-v2.jpg`, { method: "HEAD" }),
     fetch(`${baseUrl}/world-live.css`, { method: "HEAD" }),
-    fetch(`${baseUrl}/world-live.js`, { method: "HEAD" })
+    fetch(`${baseUrl}/world-live.js`, { method: "HEAD" }),
+    fetch(`${baseUrl}/viewport-fit.css`, { method: "HEAD" })
   ]);
   livingWorldAssets.forEach((asset) => assert.equal(asset.status, 200));
   const updateSlash = await fetch(`${baseUrl}/update/`, { redirect: "manual" });
