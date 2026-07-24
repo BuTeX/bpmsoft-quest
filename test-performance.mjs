@@ -39,7 +39,7 @@ const scripts = [...html.matchAll(/<script\b[^>]*src="([^"]+)"/g)].map((match) =
 assert.deepEqual(scripts, [
   "progress-core.js?v=20260723-launch-1",
   "app.js?v=20260724-xp-hud-1",
-  "world-live.js?v=20260724-living-world-main-4"
+  "world-live.js?v=20260724-living-world-tempo-5"
 ]);
 
 const eagerFiles = [

@@ -79,7 +79,7 @@
     const clouds = markEffect(createElement("living-world-clouds", layer), definition.effects[1]);
     for (let index = 0; index < 3; index += 1) {
       const cloud = createElement(`living-world-cloud living-world-cloud-${index + 1}`, clouds);
-      cloud.style.setProperty("--cloud-delay", `${index * -7}s`);
+      cloud.style.setProperty("--cloud-delay", `${index * -9}s`);
     }
 
     const particles = markEffect(createElement("living-world-particles", layer), definition.effects[2]);
@@ -88,8 +88,8 @@
       const particle = createElement(`living-world-particle living-world-particle-${index % 3}`, particles);
       particle.style.setProperty("--particle-x", `${(index * 37 + 11) % 97}%`);
       particle.style.setProperty("--particle-y", `${(index * 53 + 17) % 91}%`);
-      particle.style.setProperty("--particle-delay", `${-((index * 1.7) % 12)}s`);
-      particle.style.setProperty("--particle-duration", `${8 + (index % 5) * 1.4}s`);
+      particle.style.setProperty("--particle-delay", `${-((index * 2.1) % 15)}s`);
+      particle.style.setProperty("--particle-duration", `${10 + (index % 5) * 1.7}s`);
       particle.style.setProperty("--particle-size", `${2 + (index % 3)}px`);
     }
 

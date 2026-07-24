@@ -105,7 +105,7 @@ html.living-world-update .living-world-sky {
   background-size: 100% 100%, 100% 100%, 240% 100%;
   mix-blend-mode: screen;
   opacity: 0.64;
-  animation: living-sky-breathe 9s ease-in-out infinite alternate;
+  animation: living-sky-breathe 11s ease-in-out infinite alternate;
 }
 
 html.living-world-update [data-living-world="copper"] .living-world-sky {
@@ -136,21 +136,21 @@ html.living-world-update .living-world-cloud {
     18vw -0.4vw 0 rgba(255, 255, 255, 0.12);
   filter: blur(14px);
   opacity: 0;
-  animation: living-cloud-drift 28s linear var(--cloud-delay) infinite;
+  animation: living-cloud-drift 34s linear var(--cloud-delay) infinite;
 }
 
 html.living-world-update .living-world-cloud-2 {
   top: 44%;
   width: 26%;
   height: 7%;
-  animation-duration: 36s;
+  animation-duration: 43s;
 }
 
 html.living-world-update .living-world-cloud-3 {
   top: 72%;
   width: 38%;
   height: 8%;
-  animation-duration: 42s;
+  animation-duration: 50s;
 }
 
 html.living-world-update [data-living-world="copper"] .living-world-cloud {
@@ -187,7 +187,7 @@ html.living-world-update .living-world-particle {
   opacity: 0;
   animation:
     living-particle-rise var(--particle-duration) ease-in-out var(--particle-delay) infinite,
-    living-particle-glint 3s ease-in-out var(--particle-delay) infinite;
+    living-particle-glint 4s ease-in-out var(--particle-delay) infinite;
 }
 
 html.living-world-update .living-world-particle-1 {
@@ -214,7 +214,7 @@ html.living-world-update .living-world-passage {
   box-shadow: 0 0 12px var(--world-accent-soft);
   opacity: 0;
   transform: rotate(var(--world-passage-rotation));
-  animation: living-passage-cross 15s linear -3s infinite;
+  animation: living-passage-cross 19s linear -3s infinite;
 }
 
 html.living-world-update .living-world-passage::after {
@@ -234,14 +234,14 @@ html.living-world-update .living-world-passage-secondary {
   top: calc(var(--world-passage-top) + 23%);
   width: 42px;
   animation-delay: -10s;
-  animation-duration: 19s;
+  animation-duration: 24s;
 }
 
 html.living-world-update .living-world-passage-tertiary {
   top: calc(var(--world-passage-top) - 19%);
   width: 58px;
   animation-delay: -14s;
-  animation-duration: 22s;
+  animation-duration: 28s;
 }
 
 html.living-world-update [data-living-world="copper"] .living-world-passage {
@@ -263,14 +263,14 @@ html.living-world-update .living-world-signal {
   border: 1px solid var(--world-accent);
   border-radius: 50%;
   opacity: 0;
-  animation: living-signal-pulse 11s ease-out -2s infinite;
+  animation: living-signal-pulse 14s ease-out -2s infinite;
 }
 
 html.living-world-update .living-world-signal-secondary {
   top: 69%;
   left: 74%;
   animation-delay: -7s;
-  animation-duration: 14s;
+  animation-duration: 18s;
 }
 
 html.living-world-update .living-world-signal-tertiary {
@@ -279,7 +279,7 @@ html.living-world-update .living-world-signal-tertiary {
   width: 8px;
   height: 8px;
   animation-delay: -10s;
-  animation-duration: 16s;
+  animation-duration: 20s;
 }
 
 /*
@@ -296,7 +296,7 @@ html.living-world-update [data-living-world="academy"] .living-world-effect-auro
     linear-gradient(112deg, transparent 18%, rgba(86, 255, 232, 0.24) 43%, rgba(180, 90, 255, 0.28) 57%, transparent 78%);
   background-size: 130% 120%, 120% 130%, 240% 100%;
   opacity: 0.9;
-  animation: academy-aurora-flow 7s ease-in-out infinite alternate;
+  animation: academy-aurora-flow 9s ease-in-out infinite alternate;
 }
 
 html.living-world-update [data-living-world="academy"] .living-world-effect-rune-orbits .living-world-cloud {
@@ -310,7 +310,7 @@ html.living-world-update [data-living-world="academy"] .living-world-effect-rune
     0 0 24px rgba(100, 64, 255, 0.26);
   filter: none;
   opacity: 0;
-  animation: academy-rune-orbit 18s linear var(--cloud-delay) infinite;
+  animation: academy-rune-orbit 22s linear var(--cloud-delay) infinite;
 }
 
 html.living-world-update [data-living-world="academy"] .living-world-cloud-1 {
@@ -324,7 +324,7 @@ html.living-world-update [data-living-world="academy"] .living-world-cloud-2 {
   width: 94px;
   height: 94px;
   animation-direction: reverse;
-  animation-duration: 15s;
+  animation-duration: 19s;
 }
 
 html.living-world-update [data-living-world="academy"] .living-world-cloud-3 {
@@ -332,7 +332,7 @@ html.living-world-update [data-living-world="academy"] .living-world-cloud-3 {
   left: 24%;
   width: 68px;
   height: 68px;
-  animation-duration: 22s;
+  animation-duration: 27s;
 }
 
 html.living-world-update [data-living-world="academy"] .living-world-effect-stardust .living-world-particle {
@@ -373,7 +373,7 @@ html.living-world-update [data-living-world="copper"] .living-world-effect-furna
     radial-gradient(ellipse at 19% 44%, rgba(255, 182, 50, 0.4), transparent 16%),
     linear-gradient(180deg, rgba(22, 13, 8, 0.06), rgba(48, 10, 0, 0.42));
   opacity: 0.92;
-  animation: copper-furnace-breathe 3.8s ease-in-out infinite;
+  animation: copper-furnace-breathe 5s ease-in-out infinite;
 }
 
 html.living-world-update [data-living-world="copper"] .living-world-effect-smoke-plumes .living-world-cloud {
@@ -388,19 +388,19 @@ html.living-world-update [data-living-world="copper"] .living-world-effect-smoke
     12vw -7vw 0 rgba(108, 61, 31, 0.3);
   filter: blur(17px);
   mix-blend-mode: multiply;
-  animation: copper-smoke-rise 15s ease-in-out var(--cloud-delay) infinite;
+  animation: copper-smoke-rise 19s ease-in-out var(--cloud-delay) infinite;
 }
 
 html.living-world-update [data-living-world="copper"] .living-world-cloud-2 {
   top: 70%;
   left: 56%;
-  animation-duration: 19s;
+  animation-duration: 24s;
 }
 
 html.living-world-update [data-living-world="copper"] .living-world-cloud-3 {
   top: 48%;
   left: 73%;
-  animation-duration: 22s;
+  animation-duration: 28s;
 }
 
 html.living-world-update [data-living-world="copper"] .living-world-effect-embers .living-world-particle {
@@ -437,7 +437,7 @@ html.living-world-update [data-living-world="copper"] .living-world-effect-press
   border-radius: 3px;
   box-shadow: 0 0 18px rgba(254, 85, 0, 0.8);
   animation-name: copper-press-pulse;
-  animation-duration: 8s;
+  animation-duration: 10s;
 }
 
 /* Seven Roads: route grid, data streams, packets, traffic trails, hub pings. */
@@ -448,7 +448,7 @@ html.living-world-update [data-living-world="roads"] .living-world-effect-route-
     linear-gradient(110deg, transparent 28%, rgba(109, 76, 255, 0.28) 48%, transparent 68%);
   background-size: 44px 44px, 44px 44px, 230% 100%;
   opacity: 0.78;
-  animation: roads-grid-scan 8s linear infinite;
+  animation: roads-grid-scan 10s linear infinite;
 }
 
 html.living-world-update [data-living-world="roads"] .living-world-effect-data-streams .living-world-cloud {
@@ -461,17 +461,17 @@ html.living-world-update [data-living-world="roads"] .living-world-effect-data-s
     40px 12px 0 rgba(0, 193, 212, 0.35),
     110px -15px 0 rgba(126, 88, 255, 0.48);
   filter: none;
-  animation: roads-data-stream 10s linear var(--cloud-delay) infinite;
+  animation: roads-data-stream 13s linear var(--cloud-delay) infinite;
 }
 
 html.living-world-update [data-living-world="roads"] .living-world-cloud-2 {
   top: 46%;
-  animation-duration: 13s;
+  animation-duration: 16s;
 }
 
 html.living-world-update [data-living-world="roads"] .living-world-cloud-3 {
   top: 76%;
-  animation-duration: 16s;
+  animation-duration: 20s;
 }
 
 html.living-world-update [data-living-world="roads"] .living-world-effect-data-packets .living-world-particle {
@@ -517,7 +517,7 @@ html.living-world-update [data-living-world="gold"] .living-world-effect-sunbeam
     radial-gradient(ellipse at 38% 70%, rgba(255, 154, 25, 0.26), transparent 30%);
   background-size: 100% 100%, 230% 100%, 100% 100%;
   opacity: 0.88;
-  animation: gold-sunbeam-sweep 6.5s ease-in-out infinite alternate;
+  animation: gold-sunbeam-sweep 8s ease-in-out infinite alternate;
 }
 
 html.living-world-update [data-living-world="gold"] .living-world-effect-window-glows .living-world-cloud {
@@ -534,19 +534,19 @@ html.living-world-update [data-living-world="gold"] .living-world-effect-window-
     198px 4px 0 rgba(255, 229, 139, 0.72);
   filter: blur(1px);
   opacity: 0;
-  animation: gold-window-twinkle 6s ease-in-out var(--cloud-delay) infinite;
+  animation: gold-window-twinkle 8s ease-in-out var(--cloud-delay) infinite;
 }
 
 html.living-world-update [data-living-world="gold"] .living-world-cloud-2 {
   top: 54%;
   left: 48%;
-  animation-duration: 7.5s;
+  animation-duration: 10s;
 }
 
 html.living-world-update [data-living-world="gold"] .living-world-cloud-3 {
   top: 75%;
   left: 8%;
-  animation-duration: 9s;
+  animation-duration: 12s;
 }
 
 html.living-world-update [data-living-world="gold"] .living-world-effect-gold-dust .living-world-particle {
@@ -593,7 +593,7 @@ html.living-world-update [data-living-world="avia"] .living-world-effect-high-al
     linear-gradient(110deg, transparent 20%, rgba(255, 255, 255, 0.28) 48%, transparent 72%);
   background-size: 100% 100%, 100% 100%, 240% 100%;
   opacity: 0.92;
-  animation: avia-altitude-light 7s ease-in-out infinite alternate;
+  animation: avia-altitude-light 9s ease-in-out infinite alternate;
 }
 
 html.living-world-update [data-living-world="avia"] .living-world-effect-cloudbanks .living-world-cloud {
@@ -605,7 +605,7 @@ html.living-world-update [data-living-world="avia"] .living-world-effect-cloudba
     20vw -1vw 0 rgba(255, 255, 255, 0.38);
   filter: blur(18px);
   opacity: 0;
-  animation-duration: 24s;
+  animation-duration: 30s;
 }
 
 html.living-world-update [data-living-world="avia"] .living-world-effect-aircraft-lights .living-world-particle {
@@ -658,7 +658,7 @@ html.living-world-update [data-living-world="avia"] .living-world-effect-radar .
     inset 0 0 0 34px rgba(0, 193, 212, 0.04),
     0 0 22px rgba(0, 193, 212, 0.36);
   opacity: 0;
-  animation: avia-radar-sweep 7s linear infinite;
+  animation: avia-radar-sweep 9s linear infinite;
   transform-origin: center;
 }
 
