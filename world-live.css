@@ -350,6 +350,7 @@ html .living-world-effect-comets .living-world-passage::after {
 html .living-world-effect-process-elements [data-process-element]::after {
   right: -18px; width: 36px; height: 36px;
   background: var(--process-icon) center / contain no-repeat;
+  box-shadow: none;
   transform: translateY(-50%);
 }
 

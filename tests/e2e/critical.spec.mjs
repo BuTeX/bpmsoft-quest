@@ -192,6 +192,9 @@ test("critical player journey loads all maps and protects modal focus", async ({
   expect(await worldProcessElements.evaluateAll((elements) =>
     new Set(elements.map((element) => element.getAttribute("data-process-element"))).size
   )).toBe(6);
+  expect(await worldProcessElements.evaluateAll((elements) =>
+    elements.every((element) => getComputedStyle(element, "::after").boxShadow === "none")
+  )).toBe(true);
   await expect(page.locator(".world-stage [data-process-element]")).toHaveCount(0);
   await expect(page.locator(".world-stage .living-world-effect-comets .living-world-passage")).toHaveCount(3);
 
