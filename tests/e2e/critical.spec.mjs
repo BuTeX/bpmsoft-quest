@@ -96,8 +96,6 @@ test("critical player journey loads all maps and protects modal focus", async ({
   await page.setViewportSize({ width: 1280, height: 720 });
 
   await page.locator('[data-world-row="chapter1"] button').click();
-  await expect(page.locator("#world-entry-modal")).toBeHidden();
-  await page.locator('[data-world-row="chapter1"] button').click();
   await expect(page.locator("#world-entry-modal")).toBeVisible();
   await expect(page.locator("#world-entry-title")).toHaveText("Открыть карту — Академия аналитиков?");
   await expect(page.locator("main")).toHaveAttribute("inert", "");
@@ -125,8 +123,7 @@ test("critical player journey loads all maps and protects modal focus", async ({
   for (const chapter of ["chapter1", "chapter2", "chapter3", "chapter4", "chapter5"]) {
     await expect(page.locator(`[data-world-row="${chapter}"] button`)).toHaveAttribute("aria-disabled", "false");
   }
-  await page.locator('[data-world-row="chapter5"] button').click();
-  await page.locator("#world-enter-chapter").click();
+  await page.locator('.world-city-node[data-world-chapter="chapter5"]').click();
   await expect(page.locator("#world-entry-title")).toHaveText("Открыть карту — Авиакомпания «Гуд Авиа»?");
   await page.locator("#world-entry-confirm").click();
   await expect(page.locator("#chapter5-prologue")).toBeVisible();
@@ -134,7 +131,6 @@ test("critical player journey loads all maps and protects modal focus", async ({
   await expect(page.locator("#chapter-navigation-context")).toContainText("Гуд Авиа");
   await page.locator("#show-world-map").click();
   await page.locator('[data-world-row="chapter1"] button').click();
-  await page.locator("#world-enter-chapter").click();
   await page.locator("#world-entry-confirm").click();
   await expect(page.locator("#map-title")).toHaveText("Все задания Академии");
 
@@ -145,7 +141,6 @@ test("critical player journey loads all maps and protects modal focus", async ({
   await expect(page.locator(".world-overview-stage .living-world-badge")).toBeVisible();
   await expect(page.locator(".living-world-layer")).toHaveCount(6);
   await page.locator('[data-world-row="chapter1"] button').click();
-  await page.locator("#world-enter-chapter").click();
   await page.locator("#world-entry-confirm").click();
   await expect(page.locator("#map-title")).toHaveText("Все задания Академии");
   await expect(page.locator(".world-stage .living-world-badge")).toBeVisible();

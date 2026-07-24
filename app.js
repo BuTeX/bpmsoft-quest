@@ -114,7 +114,6 @@ const WORLD_CHAPTERS = [
 ];
 const WORLD_TOTAL_XP = WORLD_CHAPTERS.reduce((sum, chapter) => sum + chapter.totalXp, 0);
 let selectedWorldChapterId = "chapter1";
-let worldClickCandidateId = null;
 
 const missions = {
   interface: {
@@ -1489,13 +1488,6 @@ function openWorldEntryDialog(chapterId) {
 }
 
 function handleWorldChapterClick(chapterId) {
-  const repeatedClick = worldClickCandidateId === chapterId;
-  if (!selectWorldChapter(chapterId)) return false;
-  if (!repeatedClick) {
-    worldClickCandidateId = chapterId;
-    return true;
-  }
-  worldClickCandidateId = null;
   return openWorldEntryDialog(chapterId);
 }
 
@@ -1540,7 +1532,7 @@ function renderWorldMap() {
         "aria-label",
         `${chapter.shortTitle}: ${chapter.progress} из 9. ${
           chapter.complete ? "Глава завершена" : chapter.available ? "Глава доступна" : "Глава закрыта"
-        }${isSelected && chapter.available ? ". Нажмите ещё раз, чтобы открыть окно входа" : ""}`
+        }`
       );
       const mapProgress = button.matches(".world-city-node") ? button.querySelector("small") : null;
       if (mapProgress) mapProgress.textContent = `${chapter.progress} / 9`;
@@ -1579,7 +1571,6 @@ function renderWorldMap() {
 function showWorldMap({ preserveSelection = false } = {}) {
   if (!elements.worldMapView || !playerProfile) return false;
   closeWorldEntryDialog();
-  worldClickCandidateId = null;
   hideMissionIntro();
   window.BPMQuestChapter2?.closeOverlays?.();
   window.BPMQuestChapter3?.closeOverlays?.();
@@ -1603,7 +1594,6 @@ function showWorldMap({ preserveSelection = false } = {}) {
 
 function activateWorldChapter(chapterId) {
   closeWorldEntryDialog();
-  worldClickCandidateId = null;
   const snapshots = getWorldChapterSnapshots();
   const chapter = snapshots.find((item) => item.id === chapterId);
   if (!chapter?.available) {
