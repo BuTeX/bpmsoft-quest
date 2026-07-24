@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-labelledby="title">
+  <title id="title">Действие пользователя</title>
+  <rect x="4" y="4" width="40" height="40" rx="10" fill="#6f94f7"/>
+  <rect x="14" y="14" width="20" height="20" rx="5" fill="#fff"/>
+  <path d="M24 18v12M18 24h12" fill="none" stroke="#6f94f7" stroke-linecap="round" stroke-width="3"/>
+</svg>

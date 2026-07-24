@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-labelledby="title">
+  <title id="title">Действие системы</title>
+  <rect x="4" y="4" width="40" height="40" rx="10" fill="#6f94f7"/>
+  <path d="m15 33 16-16 3 3-16 16z" fill="#fff"/>
+  <path d="m31 11 1.4 3.6L36 16l-3.6 1.4L31 21l-1.4-3.6L26 16l3.6-1.4zM17 12l.9 2.1L20 15l-2.1.9L17 18l-.9-2.1L14 15l2.1-.9zM35 29l1 2.5 2.5 1-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1z" fill="#fff"/>
+</svg>

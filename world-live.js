@@ -17,7 +17,7 @@
       selector: ".world-stage",
       theme: "academy",
       status: "Эфир Академии",
-      effects: ["aurora", "rune-orbits", "stardust", "comets", "tower-beacons"]
+      effects: ["aurora", "rune-orbits", "stardust", "process-elements", "tower-beacons"]
     },
     {
       selector: ".c2-world-stage",
@@ -52,6 +52,14 @@
     ".c4-map-node",
     ".c5-map-node"
   ].join(",");
+  const academyProcessElements = [
+    ["start","primary","30%","-2s","-7deg"],
+    ["user-action","secondary","68%","-7s","5deg"],
+    ["gateway","tertiary","14%","-12s","-4deg"],
+    ["system-action","quaternary","49%","-17s","3deg"],
+    ["intermediate","quinary","81%","-22s","-3deg"],
+    ["finish","senary","39%","-27s","6deg"]
+  ];
 
   function createElement(className, parent, text = "") {
     const element = document.createElement("span");
@@ -96,9 +104,17 @@
     }
 
     const passages = markEffect(createElement("living-world-passages", layer), definition.effects[3]);
-    createElement("living-world-passage living-world-passage-primary", passages);
-    createElement("living-world-passage living-world-passage-secondary", passages);
-    createElement("living-world-passage living-world-passage-tertiary", passages);
+    if (definition.theme === "academy") {
+      academyProcessElements.forEach(([kind, className, top, delay, rotation]) => {
+        const passage = createElement(`living-world-passage living-world-passage-${className}`, passages);
+        passage.dataset.processElement = kind;
+        passage.style.cssText = `--passage-top:${top};--passage-delay:${delay};--passage-duration:30s;--passage-rotation:${rotation};--process-icon:url("assets/process-${kind}.svg")`;
+      });
+    } else {
+      createElement("living-world-passage living-world-passage-primary", passages);
+      createElement("living-world-passage living-world-passage-secondary", passages);
+      createElement("living-world-passage living-world-passage-tertiary", passages);
+    }
 
     const signals = markEffect(createElement("living-world-signals", layer), definition.effects[4]);
     createElement("living-world-signal living-world-signal-primary", signals);
