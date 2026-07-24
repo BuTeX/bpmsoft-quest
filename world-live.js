@@ -5,9 +5,14 @@
   if (!root.classList.contains("living-world-update")) return;
 
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-  const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
   const compactViewport = window.matchMedia("(max-width: 700px)");
   const stageDefinitions = [
+    {
+      selector: ".world-overview-stage",
+      theme: "world",
+      status: "Маршрут аналитика",
+      effects: ["horizon-light", "regional-weather", "sea-sparkles", "trade-routes", "city-beacons"]
+    },
     {
       selector: ".world-stage",
       theme: "academy",
@@ -40,6 +45,7 @@
     }
   ];
   const nodeSelector = [
+    ".world-city-node",
     ".map-node",
     ".c2-map-node",
     ".c3-map-node",
@@ -65,10 +71,6 @@
   function createAtmosphere(stage, definition) {
     stage.dataset.livingWorld = definition.theme;
     stage.dataset.worldEffects = definition.effects.join(" ");
-    stage.style.setProperty("--world-pan-x", "0px");
-    stage.style.setProperty("--world-pan-y", "0px");
-    stage.style.setProperty("--world-depth-x", "0px");
-    stage.style.setProperty("--world-depth-y", "0px");
 
     const layer = document.createElement("div");
     layer.className = "living-world-layer";
@@ -117,7 +119,7 @@
     const updateProgress = () => {
       const nodes = [...stage.querySelectorAll(nodeSelector)];
       const completed = nodes.filter((node) => node.classList.contains("is-complete")).length;
-      const available = nodes.filter((node) => !node.disabled).length;
+      const available = nodes.filter((node) => !node.disabled && node.getAttribute("aria-disabled") !== "true").length;
       const total = nodes.length || 9;
       const progress = Math.min(1, completed / total);
       stage.style.setProperty("--world-progress", `${(progress * 100).toFixed(2)}%`);
@@ -141,36 +143,6 @@
       attributes: true,
       attributeFilter: ["class", "disabled"]
     });
-
-    if (!reducedMotion.matches && finePointer.matches) {
-      let frame = 0;
-      let targetX = 0;
-      let targetY = 0;
-
-      const renderParallax = () => {
-        stage.style.setProperty("--world-pan-x", `${targetX.toFixed(2)}px`);
-        stage.style.setProperty("--world-pan-y", `${targetY.toFixed(2)}px`);
-        stage.style.setProperty("--world-depth-x", `${(-targetX * 0.32).toFixed(2)}px`);
-        stage.style.setProperty("--world-depth-y", `${(-targetY * 0.32).toFixed(2)}px`);
-        frame = 0;
-      };
-
-      const requestParallaxFrame = () => {
-        if (!frame) frame = window.requestAnimationFrame(renderParallax);
-      };
-
-      stage.addEventListener("pointermove", (event) => {
-        const bounds = stage.getBoundingClientRect();
-        targetX = ((event.clientX - bounds.left) / bounds.width - 0.5) * -14;
-        targetY = ((event.clientY - bounds.top) / bounds.height - 0.5) * -9;
-        requestParallaxFrame();
-      });
-      stage.addEventListener("pointerleave", () => {
-        targetX = 0;
-        targetY = 0;
-        requestParallaxFrame();
-      });
-    }
 
     return stage;
   }

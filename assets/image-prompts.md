@@ -1,6 +1,6 @@
 # Промпты ассетов BPMSoft Quest
 
-Актуально на 2026-07-21. Видимый канон: Академия аналитиков → АО «Медные машины» → группа «Семь дорог» → сеть «Золотая полка».
+Актуально на 2026-07-24. Видимый канон: Академия аналитиков → АО «Медные машины» → группа «Семь дорог» → сеть «Золотая полка» → авиакомпания «Гуд Авиа».
 
 Имена существующих файлов сохраняются как технический контракт. Они не определяют видимые названия областей и заданий.
 
@@ -20,6 +20,39 @@ Sizes:
 - maps: `1600 × 1000`, 16:10;
 - mission panoramas: `1600 × 500`, 16:5;
 - portraits: preserve current project dimensions.
+
+## Общая карта мира
+
+**Runtime-файл:** `assets/optimized/world-overview-map-route-v2.jpg`
+**Исходный концепт:** `assets/concepts/world-overview-map-route-v2.png`
+
+Первая версия сохранена в `assets/optimized/world-overview-map.jpg` и `assets/concepts/world-overview-map-concept.png`.
+
+```text
+Use case: stylized-concept
+Asset type: main interactive world-map background for a fantasy business training web game
+Primary request: Create one cohesive, richly detailed semi-isometric world map that visually unifies five distinct career chapters into a single believable fantasy world. This is a geographic world overview, not a collage and not a UI mockup.
+Scene/backdrop: a broad coastal continent and archipelago seen from a high oblique bird's-eye view, surrounded by deep teal sea, with mountains, rivers, roads, trade routes and high clouds connecting five major regions.
+Regions and placement: southwest — a luminous white-and-purple island academy with towers, domes and a harbor; northwest — a dark volcanic mountain crater containing a copper-and-graphite industrial city with orange furnace glow and mechanical factories; center — a bright elegant white-stone and glass crossroads city where seven major roads and transport routes meet, with subtle violet, cyan and orange infrastructure accents; southeast — a prosperous green-roofed and copper-trimmed river trading city with canals, markets, warehouses and bridges; northeast above the cloud layer — a spectacular civil aviation megahub shaped like two intertwined rings / an infinity symbol, connected to the land by soft cyan air routes.
+Composition/framing: wide 8:5 landscape composition designed for a 1600x1000 interactive map; all five regions fully visible, visually separated, and each with a clear uncluttered silhouette for HTML hotspot overlays; chronological route reads naturally from southwest to northwest to center to southeast to northeast; leave calm negative space near the lower center and edges for interface overlays; do not crop any city.
+Style/medium: premium fantasy strategy-game world map, cinematic 3D concept art, cohesive materials and lighting across the whole world, sophisticated rather than cartoonish, consistent scale, clear readable geography.
+Lighting/mood: optimistic late-afternoon daylight progressing toward bright high-altitude sunrise in the northeast; the industrial crater is dramatic but not apocalyptic; atmosphere conveys professional growth and an expanding world.
+Color palette: deep navy and teal water, forest green terrain, white stone, BPMSoft-inspired accents of #1B0B3B, #7856FF, #FE5500, #00C1D4, #FFA51E and #EDE8F5 used locally and functionally.
+Constraints: no text, no labels, no letters, no numbers, no logos, no watermarks, no readable signage, no border frame, no UI panels, no mission markers, no military imagery, no combat, no disaster scene. The aviation region uses civilian aircraft only. Each region must remain recognizable at thumbnail size and support clickable HTML nodes placed over it.
+```
+
+### Итерация маршрута Академия → «Медные машины»
+
+```text
+Use case: precise-object-edit
+Asset type: main interactive world-map background for a fantasy business training web game
+Input image: Image 1 is the edit target and must be preserved as faithfully as possible.
+Primary request: Add one clearly readable continuous travel route that directly connects the southwest white-and-violet Academy island (chapter 1) to the northwest volcanic copper industrial city (chapter 2). The route must visually continue the Academy's existing northeastern bridge/road, curve naturally north-west across short bridges and the western green coastal land, then join the illuminated copper road at the entrance of the industrial valley. Make the direction Academy → industrial city obvious at thumbnail size.
+Route design: elegant white-stone causeway with restrained violet/cyan guide lights near the Academy, gradually transitioning into practical dark stone, copper rails and warm orange lights near the factory. Include two or three small waypoints or bridge pylons, but no icons, arrows, labels or UI markers. Keep the route geographically plausible and visually subordinate to the cities.
+Composition: preserve the existing 8:5 landscape framing and all five regions in their exact locations and approximate sizes.
+Invariants: change only the terrain/bridge/road needed for the new chapter-1-to-chapter-2 connection. Keep the Academy, volcanic industrial city, central crossroads city, southeast trading city, northeast infinity-shaped aviation megahub, all coastlines, lighting, clouds, aircraft, materials, palette, camera angle and overall visual style unchanged. Do not remove or redesign any existing city or existing route.
+Constraints: no text, no labels, no letters, no numbers, no logos, no watermarks, no UI panels, no mission markers, no arrows, no combat, no disaster scene. Civilian world only.
+```
 
 ## Карта 1. Академия аналитиков
 

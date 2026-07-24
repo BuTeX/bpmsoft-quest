@@ -35,6 +35,86 @@ const progressRevisions = {
   chapter4: 0,
   chapter5: 0
 };
+const WORLD_CHAPTERS = [
+  {
+    id: "chapter1",
+    roman: "I",
+    shortTitle: "Академия",
+    title: "Академия аналитиков",
+    company: "Академия Гуд программ",
+    kicker: "Карта I · Выпускной курс",
+    description: "Освойте базовые возможности BPMSoft и защитите выпускное решение службы обработки обращений.",
+    totalXp: 500,
+    levels: "I–II",
+    preview: "assets/optimized/world-map-4k.jpg",
+    previewAlt: "Карта Академии аналитиков",
+    enterLabel: "Войти в Академию",
+    unlock: ""
+  },
+  {
+    id: "chapter2",
+    roman: "II",
+    shortTitle: "Медные машины",
+    title: "АО «Медные машины»",
+    company: "Первый проект в «Системной практике»",
+    kicker: "Карта II · Производственный проект",
+    description: "Свяжите заказы, дилерский доступ, интеграции и выпуск изменений в рабочий производственный релиз.",
+    totalXp: 500,
+    levels: "III–IV",
+    preview: "assets/optimized/chapter2-world-map-4k.jpg",
+    previewAlt: "Карта проекта АО «Медные машины»",
+    enterLabel: "Открыть производственный проект",
+    unlock: "Завершите выпускной проект Академии, чтобы получить первое рабочее назначение."
+  },
+  {
+    id: "chapter3",
+    roman: "III",
+    shortTitle: "Семь дорог",
+    title: "Группа «Семь дорог»",
+    company: "Развитие CRM-центра компетенций",
+    kicker: "Карта III · Зрелый CRM-проект",
+    description: "Помогите внутренней команде управлять клиентскими данными, процессами, доступом, интеграциями и качеством изменений.",
+    totalXp: 600,
+    levels: "V–VI",
+    preview: "assets/optimized/chapter3-world-map-4k.jpg",
+    previewAlt: "Карта проекта группы «Семь дорог»",
+    enterLabel: "Перейти в CRM-центр",
+    unlock: "Передайте рабочий релиз «Медных машин» в эксплуатацию."
+  },
+  {
+    id: "chapter4",
+    roman: "IV",
+    shortTitle: "Золотая полка",
+    title: "Сеть «Золотая полка»",
+    company: "Омниканальная трансформация",
+    kicker: "Карта IV · Единый клиентский маршрут",
+    description: "Объедините магазины, сайт, склады, франчайзи и контактный центр в доказуемую операционную модель.",
+    totalXp: 700,
+    levels: "VII–VIII",
+    preview: "assets/optimized/chapter4-world-map-4k.jpg",
+    previewAlt: "Карта торговой сети «Золотая полка»",
+    enterLabel: "Начать трансформацию",
+    unlock: "Завершите сквозную приёмку CRM группы «Семь дорог»."
+  },
+  {
+    id: "chapter5",
+    roman: "V",
+    shortTitle: "Гуд Авиа",
+    title: "Авиакомпания «Гуд Авиа»",
+    company: "Воздушный мегахаб",
+    kicker: "Карта V · Операционная устойчивость",
+    description: "Найдите первые расхождения в событиях мегахаба и докажите восстановление контрольным прогоном.",
+    totalXp: 800,
+    levels: "IX–X",
+    preview: "assets/optimized/chapter5-good-avia-infinity-megahub.jpg",
+    previewAlt: "Карта воздушного мегахаба «Гуд Авиа»",
+    enterLabel: "Войти в мегахаб",
+    unlock: "Завершите омниканальную трансформацию сети «Золотая полка»."
+  }
+];
+const WORLD_TOTAL_XP = WORLD_CHAPTERS.reduce((sum, chapter) => sum + chapter.totalXp, 0);
+let selectedWorldChapterId = "chapter1";
+let worldClickCandidateId = null;
 
 const missions = {
   interface: {
@@ -1121,6 +1201,32 @@ const elements = {
   playerProfile: document.getElementById("player-profile"),
   playerProfileName: document.getElementById("player-profile-name"),
   playerProfileMode: document.getElementById("player-profile-mode"),
+  worldMapView: document.getElementById("world-map-view"),
+  worldTotalProgress: document.getElementById("world-total-progress"),
+  worldCareerProgressFill: document.getElementById("world-career-progress-fill"),
+  worldChapterPreview: document.getElementById("world-chapter-preview"),
+  worldChapterSeal: document.getElementById("world-chapter-seal"),
+  worldChapterKicker: document.getElementById("world-chapter-kicker"),
+  worldChapterTitle: document.getElementById("world-chapter-title"),
+  worldChapterCompany: document.getElementById("world-chapter-company"),
+  worldChapterDescription: document.getElementById("world-chapter-description"),
+  worldChapterProgress: document.getElementById("world-chapter-progress"),
+  worldChapterXp: document.getElementById("world-chapter-xp"),
+  worldChapterLevels: document.getElementById("world-chapter-levels"),
+  worldChapterStatus: document.getElementById("world-chapter-status"),
+  worldChapterUnlock: document.getElementById("world-chapter-unlock"),
+  worldEnterChapter: document.getElementById("world-enter-chapter"),
+  worldEntryModal: document.getElementById("world-entry-modal"),
+  worldEntryPreview: document.getElementById("world-entry-preview"),
+  worldEntrySeal: document.getElementById("world-entry-seal"),
+  worldEntryKicker: document.getElementById("world-entry-kicker"),
+  worldEntryTitle: document.getElementById("world-entry-title"),
+  worldEntryCompany: document.getElementById("world-entry-company"),
+  worldEntryCopy: document.getElementById("world-entry-copy"),
+  worldEntryProgress: document.getElementById("world-entry-progress"),
+  worldEntryXp: document.getElementById("world-entry-xp"),
+  worldEntryCancel: document.getElementById("world-entry-cancel"),
+  worldEntryConfirm: document.getElementById("world-entry-confirm"),
   mapView: document.getElementById("map-view"),
   missionView: document.getElementById("mission-view"),
   finaleView: document.getElementById("finale-view"),
@@ -1230,8 +1336,27 @@ function isStudyMode() {
   return playerProfile?.mode === "study";
 }
 
+function getChapterAvailability() {
+  const studyMode = isStudyMode();
+  return [
+    true,
+    studyMode || state.solutionMissionComplete === true,
+    studyMode || window.BPMQuestChapter2?.getState?.().contourComplete === true,
+    studyMode || window.BPMQuestChapter3?.getState?.().orbitComplete === true,
+    studyMode || window.BPMQuestChapter4?.getState?.().transformationComplete === true
+  ];
+}
+
+function isWorldMapActive() {
+  const classes = elements.worldMapView?.classList;
+  const active = classes?.contains?.("is-active") || classes?.values?.has?.("is-active");
+  return elements.worldMapView?.hidden === false && active === true;
+}
+
 function setChapterNavigation(activeChapter = "chapter1") {
   const switcher = document.getElementById("chapter-switcher");
+  const worldButton = document.getElementById("show-world-map");
+  const context = document.getElementById("chapter-navigation-context");
   const chapterIds = [
     "show-first-chapter",
     "show-second-chapter",
@@ -1241,22 +1366,34 @@ function setChapterNavigation(activeChapter = "chapter1") {
   ];
   const chapterNames = ["Академия", "Медные машины", "Семь дорог", "Золотая полка", "Гуд Авиа"];
   const buttons = chapterIds.map((id) => document.getElementById(id));
-  if (!switcher || buttons.some((button) => !button)) return;
+  if (!switcher || !worldButton || buttons.some((button) => !button)) return;
+
+  if (isWorldMapActive()) activeChapter = "world";
 
   const studyMode = isStudyMode();
-  const available = [
-    true,
-    studyMode || state.solutionMissionComplete === true,
-    studyMode || window.BPMQuestChapter2?.getState?.().contourComplete === true,
-    studyMode || window.BPMQuestChapter3?.getState?.().orbitComplete === true,
-    studyMode || window.BPMQuestChapter4?.getState?.().transformationComplete === true
+  const available = getChapterAvailability();
+  const activeIndex = Number(activeChapter.replace("chapter", "")) - 1;
+  const contextLabels = [
+    "Академия · карта I",
+    "Медные машины · карта II",
+    "Семь дорог · карта III",
+    "Золотая полка · карта IV",
+    "Гуд Авиа · карта V"
   ];
 
   switcher.hidden = !playerProfile;
   switcher.setAttribute(
     "aria-label",
-    studyMode ? "Переход между городами, все города открыты" : "Переход между городами"
+    studyMode ? "Карта мира, все города открыты" : "Карта мира и текущая глава"
   );
+  worldButton.classList.toggle("is-active", activeChapter === "world");
+  worldButton.setAttribute("aria-pressed", String(activeChapter === "world"));
+  worldButton.title = activeChapter === "world" ? "Открыта карта мира" : "Вернуться на карту мира";
+  if (context) {
+    context.textContent = activeChapter === "world"
+      ? studyMode ? "Свободное изучение всех городов" : "Маршрут аналитика"
+      : contextLabels[activeIndex] || "Маршрут аналитика";
+  }
   buttons.forEach((button, index) => {
     const chapter = `chapter${index + 1}`;
     const active = chapter === activeChapter;
@@ -1269,6 +1406,221 @@ function setChapterNavigation(activeChapter = "chapter1") {
         ? `Перейти в город «${chapterNames[index]}»`
         : `Город «${chapterNames[index]}» откроется после завершения предыдущей карты`;
   });
+}
+
+function getWorldChapterSnapshot(chapter, available) {
+  if (chapter.id === "chapter1") {
+    const progress = getProgressRank(state);
+    return {
+      ...chapter,
+      available,
+      progress,
+      xp: Number(state.xp) || 0,
+      complete: progress === COMPLETION_FLAGS.length
+    };
+  }
+
+  const api = window[`BPMQuestChapter${chapter.id.slice(-1)}`];
+  const chapterState = api?.getState?.() || {};
+  const progress = api?.getProgressRank?.(chapterState) || 0;
+  return {
+    ...chapter,
+    available,
+    progress,
+    xp: Number(chapterState.chapterXp) || 0,
+    complete: progress === 9
+  };
+}
+
+function getWorldChapterSnapshots() {
+  const availability = getChapterAvailability();
+  return WORLD_CHAPTERS.map((chapter, index) => getWorldChapterSnapshot(chapter, availability[index]));
+}
+
+function getCurrentWorldChapterId(snapshots = getWorldChapterSnapshots()) {
+  const active = snapshots.find((chapter) => chapter.available && !chapter.complete);
+  if (active) return active.id;
+  return snapshots.filter((chapter) => chapter.available).at(-1)?.id || "chapter1";
+}
+
+function selectWorldChapter(chapterId) {
+  if (!WORLD_CHAPTERS.some((chapter) => chapter.id === chapterId)) return false;
+  selectedWorldChapterId = chapterId;
+  renderWorldMap();
+  return true;
+}
+
+function getWorldChapterActionLabel(chapter) {
+  if (!chapter.available) return "Город пока закрыт";
+  if (chapter.complete) return `Вернуться: ${chapter.shortTitle}`;
+  if (chapter.progress > 0) return "Продолжить проект";
+  return chapter.enterLabel;
+}
+
+function closeWorldEntryDialog() {
+  if (!elements.worldEntryModal) return false;
+  elements.worldEntryModal.hidden = true;
+  return true;
+}
+
+function openWorldEntryDialog(chapterId) {
+  if (!elements.worldEntryModal) return false;
+  const chapter = getWorldChapterSnapshots().find((item) => item.id === chapterId);
+  if (!chapter?.available) {
+    if (chapter) selectWorldChapter(chapter.id);
+    return false;
+  }
+
+  selectedWorldChapterId = chapter.id;
+  renderWorldMap();
+  elements.worldEntryPreview.src = chapter.preview;
+  elements.worldEntryPreview.alt = chapter.previewAlt;
+  elements.worldEntrySeal.textContent = chapter.roman;
+  elements.worldEntryKicker.textContent = chapter.kicker;
+  elements.worldEntryTitle.textContent = `Открыть карту — ${chapter.title}?`;
+  elements.worldEntryCompany.textContent = chapter.company;
+  elements.worldEntryCopy.textContent = chapter.description;
+  elements.worldEntryProgress.textContent = `${chapter.progress} из 9`;
+  elements.worldEntryXp.textContent = `${chapter.xp} / ${chapter.totalXp} XP`;
+  elements.worldEntryConfirm.dataset.worldEnter = chapter.id;
+  elements.worldEntryConfirm.textContent = getWorldChapterActionLabel(chapter);
+  elements.worldEntryModal.hidden = false;
+  return true;
+}
+
+function handleWorldChapterClick(chapterId) {
+  const repeatedClick = worldClickCandidateId === chapterId;
+  if (!selectWorldChapter(chapterId)) return false;
+  if (!repeatedClick) {
+    worldClickCandidateId = chapterId;
+    return true;
+  }
+  worldClickCandidateId = null;
+  return openWorldEntryDialog(chapterId);
+}
+
+function renderWorldStats(snapshots = getWorldChapterSnapshots()) {
+  const totalXp = snapshots.reduce((sum, chapter) => sum + chapter.xp, 0);
+  elements.xpValue.textContent = String(totalXp);
+  elements.xpGoal.textContent = String(WORLD_TOTAL_XP);
+  elements.xpBar.style.width = `${Math.min(100, (totalXp / WORLD_TOTAL_XP) * 100)}%`;
+  elements.levelValue.textContent = String(getEarnedPlayerLevel());
+  elements.energyRunes.innerHTML = "";
+  refreshLevelHints();
+}
+
+function renderWorldMap() {
+  if (!elements.worldMapView) return;
+  const snapshots = getWorldChapterSnapshots();
+  const currentChapterId = getCurrentWorldChapterId(snapshots);
+  const selected = snapshots.find((chapter) => chapter.id === selectedWorldChapterId) || snapshots[0];
+  const completedMissions = snapshots.reduce((sum, chapter) => sum + chapter.progress, 0);
+
+  elements.worldTotalProgress.textContent = `${completedMissions} / 45`;
+  elements.worldCareerProgressFill.style.width = `${(completedMissions / 45) * 100}%`;
+
+  snapshots.forEach((chapter) => {
+    const isCurrent = chapter.id === currentChapterId && !chapter.complete;
+    const isSelected = chapter.id === selected.id;
+    const row = document.querySelector(`[data-world-row="${chapter.id}"]`);
+    row?.classList.toggle("is-current", isCurrent);
+    row?.classList.toggle("is-complete", chapter.complete);
+    row?.classList.toggle("is-locked", !chapter.available);
+    row?.classList.toggle("is-selected", isSelected);
+    const rowProgress = row?.querySelector("em");
+    if (rowProgress) rowProgress.textContent = `${chapter.progress} / 9`;
+
+    document.querySelectorAll(`[data-world-chapter="${chapter.id}"]`).forEach((button) => {
+      button.classList.toggle("is-current", isCurrent);
+      button.classList.toggle("is-complete", chapter.complete);
+      button.classList.toggle("is-locked", !chapter.available);
+      button.classList.toggle("is-selected", isSelected);
+      button.setAttribute("aria-disabled", String(!chapter.available));
+      button.setAttribute(
+        "aria-label",
+        `${chapter.shortTitle}: ${chapter.progress} из 9. ${
+          chapter.complete ? "Глава завершена" : chapter.available ? "Глава доступна" : "Глава закрыта"
+        }${isSelected && chapter.available ? ". Нажмите ещё раз, чтобы открыть окно входа" : ""}`
+      );
+      const mapProgress = button.matches(".world-city-node") ? button.querySelector("small") : null;
+      if (mapProgress) mapProgress.textContent = `${chapter.progress} / 9`;
+    });
+  });
+
+  const status = isStudyMode()
+    ? "Изучение"
+    : selected.complete
+      ? "Завершено"
+      : !selected.available
+        ? "Закрыто"
+        : selected.id === currentChapterId
+          ? "Текущий проект"
+          : "Доступно";
+  elements.worldChapterPreview.src = selected.preview;
+  elements.worldChapterPreview.alt = selected.previewAlt;
+  elements.worldChapterSeal.textContent = selected.roman;
+  elements.worldChapterKicker.textContent = selected.kicker;
+  elements.worldChapterTitle.textContent = selected.title;
+  elements.worldChapterCompany.textContent = selected.company;
+  elements.worldChapterDescription.textContent = selected.description;
+  elements.worldChapterProgress.textContent = `${selected.progress} из 9`;
+  elements.worldChapterXp.textContent = `${selected.xp} / ${selected.totalXp} XP`;
+  elements.worldChapterLevels.textContent = selected.levels;
+  elements.worldChapterStatus.textContent = status;
+  elements.worldChapterUnlock.hidden = selected.available;
+  elements.worldChapterUnlock.textContent = selected.unlock;
+  elements.worldEnterChapter.dataset.worldEnter = selected.id;
+  elements.worldEnterChapter.disabled = !selected.available;
+  elements.worldEnterChapter.textContent = getWorldChapterActionLabel(selected);
+
+  if (isWorldMapActive()) renderWorldStats(snapshots);
+}
+
+function showWorldMap({ preserveSelection = false } = {}) {
+  if (!elements.worldMapView || !playerProfile) return false;
+  closeWorldEntryDialog();
+  worldClickCandidateId = null;
+  hideMissionIntro();
+  window.BPMQuestChapter2?.closeOverlays?.();
+  window.BPMQuestChapter3?.closeOverlays?.();
+  window.BPMQuestChapter4?.closeOverlays?.();
+  if (window.BPMQuestChapter5?.deactivate) window.BPMQuestChapter5.deactivate();
+  else window.BPMQuestChapter5?.closeOverlays?.();
+  document.querySelectorAll(".view").forEach((view) => {
+    view.classList.remove("is-active");
+    view.hidden = true;
+  });
+  document.body?.classList.remove("theme-copper", "theme-orbit", "theme-market", "theme-sky");
+  document.body?.classList.add("theme-world");
+  elements.worldMapView.hidden = false;
+  elements.worldMapView.classList.add("is-active");
+  if (!preserveSelection) selectedWorldChapterId = getCurrentWorldChapterId();
+  renderWorldMap();
+  setChapterNavigation("world");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  return true;
+}
+
+function activateWorldChapter(chapterId) {
+  closeWorldEntryDialog();
+  worldClickCandidateId = null;
+  const snapshots = getWorldChapterSnapshots();
+  const chapter = snapshots.find((item) => item.id === chapterId);
+  if (!chapter?.available) {
+    if (chapter) selectWorldChapter(chapter.id);
+    return false;
+  }
+  selectedWorldChapterId = chapter.id;
+  document.body?.classList.remove("theme-world");
+  if (chapter.id === "chapter1") {
+    if (window.BPMQuestChapter2?.activateFirstChapter) window.BPMQuestChapter2.activateFirstChapter();
+    else {
+      renderAll();
+      showView("map");
+    }
+    return true;
+  }
+  return window[`BPMQuestChapter${chapter.id.slice(-1)}`]?.activateMap?.() === true;
 }
 
 function renderPlayerProfile() {
@@ -1515,6 +1867,7 @@ async function submitPlayerAccess(event) {
     return;
   }
 
+  const completedAccessMode = playerAccessMode;
   setPlayerAccessBusy(true);
   try {
     const previousMode = playerProfile?.mode || null;
@@ -1574,6 +1927,7 @@ async function submitPlayerAccess(event) {
     window.BPMQuestChapter3?.applyAccessMode?.(previousMode);
     window.BPMQuestChapter4?.applyAccessMode?.(previousMode);
     window.BPMQuestChapter5?.applyAccessMode?.(previousMode);
+    if (completedAccessMode !== "profile") showWorldMap();
     trackSessionStarted(playerAccessMode);
     await syncStateFromServer();
     await flushLearningEvents();
@@ -1778,6 +2132,7 @@ async function restorePlayerSession() {
     window.BPMQuestChapter3?.applyAccessMode?.();
     window.BPMQuestChapter4?.applyAccessMode?.();
     window.BPMQuestChapter5?.applyAccessMode?.();
+    showWorldMap();
     trackSessionStarted("restore");
     await syncStateFromServer();
     await flushLearningEvents();
@@ -4847,6 +5202,11 @@ function showView(view) {
   const showMission = view === "mission";
   const showFinale = view === "finale";
   const showMap = !showMission && !showFinale;
+  if (elements.worldMapView) {
+    elements.worldMapView.classList.remove("is-active");
+    elements.worldMapView.hidden = true;
+  }
+  document.body?.classList.remove("theme-world");
   elements.mapView.classList.toggle("is-active", showMap);
   elements.mapView.hidden = !showMap;
   elements.missionView.classList.toggle("is-active", showMission);
@@ -4977,6 +5337,7 @@ function renderAll() {
   renderMapState();
   renderMissionContent();
   renderBuilder();
+  renderWorldMap();
 }
 
 elements.playerAccessForm.addEventListener("submit", submitPlayerAccess);
@@ -4990,6 +5351,25 @@ elements.playerChangePassword.addEventListener("click", changePlayerPassword);
 elements.playerChangeEmail.addEventListener("click", changePlayerEmail);
 elements.playerExportData.addEventListener("click", exportPlayerData);
 elements.playerDeleteAccount.addEventListener("click", deletePlayerAccount);
+document.getElementById("show-world-map")?.addEventListener("click", () => showWorldMap({ preserveSelection: true }));
+document.querySelectorAll("[data-world-return]").forEach((button) => {
+  button.addEventListener("click", () => showWorldMap());
+});
+document.querySelectorAll("[data-world-chapter]").forEach((button) => {
+  const select = () => selectWorldChapter(button.dataset.worldChapter);
+  button.addEventListener("pointerenter", select);
+  button.addEventListener("focus", select);
+  button.addEventListener("click", () => handleWorldChapterClick(button.dataset.worldChapter));
+});
+elements.worldEnterChapter?.addEventListener("click", (event) => {
+  openWorldEntryDialog(event.currentTarget.dataset.worldEnter);
+});
+elements.worldEntryCancel?.addEventListener("click", closeWorldEntryDialog);
+elements.worldEntryConfirm?.addEventListener("click", (event) => {
+  const chapterId = event.currentTarget.dataset.worldEnter;
+  closeWorldEntryDialog();
+  activateWorldChapter(chapterId);
+});
 elements.startMission.addEventListener("click", (event) => beginMission(event.currentTarget.dataset.mission));
 elements.missionIntroStart.addEventListener("click", acceptMissionIntro);
 elements.missionIntroMap.addEventListener("click", dismissMissionIntro);
@@ -5074,7 +5454,7 @@ document.querySelectorAll("[data-zone]").forEach((button) => {
   button.addEventListener("focus", previewMission);
 });
 
-elements.finaleMapAction.addEventListener("click", () => showView("map"));
+elements.finaleMapAction.addEventListener("click", () => showWorldMap());
 elements.finaleReplayAction.addEventListener("click", () => beginMission("solution"));
 
 if (typeof window !== "undefined") {
@@ -5082,6 +5462,8 @@ if (typeof window !== "undefined") {
     getState: () => state,
     getPlayerProfile: () => playerProfile,
     isStudyMode,
+    getChapterAvailability,
+    getWorldChapterSnapshots,
     setChapterNavigation,
     scheduleChapter2ProgressSync,
     scheduleChapter3ProgressSync,
@@ -5097,6 +5479,8 @@ if (typeof window !== "undefined") {
     trackLearningEvent,
     createLevelHintButton,
     refreshLevelHints,
+    showWorldMap,
+    renderWorldMap,
     showMap: () => {
       hideMissionIntro();
       renderAll();

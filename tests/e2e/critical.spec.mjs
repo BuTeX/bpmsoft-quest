@@ -33,7 +33,7 @@ test("critical player journey loads all maps and protects modal focus", async ({
   await page.goto("/academy.html");
   await expect(page.locator("html")).toHaveClass(/visual-update/);
   await expect(page.locator("html")).toHaveClass(/living-world-update/);
-  await expect(page.locator(".living-world-layer")).toHaveCount(5);
+  await expect(page.locator(".living-world-layer")).toHaveCount(6);
   const primaryHeaderHeight = await page.locator(".topbar").evaluate((element) => element.getBoundingClientRect().height);
   expect(primaryHeaderHeight).toBeLessThanOrEqual(132);
   await expect(page.locator("#player-access-modal")).toBeVisible();
@@ -47,13 +47,28 @@ test("critical player journey loads all maps and protects modal focus", async ({
   await page.getByRole("button", { name: "Создать аккаунт" }).click();
 
   await expect(page.locator("#player-profile")).toBeVisible({ timeout: 30_000 });
-  await expect(page.locator("#map-title")).toHaveText("Базовый курс");
+  await expect(page.locator("#world-map-view")).toBeVisible();
+  await expect(page.locator("#world-total-progress")).toHaveText("0 / 45");
+  await expect(page.locator(".world-city-node")).toHaveCount(5);
+  await expect(page.locator(".world-overview-stage .living-world-badge")).toBeVisible();
+  await expect(page.locator(".world-overview-image")).toHaveJSProperty("complete", true);
+  await expect(page.locator(".world-overview-image")).toHaveCSS("transform", "none");
   await expect(page.locator("#chapter-switcher")).toBeVisible();
-  await expect(page.locator("#show-first-chapter")).toBeEnabled();
+  await expect(page.locator("#show-world-map")).toHaveClass(/is-active/);
   await expect(page.locator("#show-second-chapter")).toBeDisabled();
+  await expect(page.locator('[data-world-row="chapter1"]')).toHaveClass(/is-current/);
+  await expect(page.locator('[data-world-row="chapter2"]')).toHaveClass(/is-locked/);
   await expect(page.locator("script[src^='chapter4.js']")).toHaveCount(1);
   await expect(page.locator("script[src^='chapter5.js']")).toHaveCount(1);
 
+  await page.locator('[data-world-row="chapter1"] button').click();
+  await expect(page.locator("#world-entry-modal")).toBeHidden();
+  await page.locator('[data-world-row="chapter1"] button').click();
+  await expect(page.locator("#world-entry-modal")).toBeVisible();
+  await expect(page.locator("#world-entry-title")).toHaveText("Открыть карту — Академия аналитиков?");
+  await expect(page.locator("main")).toHaveAttribute("inert", "");
+  await page.locator("#world-entry-confirm").click();
+  await expect(page.locator("#map-title")).toHaveText("Базовый курс");
   await page.locator('[data-zone="interface"]').first().click();
   await expect(page.locator("#mission-intro")).toBeVisible();
   await expect(page.locator("main")).toHaveAttribute("inert", "");
@@ -67,27 +82,39 @@ test("critical player journey loads all maps and protects modal focus", async ({
   await expect(page.locator("#player-mode-study")).toBeChecked();
   await page.locator("#player-access-submit").click();
   await expect(page.locator("#player-access-modal")).toBeHidden();
-  for (const id of ["show-first-chapter", "show-second-chapter", "show-third-chapter", "show-fourth-chapter", "show-fifth-chapter"]) {
-    await expect(page.locator(`#${id}`)).toBeEnabled();
+  await page.locator("#show-world-map").click();
+  for (const chapter of ["chapter1", "chapter2", "chapter3", "chapter4", "chapter5"]) {
+    await expect(page.locator(`[data-world-row="${chapter}"] button`)).toHaveAttribute("aria-disabled", "false");
   }
-  await page.locator("#show-fifth-chapter").click();
+  await page.locator('[data-world-row="chapter5"] button').click();
+  await page.locator("#world-enter-chapter").click();
+  await expect(page.locator("#world-entry-title")).toHaveText("Открыть карту — Авиакомпания «Гуд Авиа»?");
+  await page.locator("#world-entry-confirm").click();
   await expect(page.locator("#chapter5-prologue")).toBeVisible();
   await page.locator("#chapter5-prologue-start").click();
-  await expect(page.locator("#show-fifth-chapter")).toHaveClass(/is-active/);
-  await page.locator("#show-first-chapter").click();
+  await expect(page.locator("#chapter-navigation-context")).toContainText("Гуд Авиа");
+  await page.locator("#show-world-map").click();
+  await page.locator('[data-world-row="chapter1"] button').click();
+  await page.locator("#world-enter-chapter").click();
+  await page.locator("#world-entry-confirm").click();
   await expect(page.locator("#map-title")).toHaveText("Все задания Академии");
 
   await page.goto("/update");
   await expect(page.locator("html")).toHaveClass(/living-world-update/);
   await expect(page.locator("#player-profile")).toBeVisible();
+  await expect(page.locator("#world-map-view")).toBeVisible();
+  await expect(page.locator(".world-overview-stage .living-world-badge")).toBeVisible();
+  await expect(page.locator(".living-world-layer")).toHaveCount(6);
+  await page.locator('[data-world-row="chapter1"] button').click();
+  await page.locator("#world-enter-chapter").click();
+  await page.locator("#world-entry-confirm").click();
   await expect(page.locator("#map-title")).toHaveText("Все задания Академии");
-  await expect(page.locator(".living-world-layer")).toHaveCount(5);
   await expect(page.locator(".world-stage .living-world-badge")).toBeVisible();
-  await expect(page.locator('.living-world-layer[data-effect-count="5"]')).toHaveCount(5);
+  await expect(page.locator('.living-world-layer[data-effect-count="5"]')).toHaveCount(6);
   const cityEffectSets = await page.locator("[data-living-world]").evaluateAll((stages) =>
     stages.map((stage) => stage.getAttribute("data-world-effects"))
   );
-  expect(new Set(cityEffectSets).size).toBe(5);
+  expect(new Set(cityEffectSets).size).toBe(6);
   expect(cityEffectSets.every((effects) => effects?.split(" ").length === 5)).toBe(true);
   const flyingFigures = await page.locator("[data-living-world]").evaluateAll((stages) =>
     stages.map((stage) => {
@@ -96,7 +123,7 @@ test("critical player journey loads all maps and protects modal focus", async ({
       return style ? `${style.clipPath}|${style.borderRadius}|${style.backgroundImage}` : "";
     })
   );
-  expect(new Set(flyingFigures).size).toBe(5);
+  expect(new Set(flyingFigures).size).toBe(6);
 
   expect(unexpectedResponses).toEqual([]);
 });

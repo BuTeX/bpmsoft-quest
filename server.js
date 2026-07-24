@@ -43,6 +43,7 @@ const publicRootFiles = new Set([
   "app.js",
   "progress-core.js",
   "update.css",
+  "world-overview.css",
   "world-live.css",
   "world-live.js",
   "styles.css",

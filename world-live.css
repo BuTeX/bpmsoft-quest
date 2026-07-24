@@ -15,10 +15,6 @@ html.living-world-update [data-living-world] {
   --world-passage-top: 38%;
   --world-passage-rotation: -8deg;
   --world-progress: 0%;
-  --world-pan-x: 0px;
-  --world-pan-y: 0px;
-  --world-depth-x: 0px;
-  --world-depth-y: 0px;
   isolation: isolate;
 }
 
@@ -58,14 +54,15 @@ html.living-world-update [data-living-world="avia"] {
   --world-passage-rotation: -10deg;
 }
 
+html.living-world-update [data-living-world] > .world-overview-image,
 html.living-world-update [data-living-world] > .world-map,
 html.living-world-update [data-living-world] > .c2-world-map-image,
 html.living-world-update [data-living-world] > .c3-world-map-image,
 html.living-world-update [data-living-world] > .c4-world-map-image,
 html.living-world-update [data-living-world] > .c5-world-map-image {
-  transform: translate3d(var(--world-pan-x), var(--world-pan-y), 0) scale(1.035);
-  transition: transform 460ms var(--living-ease);
-  will-change: transform;
+  transform: none;
+  transition: none;
+  will-change: auto;
 }
 
 html.living-world-update .living-world-layer {
@@ -92,9 +89,9 @@ html.living-world-update .living-world-clouds,
 html.living-world-update .living-world-particles,
 html.living-world-update .living-world-passages,
 html.living-world-update .living-world-signals {
-  transform: translate3d(var(--world-depth-x), var(--world-depth-y), 0);
-  transition: transform 520ms var(--living-ease);
-  will-change: transform;
+  transform: none;
+  transition: none;
+  will-change: auto;
 }
 
 html.living-world-update .living-world-sky {

@@ -13,6 +13,7 @@ const runtimeSources = await Promise.all([
   "chapter4.js",
   "chapter5.js",
   "chapter2.css",
+  "world-overview.css",
   "update.css",
   "world-live.css",
   "world-live.js"
@@ -38,9 +39,15 @@ imageTags
 const scripts = [...html.matchAll(/<script\b[^>]*src="([^"]+)"/g)].map((match) => match[1]);
 assert.deepEqual(scripts, [
   "progress-core.js?v=20260723-launch-1",
-  "app.js?v=20260724-xp-hud-1",
-  "world-live.js?v=20260724-living-world-tempo-5"
+  "app.js?v=20260724-world-hub-3",
+  "world-live.js?v=20260724-world-hub-2"
 ]);
+
+assert.doesNotMatch(
+  runtimeSources.join("\n"),
+  /renderParallax|--world-(?:pan|depth)-[xy]|addEventListener\("pointermove"/,
+  "The removed map parallax returned to the runtime"
+);
 
 const eagerFiles = [
   "app.js",
@@ -51,6 +58,7 @@ const eagerFiles = [
   "chapter4.css",
   "chapter5.css",
   "update.css",
+  "world-overview.css",
   "world-live.css",
   "world-live.js",
   "assets/good-program-logo-color.png",

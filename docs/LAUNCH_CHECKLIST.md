@@ -9,7 +9,7 @@
 - [x] Есть email verification, reset, смена email/пароля, export и delete.
 - [x] Production без БД не стартует; `REQUIRE_PRODUCTION_READINESS=true` дополнительно блокирует публичный запуск без TLS, mail webhook, legal-реквизитов и секретов.
 - [x] Стартовый shell не превышает 1,6 МБ.
-- [x] 11 модальных диалогов имеют focus trap, inert-фон, Escape и возврат фокуса.
+- [x] 12 модальных диалогов имеют focus trap, inert-фон, Escape и возврат фокуса.
 - [x] Есть CI, critical E2E, readiness, метрики, backup/restore drill и rollback runbook.
 
 ## Требует решения людей и остаётся блокером публичного запуска

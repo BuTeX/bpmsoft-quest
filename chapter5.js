@@ -1090,7 +1090,7 @@ function initialize() {
   document.getElementById("show-fifth-chapter")?.addEventListener("click", () => activateMap());
   document.getElementById("chapter4-finale-chapter5")?.addEventListener("click", () => activateMap());
   document.getElementById("chapter5-prologue-start")?.addEventListener("click", acceptPrologue);
-  document.getElementById("chapter5-prologue-back")?.addEventListener("click", activateFourth);
+  document.getElementById("chapter5-prologue-back")?.addEventListener("click", () => window.BPMQuestFirstChapter?.showWorldMap?.());
   document.getElementById("chapter5-mission-intro-start")?.addEventListener("click", acceptMissionIntro);
   document.getElementById("chapter5-mission-intro-map")?.addEventListener("click", () => activateMap());
   document.getElementById("chapter5-reset-progress")?.addEventListener("click", resetProgress);
@@ -1113,7 +1113,7 @@ function initialize() {
   });
   document.getElementById("chapter5-verify-run")?.addEventListener("click", () => dispatch({ type: "START_VERIFICATION" }));
   document.getElementById("chapter5-feedback-action")?.addEventListener("click", handleFeedbackAction);
-  document.getElementById("chapter5-finale-map")?.addEventListener("click", () => activateMap());
+  document.getElementById("chapter5-finale-map")?.addEventListener("click", () => window.BPMQuestFirstChapter?.showWorldMap?.());
   document.getElementById("chapter5-finale-replay")?.addEventListener("click", () => beginMission("crisis"));
   document.getElementById("chapter5-finale-fourth")?.addEventListener("click", activateFourth);
   document.getElementById("chapter5-finale-first")?.addEventListener("click", activateFirst);
@@ -1135,6 +1135,10 @@ function initialize() {
     activateMap,
     beginMission,
     closeOverlays,
+    deactivate: () => {
+      clearAutoTimer();
+      closeOverlays();
+    },
     applyAccessMode,
     missions: goodAviaMissions
   };

@@ -20,7 +20,8 @@
   <link rel="stylesheet" href="chapter4.css?v=20260723-level-hints">
   <link rel="stylesheet" href="chapter5.css?v=20260723-c5-ux-1">
   <link rel="stylesheet" href="update.css?v=20260723-primary-1">
-  <link rel="stylesheet" href="world-live.css?v=20260724-living-world-tempo-5">
+  <link rel="stylesheet" href="world-overview.css?v=20260724-world-hub-3">
+  <link rel="stylesheet" href="world-live.css?v=20260724-world-hub-2">
 </head>
 <body>
   <div class="game-shell">
@@ -116,6 +117,35 @@
       </form>
     </div>
 
+    <div id="world-entry-modal" class="world-entry-modal" hidden>
+      <section class="world-entry-dialog" role="dialog" aria-modal="true" aria-labelledby="world-entry-title" aria-describedby="world-entry-copy">
+        <div class="world-entry-visual">
+          <img loading="lazy" decoding="async" id="world-entry-preview" src="assets/optimized/world-map-4k.jpg" alt="Карта Академии аналитиков">
+          <span id="world-entry-seal" aria-hidden="true">I</span>
+        </div>
+        <div class="world-entry-content">
+          <p id="world-entry-kicker" class="eyebrow">Карта I · Выпускной курс</p>
+          <h2 id="world-entry-title">Открыть карту Академии?</h2>
+          <p id="world-entry-company">Академия Гуд программ</p>
+          <p id="world-entry-copy">Откройте локальную карту города и продолжите карьерный маршрут.</p>
+          <dl class="world-entry-stats">
+            <div>
+              <dt>Прогресс</dt>
+              <dd id="world-entry-progress">0 из 9</dd>
+            </div>
+            <div>
+              <dt>Опыт</dt>
+              <dd id="world-entry-xp">0 / 500 XP</dd>
+            </div>
+          </dl>
+          <div class="world-entry-actions">
+            <button id="world-entry-cancel" class="secondary-action" type="button" data-dialog-dismiss>Остаться на карте</button>
+            <button id="world-entry-confirm" class="primary-action" type="button" data-world-enter="chapter1">Войти в Академию</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
     <div id="mission-intro" class="mission-intro" hidden>
       <section class="mission-intro-dialog" role="dialog" aria-modal="true" aria-labelledby="mission-intro-title" aria-describedby="mission-intro-copy">
         <div class="mission-intro-visual">
@@ -156,7 +186,7 @@
             <p>Компания расширяет производство и дилерскую сеть, но заказы дублируются, интеграции работают нестабильно, а изменения сложно выпускать. Ваша задача — разобраться в процессах и подготовить решения, которые можно принять в эксплуатацию.</p>
           </div>
           <div class="c2-prologue-actions">
-            <button id="chapter2-prologue-back" class="secondary-action" type="button" data-dialog-dismiss>Вернуться в Академию</button>
+            <button id="chapter2-prologue-back" class="secondary-action" type="button" data-dialog-dismiss>К карте мира</button>
             <button id="chapter2-prologue-start" class="primary-action" type="button">Начать проект</button>
           </div>
         </div>
@@ -197,7 +227,7 @@
             <p>Команде предстоит привести в порядок клиентские данные, квалификацию лидов, коммуникации, сервис, права, интеграции и AI-сценарии. Вы подключаетесь как ведущий аналитик и помогаете выстроить рабочие правила.</p>
           </div>
           <div class="c3-overlay-actions">
-            <button id="chapter3-prologue-back" class="secondary-action" type="button" data-dialog-dismiss>Вернуться к проекту «Медные машины»</button>
+            <button id="chapter3-prologue-back" class="secondary-action" type="button" data-dialog-dismiss>К карте мира</button>
             <button id="chapter3-prologue-start" class="primary-action" type="button">Начать работу</button>
           </div>
         </div>
@@ -238,7 +268,7 @@
             </div>
           </div>
           <div class="c4-overlay-actions">
-            <button id="chapter4-prologue-back" class="secondary-action" type="button" data-dialog-dismiss>Вернуться к проекту «Семь дорог»</button>
+            <button id="chapter4-prologue-back" class="secondary-action" type="button" data-dialog-dismiss>К карте мира</button>
             <button id="chapter4-prologue-start" class="primary-action" type="button">Начать трансформацию</button>
           </div>
         </div>
@@ -290,7 +320,7 @@
             <p>Лада Ветрова приглашает вас в операционный двойник мегахаба. Здесь нельзя угадывать по яркому симптому: наблюдайте неизменный поток событий, найдите первое неверное решение системы, измените только доступные правила и повторите тот же сценарий.</p>
           </div>
           <div class="c5-overlay-actions">
-            <button id="chapter5-prologue-back" class="secondary-action" type="button" data-dialog-dismiss>Вернуться к «Золотой полке»</button>
+            <button id="chapter5-prologue-back" class="secondary-action" type="button" data-dialog-dismiss>К карте мира</button>
             <button id="chapter5-prologue-start" class="primary-action" type="button">Войти в мегахаб</button>
           </div>
         </div>
@@ -335,12 +365,18 @@
         </div>
       </div>
 
-      <nav id="chapter-switcher" class="chapter-switcher" aria-label="Выбор карты" hidden>
-        <button id="show-first-chapter" class="is-active" type="button" aria-pressed="true">Академия</button>
-        <button id="show-second-chapter" type="button" aria-pressed="false">Медные машины</button>
-        <button id="show-third-chapter" type="button" aria-pressed="false" disabled>Семь дорог</button>
-        <button id="show-fourth-chapter" type="button" aria-pressed="false" disabled>Золотая полка</button>
-        <button id="show-fifth-chapter" type="button" aria-pressed="false" disabled>Гуд Авиа</button>
+      <nav id="chapter-switcher" class="chapter-switcher world-navigation" aria-label="Навигация по миру" hidden>
+        <button id="show-world-map" class="world-navigation-home" type="button" aria-pressed="false">
+          <span class="world-navigation-mark" aria-hidden="true">⌖</span>
+          <span><strong>Карта мира</strong><small id="chapter-navigation-context">Маршрут аналитика</small></span>
+        </button>
+        <div class="legacy-chapter-switcher" hidden>
+          <button id="show-first-chapter" type="button" aria-pressed="false">Академия</button>
+          <button id="show-second-chapter" type="button" aria-pressed="false">Медные машины</button>
+          <button id="show-third-chapter" type="button" aria-pressed="false" disabled>Семь дорог</button>
+          <button id="show-fourth-chapter" type="button" aria-pressed="false" disabled>Золотая полка</button>
+          <button id="show-fifth-chapter" type="button" aria-pressed="false" disabled>Гуд Авиа</button>
+        </div>
       </nav>
 
       <div class="player-stats" aria-label="Прогресс пользователя">
@@ -375,6 +411,92 @@
     </header>
 
     <main>
+      <section id="world-map-view" class="view world-overview-view" aria-labelledby="world-map-title" hidden>
+        <div class="world-overview-layout">
+          <aside class="world-route-panel" aria-label="Главы маршрута аналитика">
+            <div class="world-overview-heading">
+              <p class="eyebrow">Пять городов · 45 заданий</p>
+              <h2 id="world-map-title">Карта мира</h2>
+              <p>Путь от выпускного курса до сквозной операционной устойчивости.</p>
+            </div>
+            <div class="world-career-progress" aria-label="Общий прогресс">
+              <div><span>Маршрут пройден</span><strong id="world-total-progress">0 / 45</strong></div>
+              <div class="world-career-track" aria-hidden="true"><span id="world-career-progress-fill"></span></div>
+            </div>
+            <ol class="world-route-list">
+              <li data-world-row="chapter1">
+                <button type="button" data-world-chapter="chapter1">
+                  <span>I</span><strong>Академия<small>Выпускной курс</small></strong><em>0 / 9</em>
+                </button>
+              </li>
+              <li data-world-row="chapter2">
+                <button type="button" data-world-chapter="chapter2">
+                  <span>II</span><strong>Медные машины<small>Первый проект</small></strong><em>0 / 9</em>
+                </button>
+              </li>
+              <li data-world-row="chapter3">
+                <button type="button" data-world-chapter="chapter3">
+                  <span>III</span><strong>Семь дорог<small>Развитие CRM</small></strong><em>0 / 9</em>
+                </button>
+              </li>
+              <li data-world-row="chapter4">
+                <button type="button" data-world-chapter="chapter4">
+                  <span>IV</span><strong>Золотая полка<small>Трансформация</small></strong><em>0 / 9</em>
+                </button>
+              </li>
+              <li data-world-row="chapter5">
+                <button type="button" data-world-chapter="chapter5">
+                  <span>V</span><strong>Гуд Авиа<small>Устойчивость</small></strong><em>0 / 9</em>
+                </button>
+              </li>
+            </ol>
+            <p class="world-route-note">«Системная практика» сопровождает рабочий маршрут после выпуска из Академии.</p>
+          </aside>
+
+          <section class="world-overview-stage" aria-label="Общая карта пяти городов BPMSoft Quest">
+            <img loading="lazy" decoding="async" class="world-overview-image" src="assets/optimized/world-overview-map-route-v2.jpg" alt="Мир с маршрутом от Академии к промышленному городу, транспортным центром, торговой сетью и воздушным мегахабом">
+            <div class="world-overview-shade" aria-hidden="true"></div>
+            <button class="world-city-node world-city-academy" type="button" data-world-chapter="chapter1" style="--x: 26%; --y: 70%;">
+              <span>I</span><strong>Академия<small>0 / 9</small></strong>
+            </button>
+            <button class="world-city-node world-city-copper" type="button" data-world-chapter="chapter2" style="--x: 23%; --y: 25%;">
+              <span>II</span><strong>Медные машины<small>0 / 9</small></strong>
+            </button>
+            <button class="world-city-node world-city-roads" type="button" data-world-chapter="chapter3" style="--x: 49%; --y: 45%;">
+              <span>III</span><strong>Семь дорог<small>0 / 9</small></strong>
+            </button>
+            <button class="world-city-node world-city-market" type="button" data-world-chapter="chapter4" style="--x: 75%; --y: 69%;">
+              <span>IV</span><strong>Золотая полка<small>0 / 9</small></strong>
+            </button>
+            <button class="world-city-node world-city-avia" type="button" data-world-chapter="chapter5" style="--x: 80%; --y: 18%;">
+              <span>V</span><strong>Гуд Авиа<small>0 / 9</small></strong>
+            </button>
+            <div class="world-overview-caption" aria-hidden="true"><span>⌖</span> Маршрут аналитика · от Академии до мегахаба</div>
+          </section>
+
+          <aside class="world-chapter-brief" aria-live="polite">
+            <div class="world-preview-frame">
+              <img loading="lazy" decoding="async" id="world-chapter-preview" src="assets/optimized/world-map-4k.jpg" alt="Карта Академии аналитиков">
+              <span id="world-chapter-seal">I</span>
+            </div>
+            <div class="world-chapter-copy">
+              <p id="world-chapter-kicker" class="eyebrow">Карта I · Выпускной курс</p>
+              <h2 id="world-chapter-title">Академия аналитиков</h2>
+              <p id="world-chapter-company">Академия Гуд программ</p>
+              <p id="world-chapter-description">Освойте базовые возможности BPMSoft и защитите выпускное решение.</p>
+              <dl class="world-chapter-stats">
+                <div><dt>Прогресс</dt><dd id="world-chapter-progress">0 из 9</dd></div>
+                <div><dt>Опыт</dt><dd id="world-chapter-xp">0 / 500 XP</dd></div>
+                <div><dt>Уровни</dt><dd id="world-chapter-levels">I–II</dd></div>
+                <div><dt>Статус</dt><dd id="world-chapter-status">Доступно</dd></div>
+              </dl>
+              <p id="world-chapter-unlock" class="world-chapter-unlock" hidden></p>
+            </div>
+            <button id="world-enter-chapter" class="primary-action world-enter-action" type="button" data-world-enter="chapter1">Войти в Академию</button>
+          </aside>
+        </div>
+      </section>
+
       <section id="map-view" class="view is-active" aria-labelledby="map-title">
         <div class="map-layout">
           <aside class="zone-journal" aria-label="Программа выпускного курса">
@@ -382,6 +504,7 @@
               <p id="map-level-label" class="eyebrow">Базовый курс</p>
               <h2 id="map-title">Академия аналитиков</h2>
             </div>
+            <button class="world-return-action" type="button" data-world-return>← К карте мира</button>
             <ol class="zone-list">
               <li class="is-current" data-zone-row="interface">
                 <button type="button" data-zone="interface">
@@ -642,7 +765,7 @@
           </div>
 
           <div class="finale-actions">
-            <button id="finale-map-action" class="primary-action" type="button">Вернуться в Академию</button>
+            <button id="finale-map-action" class="primary-action" type="button">На карту мира</button>
             <button id="finale-chapter2-action" class="primary-action copper-action" type="button">Начать первый проект</button>
             <button id="finale-replay-action" class="secondary-action" type="button">Повторить выпускной проект</button>
           </div>
@@ -656,6 +779,7 @@
               <p id="chapter2-level-label" class="eyebrow">Производственные операции</p>
               <h2 id="chapter2-map-title">АО «Медные машины»</h2>
             </div>
+            <button class="world-return-action" type="button" data-world-return>← К карте мира</button>
             <ol class="c2-zone-list">
               <li data-c2-zone-row="sorting"><button type="button" data-c2-zone="sorting"><span>10</span><strong>Планирование производства<small>Импорт заказов и дубли</small></strong></button></li>
               <li data-c2-zone-row="portal"><button type="button" data-c2-zone="portal" disabled><span>11</span><strong>Дилерский портал<small>Доступ к заказам</small></strong></button></li>
@@ -769,7 +893,7 @@
           <div class="finale-stats"><div><strong>9 / 9</strong><span>заданий</span></div><div><strong>500 XP</strong><span>за проект</span></div><div><strong>III–IV</strong><span>уровни</span></div></div>
           <div class="achievement-card"><img loading="lazy" decoding="async" class="c2-finale-scout" src="assets/optimized/chapter2-scout-bolt.jpg" alt="Ремонтный голем производственной компании"><div><p class="eyebrow">Новое достижение</p><h3>Аналитик производственного проекта</h3><p>Вы связали требования подразделений, конфигурацию, интеграции и приёмку рабочего релиза.</p></div></div>
           <blockquote>Хорошее решение видно не по схеме, а по тому, что заказ проходит весь путь без дублей, потерянных прав и ручных обходов. <cite>— Бран Коваль</cite></blockquote>
-          <div class="finale-actions"><button id="chapter2-finale-map" class="primary-action" type="button">Вернуться к проекту</button><button id="chapter2-finale-chapter3" class="primary-action c3-launch-action" type="button">Перейти к проекту «Семь дорог»</button><button id="chapter2-finale-replay" class="secondary-action" type="button">Повторить приёмку релиза</button><button id="chapter2-finale-first" class="secondary-action" type="button">Вернуться в Академию</button></div>
+          <div class="finale-actions"><button id="chapter2-finale-map" class="primary-action" type="button">На карту мира</button><button id="chapter2-finale-chapter3" class="primary-action c3-launch-action" type="button">Перейти к проекту «Семь дорог»</button><button id="chapter2-finale-replay" class="secondary-action" type="button">Повторить приёмку релиза</button><button id="chapter2-finale-first" class="secondary-action" type="button">Вернуться в Академию</button></div>
         </div>
       </section>
 
@@ -780,6 +904,7 @@
               <p id="chapter3-level-label" class="eyebrow">Клиентские процессы</p>
               <h2 id="chapter3-map-title">Центр CRM-компетенций</h2>
             </div>
+            <button class="world-return-action" type="button" data-world-return>← К карте мира</button>
             <ol class="c3-zone-list">
               <li data-c3-zone-row="contact"><button type="button" data-c3-zone="contact"><span>19</span><strong>Клиентские данные<small>Связать записи клиента</small></strong></button></li>
               <li data-c3-zone-row="lead"><button type="button" data-c3-zone="lead" disabled><span>20</span><strong>Лиды и квалификация<small>Новый интерес клиента</small></strong></button></li>
@@ -891,7 +1016,7 @@
           <div class="finale-stats"><div><strong>9 / 9</strong><span>заданий</span></div><div><strong>600 XP</strong><span>за проект</span></div><div><strong>V–VI</strong><span>уровни</span></div></div>
           <div class="achievement-card"><img loading="lazy" decoding="async" class="c3-finale-scout" src="assets/optimized/chapter3-scout-pico.jpg" alt="Диагностический дрон CRM-команды"><div><p class="eyebrow">Новое достижение</p><h3>Ведущий CRM-аналитик</h3><p>Вы помогли внутренней команде выстроить правила развития данных, процессов, сервиса, интеграций и AI.</p></div></div>
           <blockquote>Единая картина клиента — не одна большая карточка. Это договорённость команд и систем о том, какие данные они используют и как проверяют результат. <cite>— Лиора Вель</cite></blockquote>
-          <div class="finale-actions"><button id="chapter3-finale-map" class="primary-action" type="button">Вернуться к проекту</button><button id="chapter3-finale-chapter4" class="primary-action c4-launch-action" type="button">Перейти к «Золотой полке»</button><button id="chapter3-finale-replay" class="secondary-action" type="button">Повторить итоговую приёмку</button><button id="chapter3-finale-second" class="secondary-action" type="button">Перейти к «Медным машинам»</button><button id="chapter3-finale-first" class="secondary-action" type="button">Вернуться в Академию</button></div>
+          <div class="finale-actions"><button id="chapter3-finale-map" class="primary-action" type="button">На карту мира</button><button id="chapter3-finale-chapter4" class="primary-action c4-launch-action" type="button">Перейти к «Золотой полке»</button><button id="chapter3-finale-replay" class="secondary-action" type="button">Повторить итоговую приёмку</button><button id="chapter3-finale-second" class="secondary-action" type="button">Перейти к «Медным машинам»</button><button id="chapter3-finale-first" class="secondary-action" type="button">Вернуться в Академию</button></div>
         </div>
       </section>
 
@@ -902,6 +1027,7 @@
               <p id="chapter4-level-label" class="eyebrow">Омниканальная трансформация</p>
               <h2 id="chapter4-map-title">Объединение торговой сети</h2>
             </div>
+            <button class="world-return-action" type="button" data-world-return>← К карте мира</button>
             <ol class="c4-zone-list">
               <li data-c4-zone-row="migration"><button type="button" data-c4-zone="migration"><span>28</span><strong>Миграция базы<small>Мастер-данные покупателя</small></strong></button></li>
               <li data-c4-zone-row="consent"><button type="button" data-c4-zone="consent" disabled><span>29</span><strong>Согласия<small>Каналы и цели</small></strong></button></li>
@@ -1032,7 +1158,7 @@
           <div class="finale-stats"><div><strong>9 / 9</strong><span>заданий</span></div><div><strong>700 XP</strong><span>за проект</span></div><div><strong>VII–VIII</strong><span>уровни</span></div></div>
           <div class="achievement-card"><img loading="lazy" decoding="async" class="c4-finale-scout" src="assets/optimized/chapter4-scout-tally.jpg" alt="Инвентарный помощник торговой сети"><div><p class="eyebrow">Новое достижение</p><h3>Архитектор клиентской трансформации</h3><p>Вы связали мастер-данные, маркетинг, партнёров, заказы, остатки, сервис и аналитику в доказуемую операционную модель.</p></div></div>
           <blockquote>Единая сеть — не место, где все делают одно и то же. Это место, где каждый отвечает за свой шаг и никто не спорит с фактами. <cite>— Рута Мейл</cite></blockquote>
-          <div class="finale-actions"><button id="chapter4-finale-map" class="primary-action" type="button">Вернуться к проекту</button><button id="chapter4-finale-chapter5" class="primary-action" type="button">Перейти в «Гуд Авиа»</button><button id="chapter4-finale-replay" class="secondary-action" type="button">Повторить сквозную приёмку</button><button id="chapter4-finale-third" class="secondary-action" type="button">Перейти к «Семи дорогам»</button><button id="chapter4-finale-first" class="secondary-action" type="button">Вернуться в Академию</button></div>
+          <div class="finale-actions"><button id="chapter4-finale-map" class="primary-action" type="button">На карту мира</button><button id="chapter4-finale-chapter5" class="primary-action" type="button">Перейти в «Гуд Авиа»</button><button id="chapter4-finale-replay" class="secondary-action" type="button">Повторить сквозную приёмку</button><button id="chapter4-finale-third" class="secondary-action" type="button">Перейти к «Семи дорогам»</button><button id="chapter4-finale-first" class="secondary-action" type="button">Вернуться в Академию</button></div>
         </div>
       </section>
 
@@ -1043,6 +1169,7 @@
               <p id="chapter5-level-label" class="eyebrow">Операционная устойчивость</p>
               <h2 id="chapter5-map-title">Воздушный мегахаб</h2>
             </div>
+            <button class="world-return-action" type="button" data-world-return>← К карте мира</button>
             <ol id="chapter5-zone-list" class="c5-zone-list"></ol>
             <button id="chapter5-reset-progress" class="text-action" type="button">Сбросить прогресс проекта</button>
           </aside>
@@ -1205,14 +1332,14 @@
           <div class="finale-stats"><div><strong>9 / 9</strong><span>заданий</span></div><div><strong>800 XP</strong><span>за проект</span></div><div><strong>IX–X</strong><span>уровни</span></div></div>
           <div class="achievement-card c5-achievement"><div class="c5-link-avatar" aria-hidden="true">∞</div><div><p class="eyebrow">Новое достижение</p><h3>Архитектор операционной устойчивости</h3><p>Вы нашли первые расхождения и доказали восстановление на том же наборе событий — без скрытых дублей, утечек и преждевременных обещаний.</p></div></div>
           <blockquote>Надёжность начинается не там, где всё прошло идеально, а там, где любой результат можно объяснить и повторить. <cite>— Лада Ветрова</cite></blockquote>
-          <div class="finale-actions"><button id="chapter5-finale-map" class="primary-action" type="button">Вернуться в мегахаб</button><button id="chapter5-finale-replay" class="secondary-action" type="button">Повторить кризисную приёмку</button><button id="chapter5-finale-fourth" class="secondary-action" type="button">Перейти к «Золотой полке»</button><button id="chapter5-finale-first" class="secondary-action" type="button">Вернуться в Академию</button></div>
+          <div class="finale-actions"><button id="chapter5-finale-map" class="primary-action" type="button">На карту мира</button><button id="chapter5-finale-replay" class="secondary-action" type="button">Повторить кризисную приёмку</button><button id="chapter5-finale-fourth" class="secondary-action" type="button">Перейти к «Золотой полке»</button><button id="chapter5-finale-first" class="secondary-action" type="button">Вернуться в Академию</button></div>
         </div>
       </section>
     </main>
   </div>
 
   <script src="progress-core.js?v=20260723-launch-1"></script>
-  <script src="app.js?v=20260724-xp-hud-1"></script>
-  <script src="world-live.js?v=20260724-living-world-tempo-5"></script>
+  <script src="app.js?v=20260724-world-hub-3"></script>
+  <script src="world-live.js?v=20260724-world-hub-2"></script>
 </body>
 </html>

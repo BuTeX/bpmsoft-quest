@@ -348,7 +348,7 @@ function initializeChapter3Map() {
   document.getElementById("show-third-chapter")?.addEventListener("click", () => activateChapter3Map());
   document.getElementById("chapter2-finale-chapter3")?.addEventListener("click", () => activateChapter3Map());
   document.getElementById("chapter3-prologue-start")?.addEventListener("click", acceptChapter3Prologue);
-  document.getElementById("chapter3-prologue-back")?.addEventListener("click", activateChapter2FromChapter3);
+  document.getElementById("chapter3-prologue-back")?.addEventListener("click", () => window.BPMQuestFirstChapter?.showWorldMap?.());
   document.getElementById("chapter3-reset-progress")?.addEventListener("click", resetChapter3Progress);
   document.querySelectorAll("[data-c3-zone]").forEach((button) => {
     const previewMission = () => {
@@ -794,7 +794,7 @@ function initializeChapter3MissionEngine() {
   document.getElementById("chapter3-mission-intro-map")?.addEventListener("click", dismissChapter3MissionIntro);
   document.getElementById("chapter3-check-phase")?.addEventListener("click", checkChapter3Phase);
   document.getElementById("chapter3-feedback-action")?.addEventListener("click", handleChapter3FeedbackAction);
-  document.getElementById("chapter3-finale-map")?.addEventListener("click", () => activateChapter3Map());
+  document.getElementById("chapter3-finale-map")?.addEventListener("click", () => window.BPMQuestFirstChapter?.showWorldMap?.());
   document.getElementById("chapter3-finale-replay")?.addEventListener("click", () => beginChapter3Mission("orbit"));
   document.getElementById("chapter3-finale-second")?.addEventListener("click", activateChapter2FromChapter3);
   document.getElementById("chapter3-finale-first")?.addEventListener("click", activateFirstFromChapter3);
