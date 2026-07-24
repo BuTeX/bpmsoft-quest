@@ -677,6 +677,7 @@ function renderChapter2Board(mission, progress) {
       button.type = "button";
       button.className = `c2-answer${selected === option.id ? " is-selected" : ""}${(isChapter2AdminActive() || isChapter2AnswerRevealed(mission, phase, slot)) && option.id === slot.correct ? " is-admin-correct" : ""}`;
       button.disabled = locked || chapter2RunComplete;
+      button.dataset.slot = slot.id;
       button.dataset.option = option.id;
       button.innerHTML = `<strong>${option.name}</strong><small>${option.note}</small>`;
       button.setAttribute("aria-pressed", String(selected === option.id));
@@ -688,7 +689,7 @@ function renderChapter2Board(mission, progress) {
     grid.append(slotElement);
   });
   const checkButton = document.getElementById("chapter2-check-phase");
-  if (checkButton) checkButton.disabled = chapter2RunComplete;
+  if (checkButton) checkButton.disabled = chapter2RunComplete || selectedCount < phase.slots.length;
   saveChapter2State();
 }
 
@@ -730,10 +731,17 @@ function assignChapter2Answer(slotId, optionId) {
   const mission = chapter2Missions[chapter2State.activeMission];
   const progress = getChapter2MissionProgress(mission.key);
   if (progress.locked[slotId]) return;
+  const board = document.getElementById("chapter2-board");
+  const scrollTop = board?.scrollTop || 0;
   progress.answers[slotId] = optionId;
   progress.lastWrong = progress.lastWrong.filter((id) => id !== slotId);
   saveChapter2State();
   renderChapter2Board(mission, progress);
+  if (board) board.scrollTop = scrollTop;
+  const selectedButton = document.querySelector?.(
+    `.c2-answer[data-slot="${slotId}"][data-option="${optionId}"]`
+  );
+  selectedButton?.focus?.({ preventScroll: true });
   return true;
 }
 

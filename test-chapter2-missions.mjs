@@ -38,6 +38,7 @@ class FakeElement {
     this.children = [];
     this.listeners = {};
     this.className = "";
+    this.scrollTop = 0;
   }
 
   append(...children) {
@@ -178,9 +179,9 @@ assert(api.getState().attempts === chapter2AttemptsAfterCompletion, "Completed C
 assert(elements.get("chapter2-check-phase").disabled, "Completed Chapter 2 mission left its check action enabled");
 
 assert(api.beginMission("portal"), "Portal Gate did not unlock");
-assert(!elements.get("chapter2-check-phase").disabled, "Chapter 2 replay lock leaked into the next mission");
 const portal = api.missions.portal;
 const portalPhase = portal.phases[0];
+assert(elements.get("chapter2-check-phase").disabled, "Incomplete Portal Gate matrix left its check action enabled");
 
 adminActive = true;
 api.refreshAdminHighlights();
@@ -205,8 +206,11 @@ portalPhase.slots.forEach((slot, index) => {
   const answer = index === 0
     ? slot.options.find((option) => option.id !== slot.correct).id
     : slot.correct;
+  elements.get("chapter2-board").scrollTop = 120 + index;
   api.assignAnswer(slot.id, answer);
+  assert(elements.get("chapter2-board").scrollTop === 120 + index, `${slot.id}: selecting an answer reset the board scroll position`);
 });
+assert(!elements.get("chapter2-check-phase").disabled, "Complete Portal Gate matrix did not enable its check action");
 assert(!api.checkPhase(), "Portal Gate accepted an invalid matrix");
 assert(api.getState().energy === 2, "Portal Gate error did not consume one energy cell");
 const portalProgress = api.getMissionProgress("portal");

@@ -41,7 +41,7 @@ imageTags
 const scripts = [...html.matchAll(/<script\b[^>]*src="([^"]+)"/g)].map((match) => match[1]);
 assert.deepEqual(scripts, [
   "progress-core.js?v=20260723-launch-1",
-  "app.js?v=20260724-world-hub-7",
+  "app.js?v=20260724-progress-sync-1",
   "world-live.js?v=20260724-world-hub-4"
 ]);
 

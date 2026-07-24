@@ -20,6 +20,7 @@ const COMPLETION_FLAGS = [
 
 let remoteSyncTimer = null;
 let remoteChapter2SyncTimer = null;
+let remoteChapter2SyncQueue = Promise.resolve();
 let remoteChapter3SyncTimer = null;
 let remoteChapter4SyncTimer = null;
 let remoteChapter5SyncTimer = null;
@@ -974,7 +975,7 @@ function loadAdvancedChapters() {
   if (advancedChaptersPromise) return advancedChaptersPromise;
   advancedChaptersPromise = (async () => {
     await loadApplicationScript("chapter2-missions.js?v=20260721-knowledge-links");
-    await loadApplicationScript("chapter2.js?v=20260723-city-navigation-1");
+    await loadApplicationScript("chapter2.js?v=20260724-answer-state-1");
     await loadApplicationScript("chapter3-missions.js?v=20260721-knowledge-links");
     await loadApplicationScript("chapter3.js?v=20260723-city-navigation-1");
     await loadApplicationScript("chapter4-missions.js?v=20260721-golden-shelf-2");
@@ -2613,9 +2614,11 @@ function scheduleChapter2ProgressSync(savedState) {
   if (remoteChapter2SyncTimer) clearTimeout(remoteChapter2SyncTimer);
   remoteChapter2SyncTimer = setTimeout(() => {
     remoteChapter2SyncTimer = null;
-    pushAccountProgress("chapter2", savedState).catch(() => {
-      // Chapter 2 remains cached locally until the account server is available again.
-    });
+    remoteChapter2SyncQueue = remoteChapter2SyncQueue
+      .then(() => pushAccountProgress("chapter2", savedState))
+      .catch(() => {
+        // Chapter 2 remains cached locally until the account server is available again.
+      });
   }, 250);
 }
 
