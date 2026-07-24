@@ -11,27 +11,32 @@
     {
       selector: ".world-stage",
       theme: "academy",
-      status: "Эфир Академии"
+      status: "Эфир Академии",
+      effects: ["aurora", "rune-orbits", "stardust", "comets", "tower-beacons"]
     },
     {
       selector: ".c2-world-stage",
       theme: "copper",
-      status: "Цех в движении"
+      status: "Цех в движении",
+      effects: ["furnace-glow", "smoke-plumes", "embers", "spark-belts", "press-pulses"]
     },
     {
       selector: ".c3-world-stage",
       theme: "roads",
-      status: "Маршруты активны"
+      status: "Маршруты активны",
+      effects: ["route-grid", "data-streams", "data-packets", "traffic-trails", "hub-pings"]
     },
     {
       selector: ".c4-world-stage",
       theme: "gold",
-      status: "Город работает"
+      status: "Город работает",
+      effects: ["sunbeams", "window-glows", "gold-dust", "delivery-routes", "checkout-pulses"]
     },
     {
       selector: ".c5-world-stage",
       theme: "avia",
-      status: "Воздушный поток"
+      status: "Воздушный поток",
+      effects: ["high-altitude-light", "cloudbanks", "aircraft-lights", "contrails", "radar"]
     }
   ];
   const nodeSelector = [
@@ -51,24 +56,34 @@
     return element;
   }
 
+  function markEffect(element, effectName) {
+    element.classList.add("living-world-effect", `living-world-effect-${effectName}`);
+    element.dataset.worldEffect = effectName;
+    return element;
+  }
+
   function createAtmosphere(stage, definition) {
     stage.dataset.livingWorld = definition.theme;
+    stage.dataset.worldEffects = definition.effects.join(" ");
     stage.style.setProperty("--world-pan-x", "0px");
     stage.style.setProperty("--world-pan-y", "0px");
+    stage.style.setProperty("--world-depth-x", "0px");
+    stage.style.setProperty("--world-depth-y", "0px");
 
     const layer = document.createElement("div");
     layer.className = "living-world-layer";
     layer.setAttribute("aria-hidden", "true");
+    layer.dataset.effectCount = String(definition.effects.length);
 
-    createElement("living-world-sky", layer);
-    const clouds = createElement("living-world-clouds", layer);
+    markEffect(createElement("living-world-sky", layer), definition.effects[0]);
+    const clouds = markEffect(createElement("living-world-clouds", layer), definition.effects[1]);
     for (let index = 0; index < 3; index += 1) {
       const cloud = createElement(`living-world-cloud living-world-cloud-${index + 1}`, clouds);
       cloud.style.setProperty("--cloud-delay", `${index * -7}s`);
     }
 
-    const particles = createElement("living-world-particles", layer);
-    const particleCount = compactViewport.matches ? 8 : 16;
+    const particles = markEffect(createElement("living-world-particles", layer), definition.effects[2]);
+    const particleCount = compactViewport.matches ? 10 : 20;
     for (let index = 0; index < particleCount; index += 1) {
       const particle = createElement(`living-world-particle living-world-particle-${index % 3}`, particles);
       particle.style.setProperty("--particle-x", `${(index * 37 + 11) % 97}%`);
@@ -78,10 +93,15 @@
       particle.style.setProperty("--particle-size", `${2 + (index % 3)}px`);
     }
 
-    createElement("living-world-passage living-world-passage-primary", layer);
-    createElement("living-world-passage living-world-passage-secondary", layer);
-    createElement("living-world-signal living-world-signal-primary", layer);
-    createElement("living-world-signal living-world-signal-secondary", layer);
+    const passages = markEffect(createElement("living-world-passages", layer), definition.effects[3]);
+    createElement("living-world-passage living-world-passage-primary", passages);
+    createElement("living-world-passage living-world-passage-secondary", passages);
+    createElement("living-world-passage living-world-passage-tertiary", passages);
+
+    const signals = markEffect(createElement("living-world-signals", layer), definition.effects[4]);
+    createElement("living-world-signal living-world-signal-primary", signals);
+    createElement("living-world-signal living-world-signal-secondary", signals);
+    createElement("living-world-signal living-world-signal-tertiary", signals);
     createElement("living-world-vignette", layer);
     stage.append(layer);
 
@@ -123,16 +143,32 @@
     });
 
     if (!reducedMotion.matches && finePointer.matches) {
+      let frame = 0;
+      let targetX = 0;
+      let targetY = 0;
+
+      const renderParallax = () => {
+        stage.style.setProperty("--world-pan-x", `${targetX.toFixed(2)}px`);
+        stage.style.setProperty("--world-pan-y", `${targetY.toFixed(2)}px`);
+        stage.style.setProperty("--world-depth-x", `${(-targetX * 0.48).toFixed(2)}px`);
+        stage.style.setProperty("--world-depth-y", `${(-targetY * 0.48).toFixed(2)}px`);
+        frame = 0;
+      };
+
+      const requestParallaxFrame = () => {
+        if (!frame) frame = window.requestAnimationFrame(renderParallax);
+      };
+
       stage.addEventListener("pointermove", (event) => {
         const bounds = stage.getBoundingClientRect();
-        const x = ((event.clientX - bounds.left) / bounds.width - 0.5) * -12;
-        const y = ((event.clientY - bounds.top) / bounds.height - 0.5) * -8;
-        stage.style.setProperty("--world-pan-x", `${x.toFixed(2)}px`);
-        stage.style.setProperty("--world-pan-y", `${y.toFixed(2)}px`);
+        targetX = ((event.clientX - bounds.left) / bounds.width - 0.5) * -44;
+        targetY = ((event.clientY - bounds.top) / bounds.height - 0.5) * -30;
+        requestParallaxFrame();
       });
       stage.addEventListener("pointerleave", () => {
-        stage.style.setProperty("--world-pan-x", "0px");
-        stage.style.setProperty("--world-pan-y", "0px");
+        targetX = 0;
+        targetY = 0;
+        requestParallaxFrame();
       });
     }
 

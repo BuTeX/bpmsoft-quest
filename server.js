@@ -1834,11 +1834,11 @@ async function serveStatic(request, response, pathname) {
         )
         .replace(
           "</head>",
-          '  <link rel="stylesheet" href="/world-live.css?v=20260724-living-world-1">\n</head>'
+          '  <link rel="stylesheet" href="/world-live.css?v=20260724-city-effects-2">\n</head>'
         )
         .replace(
           "</body>",
-          '  <script src="/world-live.js?v=20260724-living-world-1"></script>\n</body>'
+          '  <script src="/world-live.js?v=20260724-city-effects-2"></script>\n</body>'
         );
       response.writeHead(200, {
         "Content-Type": "text/html; charset=utf-8",

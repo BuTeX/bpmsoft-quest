@@ -83,6 +83,12 @@ test("critical player journey loads all maps and protects modal focus", async ({
   await expect(page.locator("#map-title")).toHaveText("Все задания Академии");
   await expect(page.locator(".living-world-layer")).toHaveCount(5);
   await expect(page.locator(".world-stage .living-world-badge")).toBeVisible();
+  await expect(page.locator('.living-world-layer[data-effect-count="5"]')).toHaveCount(5);
+  const cityEffectSets = await page.locator("[data-living-world]").evaluateAll((stages) =>
+    stages.map((stage) => stage.getAttribute("data-world-effects"))
+  );
+  expect(new Set(cityEffectSets).size).toBe(5);
+  expect(cityEffectSets.every((effects) => effects?.split(" ").length === 5)).toBe(true);
 
   expect(unexpectedResponses).toEqual([]);
 });

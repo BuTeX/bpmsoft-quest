@@ -17,6 +17,8 @@ html.living-world-update [data-living-world] {
   --world-progress: 0%;
   --world-pan-x: 0px;
   --world-pan-y: 0px;
+  --world-depth-x: 0px;
+  --world-depth-y: 0px;
   isolation: isolate;
 }
 
@@ -61,8 +63,8 @@ html.living-world-update [data-living-world] > .c2-world-map-image,
 html.living-world-update [data-living-world] > .c3-world-map-image,
 html.living-world-update [data-living-world] > .c4-world-map-image,
 html.living-world-update [data-living-world] > .c5-world-map-image {
-  transform: translate3d(var(--world-pan-x), var(--world-pan-y), 0) scale(1.035);
-  transition: transform 900ms var(--living-ease);
+  transform: translate3d(var(--world-pan-x), var(--world-pan-y), 0) scale(1.07);
+  transition: transform 260ms var(--living-ease);
   will-change: transform;
 }
 
@@ -78,9 +80,21 @@ html.living-world-update .living-world-layer {
 html.living-world-update .living-world-sky,
 html.living-world-update .living-world-clouds,
 html.living-world-update .living-world-particles,
+html.living-world-update .living-world-passages,
+html.living-world-update .living-world-signals,
 html.living-world-update .living-world-vignette {
   position: absolute;
   inset: 0;
+}
+
+html.living-world-update .living-world-sky,
+html.living-world-update .living-world-clouds,
+html.living-world-update .living-world-particles,
+html.living-world-update .living-world-passages,
+html.living-world-update .living-world-signals {
+  transform: translate3d(var(--world-depth-x), var(--world-depth-y), 0);
+  transition: transform 360ms var(--living-ease);
+  will-change: transform;
 }
 
 html.living-world-update .living-world-sky {
@@ -223,6 +237,13 @@ html.living-world-update .living-world-passage-secondary {
   animation-duration: 19s;
 }
 
+html.living-world-update .living-world-passage-tertiary {
+  top: calc(var(--world-passage-top) - 19%);
+  width: 58px;
+  animation-delay: -14s;
+  animation-duration: 22s;
+}
+
 html.living-world-update [data-living-world="copper"] .living-world-passage {
   height: 1px;
   filter: blur(0.5px);
@@ -250,6 +271,327 @@ html.living-world-update .living-world-signal-secondary {
   left: 74%;
   animation-delay: -7s;
   animation-duration: 14s;
+}
+
+html.living-world-update .living-world-signal-tertiary {
+  top: 20%;
+  left: 82%;
+  width: 8px;
+  height: 8px;
+  animation-delay: -10s;
+  animation-duration: 16s;
+}
+
+/*
+ * Each city has five motion signatures. The same lightweight DOM groups are
+ * deliberately restyled per city so the maps feel different without loading
+ * extra art or changing gameplay.
+ */
+
+/* Academy: aurora, rune orbits, stardust, comets, tower beacons. */
+html.living-world-update [data-living-world="academy"] .living-world-effect-aurora {
+  background:
+    radial-gradient(ellipse at 18% 12%, rgba(0, 225, 255, 0.42), transparent 27%),
+    radial-gradient(ellipse at 78% 26%, rgba(151, 80, 255, 0.5), transparent 34%),
+    linear-gradient(112deg, transparent 18%, rgba(86, 255, 232, 0.24) 43%, rgba(180, 90, 255, 0.28) 57%, transparent 78%);
+  background-size: 130% 120%, 120% 130%, 240% 100%;
+  opacity: 0.9;
+  animation: academy-aurora-flow 7s ease-in-out infinite alternate;
+}
+
+html.living-world-update [data-living-world="academy"] .living-world-effect-rune-orbits .living-world-cloud {
+  width: 132px;
+  height: 132px;
+  border: 2px solid rgba(153, 248, 255, 0.56);
+  background:
+    repeating-conic-gradient(from 0deg, rgba(255, 255, 255, 0.7) 0 2deg, transparent 2deg 28deg);
+  box-shadow:
+    inset 0 0 24px rgba(0, 193, 212, 0.22),
+    0 0 24px rgba(100, 64, 255, 0.26);
+  filter: none;
+  opacity: 0;
+  animation: academy-rune-orbit 18s linear var(--cloud-delay) infinite;
+}
+
+html.living-world-update [data-living-world="academy"] .living-world-cloud-1 {
+  top: 13%;
+  left: 8%;
+}
+
+html.living-world-update [data-living-world="academy"] .living-world-cloud-2 {
+  top: 57%;
+  left: 72%;
+  width: 94px;
+  height: 94px;
+  animation-direction: reverse;
+  animation-duration: 15s;
+}
+
+html.living-world-update [data-living-world="academy"] .living-world-cloud-3 {
+  top: 68%;
+  left: 24%;
+  width: 68px;
+  height: 68px;
+  animation-duration: 22s;
+}
+
+html.living-world-update [data-living-world="academy"] .living-world-effect-stardust .living-world-particle {
+  background: #e9ffff;
+  box-shadow: 0 0 15px 4px rgba(124, 240, 255, 0.68);
+}
+
+html.living-world-update [data-living-world="academy"] .living-world-effect-comets .living-world-passage {
+  width: 126px;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, rgba(175, 107, 255, 0.72), #dfffff);
+  box-shadow: 0 0 18px 3px rgba(91, 229, 255, 0.54);
+}
+
+html.living-world-update [data-living-world="academy"] .living-world-effect-tower-beacons .living-world-signal {
+  border-width: 2px;
+  box-shadow: 0 0 18px rgba(0, 225, 255, 0.72);
+}
+
+/* Copper Machines: furnace glow, smoke, embers, spark belts, press pulses. */
+html.living-world-update [data-living-world="copper"] .living-world-effect-furnace-glow {
+  background:
+    radial-gradient(ellipse at 51% 68%, rgba(255, 88, 0, 0.7), transparent 22%),
+    radial-gradient(ellipse at 19% 44%, rgba(255, 182, 50, 0.4), transparent 16%),
+    linear-gradient(180deg, rgba(22, 13, 8, 0.06), rgba(48, 10, 0, 0.42));
+  opacity: 0.92;
+  animation: copper-furnace-breathe 3.8s ease-in-out infinite;
+}
+
+html.living-world-update [data-living-world="copper"] .living-world-effect-smoke-plumes .living-world-cloud {
+  top: 58%;
+  left: 18%;
+  width: 21%;
+  height: 15%;
+  background: rgba(43, 31, 25, 0.78);
+  box-shadow:
+    4vw -2vw 0 rgba(73, 45, 31, 0.55),
+    8vw -5vw 0 rgba(35, 28, 25, 0.52),
+    12vw -7vw 0 rgba(108, 61, 31, 0.3);
+  filter: blur(17px);
+  mix-blend-mode: multiply;
+  animation: copper-smoke-rise 15s ease-in-out var(--cloud-delay) infinite;
+}
+
+html.living-world-update [data-living-world="copper"] .living-world-cloud-2 {
+  top: 70%;
+  left: 56%;
+  animation-duration: 19s;
+}
+
+html.living-world-update [data-living-world="copper"] .living-world-cloud-3 {
+  top: 48%;
+  left: 73%;
+  animation-duration: 22s;
+}
+
+html.living-world-update [data-living-world="copper"] .living-world-effect-embers .living-world-particle {
+  background: #ffd06b;
+  box-shadow: 0 0 16px 4px rgba(255, 75, 0, 0.78);
+}
+
+html.living-world-update [data-living-world="copper"] .living-world-effect-spark-belts .living-world-passage {
+  width: 154px;
+  height: 2px;
+  background: repeating-linear-gradient(90deg, transparent 0 7px, #fff0a3 8px 12px, #fe5500 13px 16px);
+  box-shadow: 0 0 16px 4px rgba(254, 85, 0, 0.58);
+  filter: none;
+}
+
+html.living-world-update [data-living-world="copper"] .living-world-effect-press-pulses .living-world-signal {
+  border: 2px solid #ff8a2a;
+  border-radius: 3px;
+  box-shadow: 0 0 18px rgba(254, 85, 0, 0.8);
+  animation-name: copper-press-pulse;
+  animation-duration: 8s;
+}
+
+/* Seven Roads: route grid, data streams, packets, traffic trails, hub pings. */
+html.living-world-update [data-living-world="roads"] .living-world-effect-route-grid {
+  background:
+    linear-gradient(rgba(83, 232, 255, 0.15) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(83, 232, 255, 0.15) 1px, transparent 1px),
+    linear-gradient(110deg, transparent 28%, rgba(109, 76, 255, 0.28) 48%, transparent 68%);
+  background-size: 44px 44px, 44px 44px, 230% 100%;
+  opacity: 0.78;
+  animation: roads-grid-scan 8s linear infinite;
+}
+
+html.living-world-update [data-living-world="roads"] .living-world-effect-data-streams .living-world-cloud {
+  left: -35%;
+  width: 48%;
+  height: 3px;
+  border-radius: 0;
+  background: linear-gradient(90deg, transparent, rgba(183, 250, 255, 0.9), #00c1d4);
+  box-shadow:
+    40px 12px 0 rgba(0, 193, 212, 0.35),
+    110px -15px 0 rgba(126, 88, 255, 0.48);
+  filter: none;
+  animation: roads-data-stream 10s linear var(--cloud-delay) infinite;
+}
+
+html.living-world-update [data-living-world="roads"] .living-world-cloud-2 {
+  top: 46%;
+  animation-duration: 13s;
+}
+
+html.living-world-update [data-living-world="roads"] .living-world-cloud-3 {
+  top: 76%;
+  animation-duration: 16s;
+}
+
+html.living-world-update [data-living-world="roads"] .living-world-effect-data-packets .living-world-particle {
+  border-radius: 2px;
+  background: #adf8ff;
+  box-shadow: 0 0 13px 3px rgba(0, 193, 212, 0.7);
+  animation-name: roads-packet-hop, living-particle-glint;
+}
+
+html.living-world-update [data-living-world="roads"] .living-world-effect-traffic-trails .living-world-passage {
+  width: 180px;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, rgba(125, 91, 255, 0.66), #baffff);
+  box-shadow: 0 0 20px 3px rgba(0, 193, 212, 0.5);
+}
+
+html.living-world-update [data-living-world="roads"] .living-world-effect-hub-pings .living-world-signal {
+  border: 2px solid #7beefa;
+  box-shadow:
+    inset 0 0 9px rgba(122, 90, 255, 0.72),
+    0 0 16px rgba(0, 193, 212, 0.72);
+}
+
+/* Golden Shelf: sunbeams, shop windows, gold dust, deliveries, checkout pulses. */
+html.living-world-update [data-living-world="gold"] .living-world-effect-sunbeams {
+  background:
+    radial-gradient(circle at 80% 13%, rgba(255, 241, 179, 0.68), transparent 17%),
+    linear-gradient(116deg, transparent 16%, rgba(255, 225, 125, 0.08) 30%, rgba(255, 209, 85, 0.38) 47%, transparent 63%),
+    radial-gradient(ellipse at 38% 70%, rgba(255, 154, 25, 0.26), transparent 30%);
+  background-size: 100% 100%, 230% 100%, 100% 100%;
+  opacity: 0.88;
+  animation: gold-sunbeam-sweep 6.5s ease-in-out infinite alternate;
+}
+
+html.living-world-update [data-living-world="gold"] .living-world-effect-window-glows .living-world-cloud {
+  top: 23%;
+  left: 15%;
+  width: 18px;
+  height: 13px;
+  border-radius: 2px;
+  background: #fff1a8;
+  box-shadow:
+    44px 18px 0 rgba(255, 180, 44, 0.9),
+    91px -6px 0 rgba(255, 238, 167, 0.86),
+    142px 25px 0 rgba(255, 150, 25, 0.78),
+    198px 4px 0 rgba(255, 229, 139, 0.72);
+  filter: blur(1px);
+  opacity: 0;
+  animation: gold-window-twinkle 6s ease-in-out var(--cloud-delay) infinite;
+}
+
+html.living-world-update [data-living-world="gold"] .living-world-cloud-2 {
+  top: 54%;
+  left: 48%;
+  animation-duration: 7.5s;
+}
+
+html.living-world-update [data-living-world="gold"] .living-world-cloud-3 {
+  top: 75%;
+  left: 8%;
+  animation-duration: 9s;
+}
+
+html.living-world-update [data-living-world="gold"] .living-world-effect-gold-dust .living-world-particle {
+  background: #fff0a5;
+  box-shadow: 0 0 14px 4px rgba(255, 165, 30, 0.68);
+}
+
+html.living-world-update [data-living-world="gold"] .living-world-effect-delivery-routes .living-world-passage {
+  width: 138px;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, rgba(255, 118, 30, 0.82), #fff0b1);
+  box-shadow: 0 0 17px 4px rgba(255, 165, 30, 0.52);
+}
+
+html.living-world-update [data-living-world="gold"] .living-world-effect-checkout-pulses .living-world-signal {
+  border: 2px solid #ffd46a;
+  border-radius: 2px;
+  box-shadow: 0 0 17px rgba(255, 165, 30, 0.74);
+  transform: rotate(45deg);
+  animation-name: gold-checkout-pulse;
+}
+
+/* Good Avia: altitude light, cloudbanks, aircraft lights, contrails, radar. */
+html.living-world-update [data-living-world="avia"] .living-world-effect-high-altitude-light {
+  background:
+    radial-gradient(ellipse at 68% 8%, rgba(255, 255, 255, 0.72), transparent 23%),
+    linear-gradient(145deg, rgba(0, 193, 212, 0.12), transparent 42%, rgba(137, 96, 255, 0.3)),
+    linear-gradient(110deg, transparent 20%, rgba(255, 255, 255, 0.28) 48%, transparent 72%);
+  background-size: 100% 100%, 100% 100%, 240% 100%;
+  opacity: 0.92;
+  animation: avia-altitude-light 7s ease-in-out infinite alternate;
+}
+
+html.living-world-update [data-living-world="avia"] .living-world-effect-cloudbanks .living-world-cloud {
+  height: 15%;
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow:
+    6vw -2vw 0 rgba(255, 255, 255, 0.54),
+    13vw 1vw 0 rgba(230, 252, 255, 0.5),
+    20vw -1vw 0 rgba(255, 255, 255, 0.38);
+  filter: blur(18px);
+  opacity: 0;
+  animation-duration: 24s;
+}
+
+html.living-world-update [data-living-world="avia"] .living-world-effect-aircraft-lights .living-world-particle {
+  background: #ffffff;
+  box-shadow: 0 0 15px 5px rgba(255, 255, 255, 0.68);
+  animation-name: avia-flight-light, avia-light-blink;
+}
+
+html.living-world-update [data-living-world="avia"] .living-world-effect-aircraft-lights .living-world-particle-1 {
+  background: #6effcf;
+  box-shadow: 0 0 15px 5px rgba(45, 255, 181, 0.62);
+}
+
+html.living-world-update [data-living-world="avia"] .living-world-effect-aircraft-lights .living-world-particle-2 {
+  background: #ff6b73;
+  box-shadow: 0 0 15px 5px rgba(255, 68, 85, 0.62);
+}
+
+html.living-world-update [data-living-world="avia"] .living-world-effect-contrails .living-world-passage {
+  width: 190px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.92));
+  box-shadow:
+    0 5px 0 rgba(255, 255, 255, 0.46),
+    0 0 17px 3px rgba(170, 247, 255, 0.48);
+}
+
+html.living-world-update [data-living-world="avia"] .living-world-effect-radar .living-world-signal-primary {
+  top: 34%;
+  left: 46%;
+  width: 150px;
+  height: 150px;
+  border: 1px solid rgba(183, 251, 255, 0.55);
+  background: conic-gradient(from 0deg, rgba(112, 237, 255, 0.5), transparent 21%, transparent);
+  box-shadow:
+    inset 0 0 0 34px rgba(0, 193, 212, 0.04),
+    0 0 22px rgba(0, 193, 212, 0.36);
+  opacity: 0;
+  animation: avia-radar-sweep 7s linear infinite;
+  transform-origin: center;
+}
+
+html.living-world-update [data-living-world="avia"] .living-world-effect-radar .living-world-signal-secondary,
+html.living-world-update [data-living-world="avia"] .living-world-effect-radar .living-world-signal-tertiary {
+  border-color: #ffffff;
+  box-shadow: 0 0 16px 4px rgba(255, 255, 255, 0.7);
 }
 
 html.living-world-update .living-world-vignette {
@@ -408,6 +750,95 @@ html.living-world-update.living-world-paused [data-living-world] .is-current:not
   50% { filter: brightness(1.12); }
 }
 
+@keyframes academy-aurora-flow {
+  0% { opacity: 0.58; background-position: 0% 0%, 100% 0%, 0% 0%; }
+  100% { opacity: 0.94; background-position: 12% 9%, 88% 10%, 100% 0%; }
+}
+
+@keyframes academy-rune-orbit {
+  0% { opacity: 0; transform: rotate(0deg) scale(0.78); }
+  16%, 72% { opacity: 0.7; }
+  100% { opacity: 0; transform: rotate(360deg) scale(1.08); }
+}
+
+@keyframes copper-furnace-breathe {
+  0%, 100% { opacity: 0.58; filter: brightness(0.88); }
+  50% { opacity: 0.98; filter: brightness(1.22); }
+}
+
+@keyframes copper-smoke-rise {
+  0%, 100% { opacity: 0; transform: translate3d(0, 35px, 0) scale(0.72); }
+  18% { opacity: 0.72; }
+  76% { opacity: 0.42; }
+  92% { opacity: 0; transform: translate3d(32px, -170px, 0) scale(1.36); }
+}
+
+@keyframes copper-press-pulse {
+  0%, 68%, 100% { opacity: 0; transform: scale(0.45) rotate(0deg); }
+  72% { opacity: 0.95; }
+  90% { opacity: 0; transform: scale(6) rotate(90deg); }
+}
+
+@keyframes roads-grid-scan {
+  0% { background-position: 0 0, 0 0, 0% 0%; }
+  100% { background-position: 44px 44px, 44px 44px, 100% 0%; }
+}
+
+@keyframes roads-data-stream {
+  0%, 10% { opacity: 0; transform: translate3d(0, 0, 0); }
+  18%, 74% { opacity: 0.82; }
+  100% { opacity: 0; transform: translate3d(315%, 10px, 0); }
+}
+
+@keyframes roads-packet-hop {
+  0%, 100% { opacity: 0; transform: translate3d(-28px, 18px, 0) rotate(0deg); }
+  16% { opacity: 0.9; }
+  82% { opacity: 0.46; }
+  94% { opacity: 0; transform: translate3d(80px, -68px, 0) rotate(270deg); }
+}
+
+@keyframes gold-sunbeam-sweep {
+  0% { opacity: 0.58; background-position: center, 0% 0%, center; }
+  100% { opacity: 0.94; background-position: center, 100% 0%, center; }
+}
+
+@keyframes gold-window-twinkle {
+  0%, 100% { opacity: 0.18; filter: brightness(0.8); }
+  22% { opacity: 0.92; filter: brightness(1.5); }
+  48% { opacity: 0.38; }
+  72% { opacity: 0.82; filter: brightness(1.25); }
+}
+
+@keyframes gold-checkout-pulse {
+  0%, 70%, 100% { opacity: 0; transform: rotate(45deg) scale(0.4); }
+  74% { opacity: 0.92; }
+  91% { opacity: 0; transform: rotate(135deg) scale(6.5); }
+}
+
+@keyframes avia-altitude-light {
+  0% { opacity: 0.56; background-position: center, center, 0% 0%; }
+  100% { opacity: 0.94; background-position: center, center, 100% 0%; }
+}
+
+@keyframes avia-flight-light {
+  0%, 100% { opacity: 0; transform: translate3d(-48px, 30px, 0) scale(0.65); }
+  13% { opacity: 0.95; }
+  84% { opacity: 0.5; }
+  94% { opacity: 0; transform: translate3d(120px, -85px, 0) scale(1.1); }
+}
+
+@keyframes avia-light-blink {
+  0%, 46%, 100% { filter: brightness(0.7); }
+  48%, 54% { filter: brightness(2.2); }
+  56% { filter: brightness(0.8); }
+}
+
+@keyframes avia-radar-sweep {
+  0% { opacity: 0.18; transform: translate(-50%, -50%) rotate(0deg); }
+  18%, 82% { opacity: 0.72; }
+  100% { opacity: 0.18; transform: translate(-50%, -50%) rotate(360deg); }
+}
+
 @media (max-width: 700px) {
   html.living-world-update .living-world-badge {
     top: 10px;
@@ -422,6 +853,7 @@ html.living-world-update.living-world-paused [data-living-world] .is-current:not
 
   html.living-world-update .living-world-cloud-3,
   html.living-world-update .living-world-passage-secondary,
+  html.living-world-update .living-world-passage-tertiary,
   html.living-world-update .living-world-signal-secondary {
     display: none;
   }
